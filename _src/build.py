@@ -103,6 +103,10 @@ def page(frm, lang, title, desc, body, alt_path, is_root=False, gate=False):
     if MODE == 'vercel':
         head += ['<meta property="og:title" content="%s">' % e(title),
                  '<meta property="og:description" content="%s">' % e(desc),
+                 '<meta property="og:type" content="website">',
+                 '<meta property="og:image" content="https://ormendiguchia.vercel.app/og.png">',
+                 '<meta property="og:image:width" content="1200">', '<meta property="og:image:height" content="627">',
+                 '<meta name="twitter:card" content="summary_large_image">',
                  '<link rel="alternate" hreflang="%s" href="%s/%s">' % (lang, DOMAIN, frm),
                  '<link rel="alternate" hreflang="%s" href="%s/%s">' % (other, DOMAIN, alt_path),
                  '<link rel="icon" href="%s">' % rel(frm, 'assets/favicon.svg'),
