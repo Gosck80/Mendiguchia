@@ -213,7 +213,7 @@ def build_home(lang):
     alt = home_path('en' if lang == 'es' else 'es')
     H = lambda k: t(HOME[k], lang)
     b = [header(frm, lang, alt, True), '<main class="wrap">']
-    b.append('<section class="intro" id="intro"><h1 class="mendi" aria-label="Mendi"><svg viewBox="0 8 215 76" aria-hidden="true"><text x="0" y="80">MENDI</text></svg></h1><p class="role">%s</p><p class="who"><span>%s</span></p></section>' % (
+    b.append('<div class="lead"><section class="intro" id="intro"><h1 class="mendi" aria-label="Mendi"><svg viewBox="0 8 215 76" aria-hidden="true"><text x="0" y="80">MENDI</text></svg></h1><p class="role">%s</p><p class="who"><span>%s</span></p></section>' % (
         re.sub(r'(?i)(ingeniero|engineer)', r'<em>\1</em>', e(H('hero_role')), count=1), e(H('hero_tags'))))
     # --- Portada: cuadrícula 2x2 de modelos; uno activo, el resto en reposo ---
     def msrc_of(key):
@@ -229,7 +229,7 @@ def build_home(lang):
             e(pname(pr, lang)), msrc_of(key), e(m['label']), ' '.join(m['orbit'].split()[:2] + [SQ_R[key]]), n, e(pname(pr, lang).split(' · ')[0]),
             rel(frm, proj_path(m['slug'], lang)), e(t(UI['see_project'], lang)))
     b.append(('<section class="hero3"><div class="sq">%s<span class="cross" aria-hidden="true"></span></div>'
-              '<div class="sq-foot"><p class="hint">%s</p><div class="tblock" aria-hidden="true"><span>MENDI</span><span>UVa · 2026</span><span>HOJA 01</span></div></div></section>') % (
+              '<div class="sq-foot"><p class="hint">%s</p><div class="tblock" aria-hidden="true"><span>MENDI</span><span>UVa · 2026</span><span>HOJA 01</span></div></div></section></div>') % (
         sq, e(H('hero_hint'))))
     # --- Índice limpio de proyectos ---
     rows = ''
