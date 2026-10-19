@@ -196,13 +196,13 @@ def sec_head(n, title, sub=''):
 # ---------- portada: un único lienzo ----------
 DOMAIN_OF = {
     'belug-04': T2('Dron · aerodinámica', 'Drone · aerodynamics'),
-    'envase-dosificador': T2('Envase · mecanismo', 'Packaging · mechanism'),
+    'mecanismo-dosificador': T2('Envase · mecanismo', 'Packaging · mechanism'),
     'ovum-g1': T2('Gafas · biomaterial', 'Eyewear · biomaterial'),
     'bmw-m6-concept': T2('Automoción · CATIA V5', 'Automotive · CATIA V5'),
     'mies': T2('Mobiliario · sistema', 'Furniture · system'),
     'ingenieria-inversa': T2('Piezas restituidas · FDM', 'Restored parts · FDM'),
 }
-CANVAS_IMG = {'belug-04': '17b73057d4b4df564af667ecf51afc47', 'envase-dosificador': 'f2fb83944bf7c5cf3e144b43ca224514', 'ovum-g1': '2cb779c5441111daad4faae643c6e9f3',
+CANVAS_IMG = {'belug-04': '17b73057d4b4df564af667ecf51afc47', 'mecanismo-dosificador': 'f2fb83944bf7c5cf3e144b43ca224514', 'ovum-g1': '2cb779c5441111daad4faae643c6e9f3',
               'bmw-m6-concept': '85a0f99ae1062ed1cd758bd146866d26', 'mies': '4d61117edfb419c6beb4f4af908cbbcc', 'ingenieria-inversa': '157ac5fa1727e53c1a3e1f62847a9bd1'}
 CANVAS_KIND = {'mies': 'paper'}
 SCENE_IMG = {'bmw-m6-concept': ('9ed85c93eec136986a655971466688b5', 'line'), 'mies': ('6f9e755e17069b82f653c4bc3a66a5f2', 'line-inv')}
