@@ -1,3 +1,4 @@
+import json
 # -*- coding: utf-8 -*-
 """Genera la web estática bilingüe.
 
@@ -161,7 +162,7 @@ def T2(es, en):
 
 
 def footer(lang):
-    return '<footer><div class="wrap"><span>© 2026 %s</span><span>%s</span></div></footer>' % (e(SITE['name']), e(t(UI['footer'], lang)))
+    return '<footer><div class="wrap"><span>© 2026 %s</span><span>%s</span></div></footer>' % ('Mendi', e(t(UI['footer'], lang)))
 
 
 def model_cell(frm, key, lang, kind='cell'):
@@ -172,6 +173,8 @@ def model_cell(frm, key, lang, kind='cell'):
         return '<div class="stage-3d" %s><span class="hint">%s</span></div>' % (attrs, e(t(UI['model_hint'], lang)))
     if kind == 'hero':
         intro = (' data-intro="%s"' % m['intro']) if m.get('intro') else ''
+        if m.get('introcam'):
+            intro += " data-intro-cam='%s'" % json.dumps(m['introcam'])
         skip = T2('Toca para saltar', 'Tap to skip')[lang]
         return '<div class="hero-3d" %s data-zoom%s data-skip="%s"><div class="mv-shell"></div><span class="hint">%s</span></div>' % (attrs, intro, e(skip), e(t(HOME['model_hint'], lang)))
     load = '<div class="mload"><button class="btn" type="button">%s</button></div>' % e(t(UI['model_load'], lang))

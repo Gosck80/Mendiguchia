@@ -125,30 +125,46 @@
   // Al entrar en un proyecto: animación a pantalla completa y transición hasta su sitio en la cabecera.
   function runIntro(cell, mv) {
     var de = document.documentElement, shell = cell.querySelector('.mv-shell'), orbit = cell.getAttribute('data-orbit'), done = false, fb;
+    var END = 3.0; // la animación dura 3,6 s: los últimos 0,6 s son la pose de reposo, así nunca vuelve al inicio
+    var keys = []; try { keys = JSON.parse(cell.getAttribute('data-intro-cam') || '[]'); } catch (e) {}
     shell.setAttribute('data-skip', cell.getAttribute('data-skip') || '');
     mv.removeAttribute('auto-rotate'); mv.removeAttribute('camera-controls');
     mv.setAttribute('camera-orbit', cell.getAttribute('data-intro'));
     mv.setAttribute('animation-name', 'intro');
+    mv.setAttribute('interpolation-decay', '160');
+    mv.style.opacity = '0';
     function finish() {
       if (done) return; done = true; clearTimeout(fb);
+      // se queda en el último fotograma (la pose final es la posición de reposo del modelo)
+      try { mv.pause(); if (mv.currentTime < END) mv.currentTime = END + 0.1; } catch (e) {}
+      mv.style.opacity = '1';
       var r = cell.getBoundingClientRect();
       shell.style.transition = 'top .9s cubic-bezier(.7,0,.2,1), left .9s cubic-bezier(.7,0,.2,1), width .9s cubic-bezier(.7,0,.2,1), height .9s cubic-bezier(.7,0,.2,1)';
       requestAnimationFrame(function () {
         shell.style.top = r.top + 'px'; shell.style.left = r.left + 'px'; shell.style.width = r.width + 'px'; shell.style.height = r.height + 'px';
       });
-      mv.cameraOrbit = orbit;
+      mv.cameraTarget = 'auto auto auto'; mv.cameraOrbit = orbit;
       de.classList.add('pintro-out');
       setTimeout(function () {
         de.classList.remove('pintro', 'pintro-out'); shell.removeAttribute('style');
+        mv.removeAttribute('interpolation-decay');
         mv.setAttribute('camera-controls', ''); mv.setAttribute('touch-action', 'pan-y'); mv.setAttribute('auto-rotate', '');
       }, 950);
     }
     fb = setTimeout(finish, 9000);
     mv.addEventListener('load', function () {
-      try { mv.currentTime = 0; mv.play({ repetitions: 1 }); } catch (e) {}
-      clearTimeout(fb); fb = setTimeout(finish, 4300);
+      var ki = 0;
+      if (keys.length) { mv.cameraOrbit = keys[0][1]; mv.cameraTarget = keys[0][2]; if (mv.jumpCameraToGoal) mv.jumpCameraToGoal(); ki = 1; }
+      try { mv.currentTime = 0; mv.play(); } catch (e) {}
+      requestAnimationFrame(function () { requestAnimationFrame(function () { mv.style.transition = 'opacity .3s ease'; mv.style.opacity = '1'; }); });
+      (function camLoop() {
+        if (done) return;
+        while (ki < keys.length && mv.currentTime >= keys[ki][0]) { mv.cameraOrbit = keys[ki][1]; mv.cameraTarget = keys[ki][2]; ki++; }
+        if (mv.currentTime >= END) { finish(); return; }
+        requestAnimationFrame(camLoop);
+      })();
+      clearTimeout(fb); fb = setTimeout(finish, 4500);
     }, { once: true });
-    mv.addEventListener('finished', function () { setTimeout(finish, 250); });
     shell.addEventListener('click', finish);
     addEventListener('keydown', function (ev) { if (ev.key === 'Escape' || ev.key === ' ') finish(); });
   }

@@ -52,7 +52,7 @@ UI = {
     'close': T('Cerrar', 'Close'),
     'lang_other': T('EN', 'ES'),
     'lang_other_label': T('English version', 'Versión en español'),
-    'footer': T('Diseñado y construido por Óscar Ramón Mendiguchía.', 'Designed and built by Óscar Ramón Mendiguchía.'),
+    'footer': T('Diseñado y construido por Mendi.', 'Designed and built by Mendi.'),
 }
 
 PROFILE = {
@@ -368,9 +368,9 @@ PROJECTS = [
 
 MODELS = {
     'iso': {'file': 'iso.glb', 'label': 'MENDI', 'slug': 'belug-04', 'orbit': '-25deg 78deg 105%'},
-    'belug': {'file': 'dron.glb', 'label': 'BeluG-04', 'slug': 'belug-04', 'orbit': '35deg 68deg 110%', 'intro': '30deg 58deg 90%'},
-    'qiub': {'file': 'mecanismo.glb', 'label': 'Mecanismo dosificador', 'slug': 'mecanismo-dosificador', 'orbit': '30deg 78deg 140%', 'intro': '178deg 72deg 175%'},
-    'ovum': {'file': 'gafas.glb', 'label': 'OVUM G-1', 'slug': 'ovum-g1', 'orbit': '25deg 72deg 115%', 'intro': '-55deg 70deg 105%'},
+    'belug': {'file': 'dron.glb', 'label': 'BeluG-04', 'slug': 'belug-04', 'orbit': '35deg 68deg 110%', 'intro': '25deg 65deg 110%'},
+    'qiub': {'file': 'mecanismo.glb', 'label': 'Mecanismo dosificador', 'slug': 'mecanismo-dosificador', 'orbit': '30deg 78deg 140%', 'intro': '178deg 72deg 0.8m', 'introcam': [[0, '178deg 72deg 0.8m', '-0.03m -0.48m -0.15m'], [1.55, '178deg 72deg 175%', 'auto auto auto']]},
+    'ovum': {'file': 'gafas.glb', 'label': 'OVUM G-1', 'slug': 'ovum-g1', 'orbit': '25deg 72deg 115%', 'intro': '-55deg 70deg 140%'},
     'rev': {'file': 'rev.glb', 'label': 'Peugeot 205', 'slug': 'ingenieria-inversa', 'orbit': '40deg 62deg 120%'},
 }
 
