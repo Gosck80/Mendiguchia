@@ -99,6 +99,7 @@
     var orbit0 = cell.getAttribute('data-orbit') || 'auto auto auto', target0 = 'auto auto auto', idle = null;
     function reset() {
       clearTimeout(idle);
+      if (cell.classList.contains('cycling')) return;
       mv.cameraOrbit = orbit0; mv.cameraTarget = target0; mv.fieldOfView = 'auto';
       if (target0 === 'auto auto auto') mv.setAttribute('auto-rotate', '');
     }
@@ -119,70 +120,47 @@
       var z = b.getAttribute('data-z');
       if (z === 'in') zoom(0.8); else if (z === 'out') zoom(1.25); else reset();
     });
-    // Botón de despiece: el modelo por piezas solo se descarga al pulsarlo; se separa y se queda así hasta volver a pulsar.
-    var exUrl = cell.getAttribute('data-explode');
-    if (exUrl) {
+    // Botón de ciclo: el modelo animado solo se descarga al pulsarlo; se reproduce una vez y vuelve a la vista original.
+    var cyUrl = cell.getAttribute('data-cycle');
+    if (cyUrl && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
       var pb = document.createElement('button');
       pb.type = 'button'; pb.className = 'mv-explode';
       pb.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="6" height="6" rx="1"/><path d="M4 4l3 3M4 4h3M4 4v3M20 4l-3 3M20 4h-3M20 4v3M4 20l3-3M4 20h3M4 20v-3M20 20l-3-3M20 20h-3M20 20v-3"/></svg>';
-      var lblEx = cell.getAttribute('data-explode-label'), lblAs = cell.getAttribute('data-assemble-label');
-      pb.setAttribute('aria-label', lblEx); pb.title = lblEx; pb.setAttribute('aria-pressed', 'false');
+      var lbl = cell.getAttribute('data-cycle-label');
+      pb.setAttribute('aria-label', lbl); pb.title = lbl;
       bar.insertBefore(pb, bar.firstChild);
-      var orbitBase = orbit0, orbitEx = cell.getAttribute('data-explode-orbit') || orbit0, targetEx = cell.getAttribute('data-explode-target') || 'auto auto auto';
-      mv.setAttribute('min-camera-orbit', 'auto auto 0.3m');
-      var exploded = false, pos = 0, raf = 0, SPIN0 = 1, SPIN1 = 9;   // clip: 0→1 despiece, 1→9 una vuelta lenta del tornillo
-      var still = matchMedia('(prefers-reduced-motion: reduce)').matches;
-      function scrub(target, ms, then) {
+      var cam = []; try { cam = JSON.parse(cell.getAttribute('data-cycle-cam') || '[]'); } catch (e) {}
+      var END = parseFloat(cell.getAttribute('data-cycle-end')) || 8, busy = false, raf = 0;
+      function finish() {
         cancelAnimationFrame(raf);
-        var from = pos, t0 = performance.now(), dur = still ? 1 : ms;
-        (function step(now) {
-          var u = Math.min(1, (now - t0) / dur);
-          pos = from + (target - from) * u; mv.currentTime = pos;
-          if (u < 1) raf = requestAnimationFrame(step); else if (then) then();
-        })(t0);
+        mv.currentTime = 0;                                   // t 0 = pose de reposo
+        mv.cameraOrbit = orbit0; mv.cameraTarget = 'auto auto auto'; mv.setAttribute('auto-rotate', '');
+        busy = false; pb.classList.remove('on'); pb.disabled = false; cell.classList.remove('cycling');
       }
-      function spin() {                       // tramo 1→9 en tiempo real, en bucle (9 s ≡ 1 s, sin salto)
-        if (still) return;
-        var last = performance.now();
+      function run() {
+        mv.animationName = 'ciclo'; mv.pause(); mv.currentTime = 0;
+        if (mv.resetTurntableRotation) mv.resetTurntableRotation(0);   // el giro automático rota el modelo: a cero
+        var t = 0, ki = 0, last = performance.now();
+        // el tiempo de la animación lo lleva este bucle (en pausa + currentTime): una sola pasada, sin bucles posibles
         (function step(now) {
-          pos += (now - last) / 1000; last = now;
-          if (pos >= SPIN1) pos = SPIN0 + (pos - SPIN1);
-          mv.currentTime = pos; raf = requestAnimationFrame(step);
+          t += Math.min(0.1, (now - last) / 1000); last = now;
+          while (ki < cam.length && t >= cam[ki][0]) {
+            mv.cameraOrbit = cam[ki][1] || orbit0; mv.cameraTarget = cam[ki][2] || 'auto auto auto'; ki++;
+          }
+          if (t >= END) { finish(); return; }
+          mv.currentTime = t; raf = requestAnimationFrame(step);
         })(last);
       }
-      function go(toExploded) {
-        if (toExploded) { scrub(SPIN0, 900 * (SPIN0 - Math.min(pos, SPIN0)) + 1, spin); return; }
-        // al montar: primero vuelve al inicio del giro por el camino corto y luego se monta
-        if (pos > SPIN0) {
-          var fwd = pos - SPIN0 > (SPIN1 - SPIN0) / 2;
-          scrub(fwd ? SPIN1 : SPIN0, 350, function () { pos = SPIN0; scrub(0, 900); });
-        } else scrub(0, 900 * pos + 1);
-      }
-      function toggle() {
-        exploded = !exploded;
-        pb.classList.toggle('on', exploded); pb.setAttribute('aria-pressed', String(exploded));
-        pb.setAttribute('aria-label', exploded ? lblAs : lblEx); pb.title = exploded ? lblAs : lblEx;
-        // despiezado: primer plano de tapa y tornillo (también es la vista a la que vuelve tras 4 s sin tocar)
-        orbit0 = exploded ? orbitEx : orbitBase; target0 = exploded ? targetEx : 'auto auto auto';
-        mv.cameraTarget = target0; mv.cameraOrbit = orbit0;
-        if (exploded) {
-          // el giro automático rota el modelo (no la cámara): se quita y se pone a cero para que el encuadre sea siempre el mismo
-          mv.removeAttribute('auto-rotate');
-          if (mv.resetTurntableRotation) mv.resetTurntableRotation(0);
-        } else mv.setAttribute('auto-rotate', '');
-        go(exploded);
-      }
       pb.addEventListener('click', function (ev) {
-        ev.stopPropagation(); clearTimeout(idle);
-        if (mv.getAttribute('src') !== exUrl) {
-          pb.disabled = true;
-          mv.addEventListener('load', function () {
-            mv.animationName = 'explode'; mv.pause(); mv.currentTime = 0; pos = 0; pb.disabled = false;
-            requestAnimationFrame(toggle);
-          }, { once: true });
-          mv.setAttribute('src', exUrl);
-        } else toggle();
+        ev.stopPropagation();
+        if (busy) return; busy = true; pb.classList.add('on'); pb.disabled = true; clearTimeout(idle); cell.classList.add('cycling');
+        mv.removeAttribute('auto-rotate');
+        if (mv.getAttribute('src') !== cyUrl) {
+          mv.addEventListener('load', function () { run(); }, { once: true });
+          mv.setAttribute('src', cyUrl);
+        } else run();
       });
+      // si el usuario toca el modelo durante el ciclo, no se pelea con la cámara: se deja que mire y el ciclo sigue
     }
     cell.appendChild(bar);
     if ('IntersectionObserver' in window) new IntersectionObserver(function (es) { es.forEach(function (en) { if (!en.isIntersecting) reset(); }); }).observe(cell);

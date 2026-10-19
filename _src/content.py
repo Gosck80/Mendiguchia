@@ -369,7 +369,7 @@ PROJECTS = [
 MODELS = {
     'iso': {'file': 'iso.glb', 'label': 'MENDI', 'slug': 'belug-04', 'orbit': '-25deg 78deg 105%'},
     'belug': {'file': 'belug.glb', 'label': 'BeluG-04', 'slug': 'belug-04', 'orbit': '35deg 68deg 110%'},
-    'qiub': {'file': 'qiub.glb', 'label': 'Mecanismo dosificador', 'slug': 'mecanismo-dosificador', 'orbit': '30deg 78deg 140%', 'explode': 'mecanismo.glb', 'explode_orbit': '166deg 85deg 1.45m', 'explode_target': '-0.022m -0.498m -0.158m'},
+    'qiub': {'file': 'qiub.glb', 'label': 'Mecanismo dosificador', 'slug': 'mecanismo-dosificador', 'orbit': '30deg 78deg 140%', 'cycle': 'mecanismo.glb', 'cycle_cam': [[0, '166deg 85deg 1.5m', '-0.042m -0.47m -0.145m'], [6.9, None, None]], 'cycle_end': 8.0},
     'ovum': {'file': 'ovum.glb', 'label': 'OVUM G-1', 'slug': 'ovum-g1', 'orbit': '25deg 72deg 115%'},
     'rev': {'file': 'rev.glb', 'label': 'Peugeot 205', 'slug': 'ingenieria-inversa', 'orbit': '40deg 62deg 120%'},
 }
