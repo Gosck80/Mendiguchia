@@ -345,4 +345,19 @@ if __name__ == '__main__':
         os.makedirs(os.path.join(OUT, 'assets'), exist_ok=True)
         shutil.copyfile(os.path.join(HERE, 'site.css'), os.path.join(OUT, 'assets', 'site.css'))
         shutil.copyfile(os.path.join(HERE, 'site.js'), os.path.join(OUT, 'assets', 'site.js'))
+        # Versionado por contenido (?v=hash): los modelos e imágenes van con caché inmutable de un año,
+        # así que cualquier cambio en un archivo con el mismo nombre debe cambiar su URL.
+        import hashlib, re as _re
+        _cache = {}
+        def _ver(m):
+            url, path = m.group(0), m.group(2)
+            full = os.path.join(OUT, path)
+            if not os.path.isfile(full): return url
+            if full not in _cache: _cache[full] = hashlib.md5(open(full, 'rb').read()).hexdigest()[:8]
+            return url + '?v=' + _cache[full]
+        pat = _re.compile(r'((?:\.\./)*)((?:assets/site\.(?:js|css))|(?:models/[\w.-]+\.glb)|(?:img/[\w.-]+\.(?:png|jpe?g|webp|svg)))(?![?\w])')
+        for path, _ in pages:
+            full = os.path.join(OUT, path)
+            txt = open(full, encoding='utf-8').read()
+            open(full, 'w', encoding='utf-8').write(pat.sub(_ver, txt))
     print('\n'.join(p for p, _ in pages))
