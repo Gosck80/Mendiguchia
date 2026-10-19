@@ -135,14 +135,23 @@
         else { mv.cameraOrbit = cell.getAttribute('data-anim-orbit'); mv.cameraTarget = 'auto auto auto'; }
         if (mv.jumpCameraToGoal) mv.jumpCameraToGoal();
         mv.animationName = 'intro';
-        try { mv.currentTime = 0; mv.play(); } catch (e) {}
+        var done = false;
+        function finish() {
+          if (done) return; done = true;
+          mv.pause(); mv.currentTime = 0;   // t=0 es el mecanismo montado: misma pose que el modelo en reposo
+          mv.cameraTarget = 'auto auto auto'; mv.cameraOrbit = orbit0; mv.setAttribute('auto-rotate', '');
+          busy = false; pb.classList.remove('on');
+        }
+        // Una sola reproducción: repetitions:1 + evento 'finished' + corte por tiempo como respaldo.
+        mv.addEventListener('finished', finish, { once: true });
+        try { mv.currentTime = 0; mv.play({ repetitions: 1 }); } catch (e) {}
+        var last = 0;
         (function loop() {
-          while (ki < keys.length && mv.currentTime >= keys[ki][0]) { mv.cameraOrbit = keys[ki][1]; mv.cameraTarget = keys[ki][2]; ki++; }
-          if (mv.currentTime >= END) {
-            mv.pause(); mv.currentTime = END + 0.2;   // pose de reposo (la animación mantiene 0,6 s quieta al final)
-            mv.cameraTarget = 'auto auto auto'; mv.cameraOrbit = orbit0; mv.setAttribute('auto-rotate', '');
-            busy = false; pb.classList.remove('on'); return;
-          }
+          if (done) return;
+          var t = mv.currentTime;
+          while (ki < keys.length && t >= keys[ki][0]) { mv.cameraOrbit = keys[ki][1]; mv.cameraTarget = keys[ki][2]; ki++; }
+          if (t >= END || t < last - 0.5) { finish(); return; }   // fin o vuelta atrás (bucle)
+          last = t;
           requestAnimationFrame(loop);
         })();
       }
