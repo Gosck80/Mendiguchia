@@ -119,51 +119,46 @@
       var z = b.getAttribute('data-z');
       if (z === 'in') zoom(0.8); else if (z === 'out') zoom(1.25); else reset();
     });
-    // Botón de animación: el modelo animado solo se descarga al pulsarlo y se reproduce en su sitio.
-    var animUrl = cell.getAttribute('data-anim');
-    if (animUrl && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    // Botón de despiece: el modelo por piezas solo se descarga al pulsarlo; se separa y se queda así hasta volver a pulsar.
+    var exUrl = cell.getAttribute('data-explode');
+    if (exUrl) {
       var pb = document.createElement('button');
-      pb.type = 'button'; pb.className = 'mv-play'; pb.textContent = '▶';
-      pb.setAttribute('aria-label', cell.getAttribute('data-anim-label') || 'Play');
-      pb.title = pb.getAttribute('aria-label');
+      pb.type = 'button'; pb.className = 'mv-explode';
+      pb.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="6" height="6" rx="1"/><path d="M4 4l3 3M4 4h3M4 4v3M20 4l-3 3M20 4h-3M20 4v3M4 20l3-3M4 20h3M4 20v-3M20 20l-3-3M20 20h-3M20 20v-3"/></svg>';
+      var lblEx = cell.getAttribute('data-explode-label'), lblAs = cell.getAttribute('data-assemble-label');
+      pb.setAttribute('aria-label', lblEx); pb.title = lblEx; pb.setAttribute('aria-pressed', 'false');
       bar.insertBefore(pb, bar.firstChild);
-      var keys = []; try { keys = JSON.parse(cell.getAttribute('data-anim-cam') || '[]'); } catch (e) {}
-      var END = parseFloat(cell.getAttribute('data-anim-end')) || 3.0, busy = false;
-      function run() {
-        var ki = 0;
-        if (keys.length) { mv.cameraOrbit = keys[0][1]; mv.cameraTarget = keys[0][2]; ki = 1; }
-        else { mv.cameraOrbit = cell.getAttribute('data-anim-orbit'); mv.cameraTarget = 'auto auto auto'; }
-        if (mv.jumpCameraToGoal) mv.jumpCameraToGoal();
-        mv.animationName = 'intro';
-        var done = false;
-        function finish() {
-          if (done) return; done = true;
-          mv.pause(); mv.currentTime = 0;   // t=0 es el mecanismo montado: misma pose que el modelo en reposo
-          mv.cameraTarget = 'auto auto auto'; mv.cameraOrbit = orbit0; mv.setAttribute('auto-rotate', '');
-          busy = false; pb.classList.remove('on');
-        }
-        // Una sola reproducción: repetitions:1 + evento 'finished' + corte por tiempo como respaldo.
-        mv.addEventListener('finished', finish, { once: true });
-        try { mv.currentTime = 0; mv.play({ repetitions: 1 }); } catch (e) {}
-        var last = 0;
-        (function loop() {
-          if (done) return;
-          var t = mv.currentTime;
-          while (ki < keys.length && t >= keys[ki][0]) { mv.cameraOrbit = keys[ki][1]; mv.cameraTarget = keys[ki][2]; ki++; }
-          if (t >= END || t < last - 0.5) { finish(); return; }   // fin o vuelta atrás (bucle)
-          last = t;
-          requestAnimationFrame(loop);
-        })();
+      var orbitBase = orbit0, orbitEx = cell.getAttribute('data-explode-orbit') || orbit0;
+      var exploded = false, pos = 0, raf = 0;
+      var still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      function go(target) {
+        cancelAnimationFrame(raf);
+        var from = pos, t0 = performance.now(), dur = still ? 1 : 900 * Math.abs(target - from) + 1;
+        (function step(now) {
+          var u = Math.min(1, (now - t0) / dur);
+          pos = from + (target - from) * u;
+          mv.currentTime = pos * 0.999;       // la animación ya trae su propia curva; aquí solo se recorre
+          if (u < 1) raf = requestAnimationFrame(step);
+        })(t0);
+      }
+      function toggle() {
+        exploded = !exploded;
+        pb.classList.toggle('on', exploded); pb.setAttribute('aria-pressed', String(exploded));
+        pb.setAttribute('aria-label', exploded ? lblAs : lblEx); pb.title = exploded ? lblAs : lblEx;
+        orbit0 = exploded ? orbitEx : orbitBase;              // la vista de reposo se abre para que quepan las piezas
+        mv.cameraTarget = 'auto auto auto'; mv.cameraOrbit = exploded ? orbitEx : orbitBase;
+        go(exploded ? 1 : 0);
       }
       pb.addEventListener('click', function (ev) {
-        ev.stopPropagation();
-        if (busy) return; busy = true; pb.classList.add('on'); clearTimeout(idle);
-        mv.removeAttribute('auto-rotate');
-        mv.setAttribute('interpolation-decay', '160');
-        if (mv.getAttribute('src') !== animUrl) {
-          mv.addEventListener('load', function () { run(); }, { once: true });
-          mv.setAttribute('src', animUrl);
-        } else run();
+        ev.stopPropagation(); clearTimeout(idle);
+        if (mv.getAttribute('src') !== exUrl) {
+          pb.disabled = true;
+          mv.addEventListener('load', function () {
+            mv.animationName = 'explode'; mv.pause(); mv.currentTime = 0; pb.disabled = false;
+            requestAnimationFrame(toggle);
+          }, { once: true });
+          mv.setAttribute('src', exUrl);
+        } else toggle();
       });
     }
     cell.appendChild(bar);

@@ -440,5 +440,6 @@ table { min-width: 0; }
 /* Contenedor del modelo en la cabecera de proyecto */
 .hero-3d .mv-shell { position: absolute; inset: 0; }
 .hero-3d .mv-shell model-viewer { width: 100%; height: 100%; background: transparent; --poster-color: transparent; }
-.mv-ctl .mv-play { color: var(--accent-ink); border-color: color-mix(in srgb, var(--accent) 60%, var(--line)); font-size: 14px; }
-.mv-ctl .mv-play.on { background: var(--accent); color: #12161C; }
+.mv-ctl .mv-explode { color: var(--accent-ink); border-color: color-mix(in srgb, var(--accent) 60%, var(--line)); }
+.mv-ctl .mv-explode.on { background: var(--accent); color: #12161C; border-color: var(--accent); }
+.mv-ctl .mv-explode:disabled { opacity: .5; }

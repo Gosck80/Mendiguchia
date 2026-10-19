@@ -173,12 +173,10 @@ def model_cell(frm, key, lang, kind='cell'):
         return '<div class="stage-3d" %s><span class="hint">%s</span></div>' % (attrs, e(t(UI['model_hint'], lang)))
     if kind == 'hero':
         intro = ''
-        if m.get('anim'):
-            intro = ' data-anim="%s" data-anim-orbit="%s" data-anim-label="%s"' % (
-                rel(frm, 'models/' + m['anim'] + ('.wasm' if MODE == 'preview' else '')), m['anim_orbit'], e(T2('Ver en acción', 'See it in action')[lang]))
-            intro += ' data-anim-end="%s"' % m.get('anim_end', 3.0)
-            if m.get('anim_cam'):
-                intro += " data-anim-cam='%s'" % json.dumps(m['anim_cam'])
+        if m.get('explode'):
+            intro = ' data-explode="%s" data-explode-orbit="%s" data-explode-label="%s" data-assemble-label="%s"' % (
+                rel(frm, 'models/' + m['explode'] + ('.wasm' if MODE == 'preview' else '')), m['explode_orbit'],
+                e(T2('Ver despiece', 'Exploded view')[lang]), e(T2('Montar', 'Assemble')[lang]))
         skip = T2('Toca para saltar', 'Tap to skip')[lang]
         return '<div class="hero-3d" %s data-zoom%s data-skip="%s"><div class="mv-shell"></div><span class="hint">%s</span></div>' % (attrs, intro, e(skip), e(t(HOME['model_hint'], lang)))
     load = '<div class="mload"><button class="btn" type="button">%s</button></div>' % e(t(UI['model_load'], lang))
