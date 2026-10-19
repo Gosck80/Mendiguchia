@@ -370,7 +370,7 @@ MODELS = {
     'iso': {'file': 'iso.glb', 'label': 'MENDI', 'slug': 'belug-04', 'orbit': '-25deg 78deg 105%'},
     'belug': {'file': 'belug.glb', 'label': 'BeluG-04', 'slug': 'belug-04', 'orbit': '35deg 68deg 110%'},
     'qiub': {'file': 'qiub.glb', 'label': 'Mecanismo dosificador', 'slug': 'mecanismo-dosificador', 'orbit': '30deg 78deg 140%', 'cycle': 'mecanismo.glb', 'cycle_cam': [[0, '166deg 85deg 1.5m', '-0.042m -0.47m -0.145m'], [6.9, None, None]], 'cycle_end': 8.0},
-    'ovum': {'file': 'ovum.glb', 'label': 'OVUM G-1', 'slug': 'ovum-g1', 'orbit': '25deg 72deg 115%'},
+    'ovum': {'file': 'ovum.glb', 'label': 'OVUM G-1', 'slug': 'ovum-g1', 'orbit': '25deg 72deg 115%', 'cycle': 'gafas.glb', 'cycle_anim': 'intro', 'cycle_label': ('Ver plegado', 'See it fold'), 'cycle_cam': [[0, '-48deg 74deg 3.2m', '-0.22m 0m 0m'], [5.5, None, None]], 'cycle_end': 6.4},
     'rev': {'file': 'rev.glb', 'label': 'Peugeot 205', 'slug': 'ingenieria-inversa', 'orbit': '40deg 62deg 120%'},
 }
 

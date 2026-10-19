@@ -138,7 +138,7 @@
         busy = false; pb.classList.remove('on'); pb.disabled = false; cell.classList.remove('cycling');
       }
       function run() {
-        mv.animationName = 'ciclo'; mv.pause(); mv.currentTime = 0;
+        mv.animationName = cell.getAttribute('data-cycle-anim') || 'ciclo'; mv.pause(); mv.currentTime = 0;
         if (mv.resetTurntableRotation) mv.resetTurntableRotation(0);   // el giro automático rota el modelo: a cero
         var t = 0, ki = 0, last = performance.now();
         // el tiempo de la animación lo lleva este bucle (en pausa + currentTime): una sola pasada, sin bucles posibles

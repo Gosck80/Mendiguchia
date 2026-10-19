@@ -174,9 +174,10 @@ def model_cell(frm, key, lang, kind='cell'):
     if kind == 'hero':
         intro = ''
         if m.get('cycle'):
-            intro = " data-cycle=\"%s\" data-cycle-end=\"%s\" data-cycle-label=\"%s\" data-cycle-cam='%s'" % (
-                rel(frm, 'models/' + m['cycle'] + ('.wasm' if MODE == 'preview' else '')), m['cycle_end'],
-                e(T2('Ver el mecanismo', 'See the mechanism')[lang]), json.dumps(m['cycle_cam']))
+            lbl = m.get('cycle_label', ('Ver el mecanismo', 'See the mechanism'))
+            intro = " data-cycle=\"%s\" data-cycle-anim=\"%s\" data-cycle-end=\"%s\" data-cycle-label=\"%s\" data-cycle-cam='%s'" % (
+                rel(frm, 'models/' + m['cycle'] + ('.wasm' if MODE == 'preview' else '')), m.get('cycle_anim', 'ciclo'), m['cycle_end'],
+                e(lbl[0] if lang == 'es' else lbl[1]), json.dumps(m['cycle_cam']))
         skip = T2('Toca para saltar', 'Tap to skip')[lang]
         return '<div class="hero-3d" %s data-zoom%s data-skip="%s"><div class="mv-shell"></div><span class="hint">%s</span></div>' % (attrs, intro, e(skip), e(t(HOME['model_hint'], lang)))
     load = '<div class="mload"><button class="btn" type="button">%s</button></div>' % e(t(UI['model_load'], lang))
