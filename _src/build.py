@@ -174,8 +174,8 @@ def model_cell(frm, key, lang, kind='cell'):
     if kind == 'hero':
         intro = ''
         if m.get('explode'):
-            intro = ' data-explode="%s" data-explode-orbit="%s" data-explode-label="%s" data-assemble-label="%s"' % (
-                rel(frm, 'models/' + m['explode'] + ('.wasm' if MODE == 'preview' else '')), m['explode_orbit'],
+            intro = ' data-explode="%s" data-explode-orbit="%s" data-explode-target="%s" data-explode-label="%s" data-assemble-label="%s"' % (
+                rel(frm, 'models/' + m['explode'] + ('.wasm' if MODE == 'preview' else '')), m['explode_orbit'], m.get('explode_target', 'auto auto auto'),
                 e(T2('Ver despiece', 'Exploded view')[lang]), e(T2('Montar', 'Assemble')[lang]))
         skip = T2('Toca para saltar', 'Tap to skip')[lang]
         return '<div class="hero-3d" %s data-zoom%s data-skip="%s"><div class="mv-shell"></div><span class="hint">%s</span></div>' % (attrs, intro, e(skip), e(t(HOME['model_hint'], lang)))

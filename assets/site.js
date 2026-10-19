@@ -96,11 +96,11 @@
   }
   // Zoom (pellizco, Ctrl/trackpad + rueda, botones) y vuelta automática a la vista original.
   function controls(cell, mv) {
-    var orbit0 = cell.getAttribute('data-orbit') || 'auto auto auto', idle = null;
+    var orbit0 = cell.getAttribute('data-orbit') || 'auto auto auto', target0 = 'auto auto auto', idle = null;
     function reset() {
       clearTimeout(idle);
-      mv.cameraOrbit = orbit0; mv.cameraTarget = 'auto auto auto'; mv.fieldOfView = 'auto';
-      mv.setAttribute('auto-rotate', '');
+      mv.cameraOrbit = orbit0; mv.cameraTarget = target0; mv.fieldOfView = 'auto';
+      if (target0 === 'auto auto auto') mv.setAttribute('auto-rotate', '');
     }
     function later() { clearTimeout(idle); idle = setTimeout(reset, 4000); }
     function zoom(k) {
@@ -128,7 +128,8 @@
       var lblEx = cell.getAttribute('data-explode-label'), lblAs = cell.getAttribute('data-assemble-label');
       pb.setAttribute('aria-label', lblEx); pb.title = lblEx; pb.setAttribute('aria-pressed', 'false');
       bar.insertBefore(pb, bar.firstChild);
-      var orbitBase = orbit0, orbitEx = cell.getAttribute('data-explode-orbit') || orbit0;
+      var orbitBase = orbit0, orbitEx = cell.getAttribute('data-explode-orbit') || orbit0, targetEx = cell.getAttribute('data-explode-target') || 'auto auto auto';
+      mv.setAttribute('min-camera-orbit', 'auto auto 0.3m');
       var exploded = false, pos = 0, raf = 0;
       var still = matchMedia('(prefers-reduced-motion: reduce)').matches;
       function go(target) {
@@ -145,8 +146,10 @@
         exploded = !exploded;
         pb.classList.toggle('on', exploded); pb.setAttribute('aria-pressed', String(exploded));
         pb.setAttribute('aria-label', exploded ? lblAs : lblEx); pb.title = exploded ? lblAs : lblEx;
-        orbit0 = exploded ? orbitEx : orbitBase;              // la vista de reposo se abre para que quepan las piezas
-        mv.cameraTarget = 'auto auto auto'; mv.cameraOrbit = exploded ? orbitEx : orbitBase;
+        // despiezado: primer plano de tapa y tornillo (también es la vista a la que vuelve tras 4 s sin tocar)
+        orbit0 = exploded ? orbitEx : orbitBase; target0 = exploded ? targetEx : 'auto auto auto';
+        mv.cameraTarget = target0; mv.cameraOrbit = orbit0;
+        if (exploded) mv.removeAttribute('auto-rotate'); else mv.setAttribute('auto-rotate', '');   // el primer plano se queda quieto
         go(exploded ? 1 : 0);
       }
       pb.addEventListener('click', function (ev) {
