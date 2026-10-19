@@ -130,17 +130,33 @@
       bar.insertBefore(pb, bar.firstChild);
       var orbitBase = orbit0, orbitEx = cell.getAttribute('data-explode-orbit') || orbit0, targetEx = cell.getAttribute('data-explode-target') || 'auto auto auto';
       mv.setAttribute('min-camera-orbit', 'auto auto 0.3m');
-      var exploded = false, pos = 0, raf = 0;
+      var exploded = false, pos = 0, raf = 0, SPIN0 = 1, SPIN1 = 9;   // clip: 0→1 despiece, 1→9 una vuelta lenta del tornillo
       var still = matchMedia('(prefers-reduced-motion: reduce)').matches;
-      function go(target) {
+      function scrub(target, ms, then) {
         cancelAnimationFrame(raf);
-        var from = pos, t0 = performance.now(), dur = still ? 1 : 900 * Math.abs(target - from) + 1;
+        var from = pos, t0 = performance.now(), dur = still ? 1 : ms;
         (function step(now) {
           var u = Math.min(1, (now - t0) / dur);
-          pos = from + (target - from) * u;
-          mv.currentTime = pos * 0.999;       // la animación ya trae su propia curva; aquí solo se recorre
-          if (u < 1) raf = requestAnimationFrame(step);
+          pos = from + (target - from) * u; mv.currentTime = pos;
+          if (u < 1) raf = requestAnimationFrame(step); else if (then) then();
         })(t0);
+      }
+      function spin() {                       // tramo 1→9 en tiempo real, en bucle (9 s ≡ 1 s, sin salto)
+        if (still) return;
+        var last = performance.now();
+        (function step(now) {
+          pos += (now - last) / 1000; last = now;
+          if (pos >= SPIN1) pos = SPIN0 + (pos - SPIN1);
+          mv.currentTime = pos; raf = requestAnimationFrame(step);
+        })(last);
+      }
+      function go(toExploded) {
+        if (toExploded) { scrub(SPIN0, 900 * (SPIN0 - Math.min(pos, SPIN0)) + 1, spin); return; }
+        // al montar: primero vuelve al inicio del giro por el camino corto y luego se monta
+        if (pos > SPIN0) {
+          var fwd = pos - SPIN0 > (SPIN1 - SPIN0) / 2;
+          scrub(fwd ? SPIN1 : SPIN0, 350, function () { pos = SPIN0; scrub(0, 900); });
+        } else scrub(0, 900 * pos + 1);
       }
       function toggle() {
         exploded = !exploded;
@@ -149,15 +165,19 @@
         // despiezado: primer plano de tapa y tornillo (también es la vista a la que vuelve tras 4 s sin tocar)
         orbit0 = exploded ? orbitEx : orbitBase; target0 = exploded ? targetEx : 'auto auto auto';
         mv.cameraTarget = target0; mv.cameraOrbit = orbit0;
-        if (exploded) mv.removeAttribute('auto-rotate'); else mv.setAttribute('auto-rotate', '');   // el primer plano se queda quieto
-        go(exploded ? 1 : 0);
+        if (exploded) {
+          // el giro automático rota el modelo (no la cámara): se quita y se pone a cero para que el encuadre sea siempre el mismo
+          mv.removeAttribute('auto-rotate');
+          if (mv.resetTurntableRotation) mv.resetTurntableRotation(0);
+        } else mv.setAttribute('auto-rotate', '');
+        go(exploded);
       }
       pb.addEventListener('click', function (ev) {
         ev.stopPropagation(); clearTimeout(idle);
         if (mv.getAttribute('src') !== exUrl) {
           pb.disabled = true;
           mv.addEventListener('load', function () {
-            mv.animationName = 'explode'; mv.pause(); mv.currentTime = 0; pb.disabled = false;
+            mv.animationName = 'explode'; mv.pause(); mv.currentTime = 0; pos = 0; pb.disabled = false;
             requestAnimationFrame(toggle);
           }, { once: true });
           mv.setAttribute('src', exUrl);
