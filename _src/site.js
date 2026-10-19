@@ -119,6 +119,44 @@
       var z = b.getAttribute('data-z');
       if (z === 'in') zoom(0.8); else if (z === 'out') zoom(1.25); else reset();
     });
+    // Botón de animación: el modelo animado solo se descarga al pulsarlo y se reproduce en su sitio.
+    var animUrl = cell.getAttribute('data-anim');
+    if (animUrl && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      var pb = document.createElement('button');
+      pb.type = 'button'; pb.className = 'mv-play'; pb.textContent = '▶';
+      pb.setAttribute('aria-label', cell.getAttribute('data-anim-label') || 'Play');
+      pb.title = pb.getAttribute('aria-label');
+      bar.insertBefore(pb, bar.firstChild);
+      var keys = []; try { keys = JSON.parse(cell.getAttribute('data-anim-cam') || '[]'); } catch (e) {}
+      var END = parseFloat(cell.getAttribute('data-anim-end')) || 3.0, busy = false;
+      function run() {
+        var ki = 0;
+        if (keys.length) { mv.cameraOrbit = keys[0][1]; mv.cameraTarget = keys[0][2]; ki = 1; }
+        else { mv.cameraOrbit = cell.getAttribute('data-anim-orbit'); mv.cameraTarget = 'auto auto auto'; }
+        if (mv.jumpCameraToGoal) mv.jumpCameraToGoal();
+        mv.animationName = 'intro';
+        try { mv.currentTime = 0; mv.play(); } catch (e) {}
+        (function loop() {
+          while (ki < keys.length && mv.currentTime >= keys[ki][0]) { mv.cameraOrbit = keys[ki][1]; mv.cameraTarget = keys[ki][2]; ki++; }
+          if (mv.currentTime >= END) {
+            mv.pause(); mv.currentTime = END + 0.2;   // pose de reposo (la animación mantiene 0,6 s quieta al final)
+            mv.cameraTarget = 'auto auto auto'; mv.cameraOrbit = orbit0; mv.setAttribute('auto-rotate', '');
+            busy = false; pb.classList.remove('on'); return;
+          }
+          requestAnimationFrame(loop);
+        })();
+      }
+      pb.addEventListener('click', function (ev) {
+        ev.stopPropagation();
+        if (busy) return; busy = true; pb.classList.add('on'); clearTimeout(idle);
+        mv.removeAttribute('auto-rotate');
+        mv.setAttribute('interpolation-decay', '160');
+        if (mv.getAttribute('src') !== animUrl) {
+          mv.addEventListener('load', function () { run(); }, { once: true });
+          mv.setAttribute('src', animUrl);
+        } else run();
+      });
+    }
     cell.appendChild(bar);
     if ('IntersectionObserver' in window) new IntersectionObserver(function (es) { es.forEach(function (en) { if (!en.isIntersecting) reset(); }); }).observe(cell);
   }

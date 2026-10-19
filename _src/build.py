@@ -128,7 +128,7 @@ def page(frm, lang, title, desc, body, alt_path, is_root=False, gate=False):
             ISO, e(SITE['short']), e(t(HOME['gate_sub'], lang)), e(t(HOME['gate_enter'], lang)), rel(frm, alt_path), e(t(HOME['gate_other'], lang)))
     cad = ''
     if 'data-intro=' in body:
-        head.append("<script>if(!matchMedia('(prefers-reduced-motion: reduce)').matches)document.documentElement.classList.add('pintro')</script>")
+        pass
     if 'id="intro"' in body:
         head.append("<script>document.documentElement.classList.add('intro-run')</script>")
     mms = list(dict.fromkeys(re.findall(r'data-model="([^"]+)"', body)))
@@ -172,9 +172,13 @@ def model_cell(frm, key, lang, kind='cell'):
     if kind == 'stage':
         return '<div class="stage-3d" %s><span class="hint">%s</span></div>' % (attrs, e(t(UI['model_hint'], lang)))
     if kind == 'hero':
-        intro = (' data-intro="%s"' % m['intro']) if m.get('intro') else ''
-        if m.get('introcam'):
-            intro += " data-intro-cam='%s'" % json.dumps(m['introcam'])
+        intro = ''
+        if m.get('anim'):
+            intro = ' data-anim="%s" data-anim-orbit="%s" data-anim-label="%s"' % (
+                rel(frm, 'models/' + m['anim'] + ('.wasm' if MODE == 'preview' else '')), m['anim_orbit'], e(T2('Ver en acción', 'See it in action')[lang]))
+            intro += ' data-anim-end="%s"' % m.get('anim_end', 3.0)
+            if m.get('anim_cam'):
+                intro += " data-anim-cam='%s'" % json.dumps(m['anim_cam'])
         skip = T2('Toca para saltar', 'Tap to skip')[lang]
         return '<div class="hero-3d" %s data-zoom%s data-skip="%s"><div class="mv-shell"></div><span class="hint">%s</span></div>' % (attrs, intro, e(skip), e(t(HOME['model_hint'], lang)))
     load = '<div class="mload"><button class="btn" type="button">%s</button></div>' % e(t(UI['model_load'], lang))
