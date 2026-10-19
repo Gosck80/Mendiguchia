@@ -10,6 +10,7 @@ SITE = {
     'name': 'Óscar Ramón Mendiguchía',
     'short': 'Ó. Ramón Mendiguchía',
     'links': [
+        ('LinkedIn', 'https://www.linkedin.com/in/oramonmendiguchia'),
         ('Behance', 'https://www.behance.net/ormendiguchia'),
         ('YouTube · MendiMekanik', 'https://www.youtube.com/@MendiMekanik'),
         # Añade tu LinkedIn aquí, p. ej. ('LinkedIn', 'https://www.linkedin.com/in/tu-usuario/'),
