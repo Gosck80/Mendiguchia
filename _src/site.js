@@ -122,6 +122,36 @@
     cell.appendChild(bar);
     if ('IntersectionObserver' in window) new IntersectionObserver(function (es) { es.forEach(function (en) { if (!en.isIntersecting) reset(); }); }).observe(cell);
   }
+  // Al entrar en un proyecto: animación a pantalla completa y transición hasta su sitio en la cabecera.
+  function runIntro(cell, mv) {
+    var de = document.documentElement, shell = cell.querySelector('.mv-shell'), orbit = cell.getAttribute('data-orbit'), done = false, fb;
+    shell.setAttribute('data-skip', cell.getAttribute('data-skip') || '');
+    mv.removeAttribute('auto-rotate'); mv.removeAttribute('camera-controls');
+    mv.setAttribute('camera-orbit', cell.getAttribute('data-intro'));
+    mv.setAttribute('animation-name', 'intro');
+    function finish() {
+      if (done) return; done = true; clearTimeout(fb);
+      var r = cell.getBoundingClientRect();
+      shell.style.transition = 'top .9s cubic-bezier(.7,0,.2,1), left .9s cubic-bezier(.7,0,.2,1), width .9s cubic-bezier(.7,0,.2,1), height .9s cubic-bezier(.7,0,.2,1)';
+      requestAnimationFrame(function () {
+        shell.style.top = r.top + 'px'; shell.style.left = r.left + 'px'; shell.style.width = r.width + 'px'; shell.style.height = r.height + 'px';
+      });
+      mv.cameraOrbit = orbit;
+      de.classList.add('pintro-out');
+      setTimeout(function () {
+        de.classList.remove('pintro', 'pintro-out'); shell.removeAttribute('style');
+        mv.setAttribute('camera-controls', ''); mv.setAttribute('touch-action', 'pan-y'); mv.setAttribute('auto-rotate', '');
+      }, 950);
+    }
+    fb = setTimeout(finish, 9000);
+    mv.addEventListener('load', function () {
+      try { mv.currentTime = 0; mv.play({ repetitions: 1 }); } catch (e) {}
+      clearTimeout(fb); fb = setTimeout(finish, 4300);
+    }, { once: true });
+    mv.addEventListener('finished', function () { setTimeout(finish, 250); });
+    shell.addEventListener('click', finish);
+    addEventListener('keydown', function (ev) { if (ev.key === 'Escape' || ev.key === ' ') finish(); });
+  }
   function mount(cell) {
     if (cell.getAttribute('data-mounted')) return;
     cell.setAttribute('data-mounted', '1');
@@ -151,9 +181,11 @@
     mv.setAttribute('camera-orbit', cell.getAttribute('data-orbit') || 'auto auto auto');
     var btn = cell.querySelector('.mload');
     if (btn) btn.remove();
-    cell.insertBefore(mv, cell.firstChild);
+    var host = cell.querySelector('.mv-shell') || cell;
+    host.insertBefore(mv, host.firstChild);
     cell.dispatchEvent(new CustomEvent('mv-ready', { detail: mv }));
     if (zoomable) controls(cell, mv);
+    if (cell.hasAttribute('data-intro') && document.documentElement.classList.contains('pintro')) runIntro(cell, mv);
     if ((still || scene) && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
       // Arranque: gira rápido al aparecer y frena hasta su giro normal.
       mv.addEventListener('load', function () {

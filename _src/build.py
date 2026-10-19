@@ -126,6 +126,8 @@ def page(frm, lang, title, desc, body, alt_path, is_root=False, gate=False):
              '<div class="row"><button class="btn fill" type="button" data-enter>%s →</button><a class="btn" data-other href="%s">%s →</a></div></div></div>') % (
             ISO, e(SITE['short']), e(t(HOME['gate_sub'], lang)), e(t(HOME['gate_enter'], lang)), rel(frm, alt_path), e(t(HOME['gate_other'], lang)))
     cad = ''
+    if 'data-intro=' in body:
+        head.append("<script>if(!matchMedia('(prefers-reduced-motion: reduce)').matches)document.documentElement.classList.add('pintro')</script>")
     if 'id="intro"' in body:
         head.append("<script>document.documentElement.classList.add('intro-run')</script>")
     mms = list(dict.fromkeys(re.findall(r'data-model="([^"]+)"', body)))
@@ -169,7 +171,9 @@ def model_cell(frm, key, lang, kind='cell'):
     if kind == 'stage':
         return '<div class="stage-3d" %s><span class="hint">%s</span></div>' % (attrs, e(t(UI['model_hint'], lang)))
     if kind == 'hero':
-        return '<div class="hero-3d" %s data-zoom><span class="hint">%s</span></div>' % (attrs, e(t(HOME['model_hint'], lang)))
+        intro = (' data-intro="%s"' % m['intro']) if m.get('intro') else ''
+        skip = T2('Toca para saltar', 'Tap to skip')[lang]
+        return '<div class="hero-3d" %s data-zoom%s data-skip="%s"><div class="mv-shell"></div><span class="hint">%s</span></div>' % (attrs, intro, e(skip), e(t(HOME['model_hint'], lang)))
     load = '<div class="mload"><button class="btn" type="button">%s</button></div>' % e(t(UI['model_load'], lang))
     if kind == 'big':
         return '<div class="viewer" %s>%s<div class="vbar"><span>%s · <b>3D</b></span><span>%s</span></div></div>' % (
