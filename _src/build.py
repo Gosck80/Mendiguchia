@@ -25,7 +25,16 @@ CSS = open(os.path.join(HERE, 'site.css'), encoding='utf-8').read()
 JS = open(os.path.join(HERE, 'site.js'), encoding='utf-8').read()
 FONTS = 'https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap'
 MV_URL = 'https://cdn.jsdelivr.net/npm/@google/model-viewer@3.5.0/dist/model-viewer.min.js'
-DOMAIN = 'https://www.example.com'  # cambia por tu dominio cuando lo tengas
+DOMAIN = 'https://ormendiguchia.vercel.app'
+GSV = '4uTWSXBqHokK83WS0hxgulw6_TuUM_2P6R0Kl9rAQEQ'   # verificación de Google Search Console
+
+
+def clean(path):
+    """URL pública sin .html (Vercel cleanUrls)."""
+    path = path[:-len('index.html')] if path.endswith('index.html') else path
+    path = path[:-5] if path.endswith('.html') else path
+    return DOMAIN + '/' + path
+
 
 ISO = '<svg viewBox="20 210 818 440" aria-hidden="true"><polygon points="26,644 190,441 217,484 462,215 522,294 583,240 831,644" fill="currentColor"></polygon></svg>'
 ICONS = {
@@ -105,11 +114,15 @@ def page(frm, lang, title, desc, body, alt_path, is_root=False, gate=False):
         head += ['<meta property="og:title" content="%s">' % e(title),
                  '<meta property="og:description" content="%s">' % e(desc),
                  '<meta property="og:type" content="website">',
+                 '<meta property="og:url" content="%s">' % clean(frm),
                  '<meta property="og:image" content="https://ormendiguchia.vercel.app/og.png">',
                  '<meta property="og:image:width" content="1200">', '<meta property="og:image:height" content="627">',
                  '<meta name="twitter:card" content="summary_large_image">',
-                 '<link rel="alternate" hreflang="%s" href="%s/%s">' % (lang, DOMAIN, frm),
-                 '<link rel="alternate" hreflang="%s" href="%s/%s">' % (other, DOMAIN, alt_path),
+                 '<meta name="google-site-verification" content="%s">' % GSV,
+                 '<link rel="canonical" href="%s">' % clean(frm),
+                 '<link rel="alternate" hreflang="%s" href="%s">' % (lang, clean(frm)),
+                 '<link rel="alternate" hreflang="%s" href="%s">' % (other, clean(alt_path)),
+                 '<link rel="alternate" hreflang="x-default" href="%s">' % clean(frm if lang == 'es' else alt_path),
                  '<link rel="icon" href="%s">' % rel(frm, 'assets/favicon.svg'),
                  '<link rel="stylesheet" href="%s">' % rel(frm, 'assets/site.css')]
         foot = '<script src="%s" defer></script>' % rel(frm, 'assets/site.js')
@@ -261,7 +274,24 @@ def build_home(lang):
               '<div class="pk"><b>%s</b>%s<div class="links">%s</div></div></section></main>') % (
         ISO, e(t(PROFILE['body'], lang)), now, e(H('contact_h')), mail, links))
     b.append(footer(lang))
-    title = SITE['short'] + (' · Ingeniero de producto' if lang == 'es' else ' · Product engineer')
+    title = SITE['name'] + (' · Ingeniero de producto' if lang == 'es' else ' · Product engineer')
+    # Ficha para buscadores (schema.org): quién es, a qué se dedica y sus perfiles
+    person = {
+        '@context': 'https://schema.org', '@type': 'Person', '@id': DOMAIN + '/#persona',
+        'name': SITE['name'], 'givenName': 'Óscar', 'familyName': 'Ramón Mendiguchía',
+        'alternateName': ['Mendi', SITE['short']],
+        'jobTitle': 'Ingeniero de producto' if lang == 'es' else 'Product engineer',
+        'description': ('Estudiante de 4.º de Ingeniería en Diseño Industrial y Desarrollo de Producto (UVa). Diseño industrial, DFM, tolerancias y prototipado.'
+                        if lang == 'es' else 'Fourth-year Industrial Design and Product Development Engineering student (UVa). Industrial design, DFM, tolerances and prototyping.'),
+        'url': DOMAIN + '/', 'image': DOMAIN + '/og.png',
+        'affiliation': {'@type': 'CollegeOrUniversity', 'name': 'Universidad de Valladolid', 'url': 'https://www.uva.es'},
+        'knowsAbout': ['Diseño industrial', 'Desarrollo de producto', 'DFM', 'GD&T', 'Tolerancias', 'Prototipado', 'CATIA V5', 'Fusion 360', 'Impresión 3D'],
+        'sameAs': ['https://www.linkedin.com/in/oramonmendiguchia', 'https://www.youtube.com/@MendiMekanik'],
+    }
+    site = {'@context': 'https://schema.org', '@type': 'WebSite', 'name': SITE['name'], 'url': DOMAIN + '/',
+            'inLanguage': ['es', 'en'], 'author': {'@id': DOMAIN + '/#persona'}}
+    ld = ''.join('<script type="application/ld+json">%s</script>' % json.dumps(x, ensure_ascii=False).replace('</', '<\\/') for x in (person, site))
+    b.insert(0, ld)
     return frm, page(frm, lang, title, t(UI['hero_sub'], lang), '\n'.join(b), alt)
 
 
@@ -326,7 +356,7 @@ def build_project(i, lang):
     b.append('</div></main>')
     b.append(footer(lang))
     b.append(tabbar(frm, lang, False))
-    return frm, page(frm, lang, '%s · %s' % (pname(p, lang), SITE['short']), t(p['tagline'], lang), '\n'.join(b), alt)
+    return frm, page(frm, lang, '%s · %s' % (pname(p, lang), SITE['name']), t(p['tagline'], lang), '\n'.join(b), alt)
 
 
 def write(path, text):
@@ -343,6 +373,19 @@ if __name__ == '__main__':
         pages += [build_project(i, lang) for i in range(len(PROJECTS))]
     for path, text in pages:
         write(path, text)
+    if MODE == 'vercel':
+        import datetime
+        today = datetime.date.today().isoformat()
+        urls = []
+        for path, _ in pages:
+            if path.startswith('en/'): continue
+            en = 'en/' + path.replace('proyectos/', 'projects/') if path != 'index.html' else 'en/index.html'
+            for loc, pair in ((path, en), (en, path)):
+                urls.append('<url><loc>%s</loc><lastmod>%s</lastmod>'
+                            '<xhtml:link rel="alternate" hreflang="es" href="%s"/><xhtml:link rel="alternate" hreflang="en" href="%s"/></url>'
+                            % (clean(loc), today, clean(path), clean(en)))
+        write('sitemap.xml', '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n' + '\n'.join(urls) + '\n</urlset>\n')
+        write('robots.txt', 'User-agent: *\nAllow: /\n\nSitemap: %s/sitemap.xml\n' % DOMAIN)
     if MODE == 'vercel':
         os.makedirs(os.path.join(OUT, 'assets'), exist_ok=True)
         shutil.copyfile(os.path.join(HERE, 'site.css'), os.path.join(OUT, 'assets', 'site.css'))

@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://ormendiguchia.vercel.app/sitemap.xml
