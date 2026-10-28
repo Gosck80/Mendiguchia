@@ -151,15 +151,22 @@
           mv.currentTime = t; raf = requestAnimationFrame(step);
         })(last);
       }
-      pb.addEventListener('click', function (ev) {
-        ev.stopPropagation();
+      var animName = cell.getAttribute('data-cycle-anim') || 'ciclo';
+      function start() {
         if (busy) return; busy = true; pb.classList.add('on'); pb.disabled = true; clearTimeout(idle); cell.classList.add('cycling');
         mv.removeAttribute('auto-rotate');
         if (mv.getAttribute('src') !== cyUrl) {
-          mv.addEventListener('load', function () { run(); }, { once: true });
+          // espera a que cargue el modelo animado (descarta un 'load' tardío del modelo estático)
+          mv.addEventListener('load', function onLoad() {
+            if ((mv.availableAnimations || []).indexOf(animName) < 0) { mv.addEventListener('load', onLoad, { once: true }); return; }
+            run();
+          }, { once: true });
           mv.setAttribute('src', cyUrl);
         } else run();
-      });
+      }
+      pb.addEventListener('click', function (ev) { ev.stopPropagation(); start(); });
+      // Al entrar en la página del proyecto, el ciclo se reproduce una vez solo; después, funcionamiento normal.
+      if (cell.hasAttribute('data-cycle-auto')) start();
       // si el usuario toca el modelo durante el ciclo, no se pelea con la cámara: se deja que mire y el ciclo sigue
     }
     cell.appendChild(bar);
