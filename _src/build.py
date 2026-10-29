@@ -279,7 +279,7 @@ def build_home(lang):
     person = {
         '@context': 'https://schema.org', '@type': 'Person', '@id': DOMAIN + '/#persona',
         'name': SITE['name'], 'givenName': 'Óscar', 'familyName': 'Ramón Mendiguchía',
-        'alternateName': ['Mendi', SITE['short']],
+        'alternateName': ['Mendi', 'Ó. Ramón Mendiguchía'],
         'jobTitle': 'Ingeniero de producto' if lang == 'es' else 'Product engineer',
         'description': ('Estudiante de 4.º de Ingeniería en Diseño Industrial y Desarrollo de Producto (UVa). Diseño industrial, DFM, tolerancias y prototipado.'
                         if lang == 'es' else 'Fourth-year Industrial Design and Product Development Engineering student (UVa). Industrial design, DFM, tolerances and prototyping.'),
