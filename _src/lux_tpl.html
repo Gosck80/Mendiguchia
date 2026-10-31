@@ -166,7 +166,9 @@ html.rm .pzs{height:auto}html.rm .pzi{position:relative;height:90svh}
 .ph-hero h1{font-size:min(11vw,200px)}
 .ph-hero .sub{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:24px 48px;margin-top:48px;align-items:end}
 .ph-hero .sub .lead{font-size:clamp(20px,1.9vw,27px);line-height:1.38;font-weight:450;max-width:620px}
-.ph-hero .meta{display:flex;flex-direction:column;gap:6px;font-size:16px;color:var(--ink-2);justify-self:end;text-align:right}
+.ph-hero .ficha{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px 24px;margin:0;font-size:16px;justify-self:end;max-width:460px;width:100%;border-top:1px solid rgba(11,12,13,.18);padding-top:16px}
+.ph-hero .ficha dt{color:var(--ink-2)}
+.ph-hero .ficha dd{margin:0;font-weight:550}
 .pvis{height:100svh;position:relative;overflow:hidden;background:var(--paper-2)}
 .pvis.m3{background:var(--paper)}
 .pvis model-viewer{position:absolute;inset:0;width:100%;height:100%;background:transparent;--poster-color:transparent;z-index:2}
@@ -245,7 +247,7 @@ td:not(:first-child),th:not(:first-child){text-align:right}
 @media(max-width:899px){
   .pwin{height:calc(12vw * .9)}.preel div{font-size:12vw;height:calc(12vw * .9)}
   .nums .top,.about .in,.ph-hero .sub,.tx2,.steps,.nextp .row{grid-template-columns:minmax(0,1fr)}
-  .ph-hero .meta{justify-self:start;text-align:left}
+  .ph-hero .ficha{justify-self:start}
   .pstage{grid-template-columns:minmax(0,1fr);grid-template-rows:auto 1fr;align-items:start;padding-top:96px;gap:24px}
   .pmedia{height:52svh}
   .pdesc{min-height:6.4em}
@@ -431,7 +433,6 @@ function block(b) {
 function project(p) {
   const i = P.indexOf(p), nx = P[(i + 1) % P.length];
   const nm = short(p.name), sub = p.name.split(' · ')[1];
-  const meta = (sub ? [sub] : []).concat(p.meta);
   const vis = p.model
     ? `<div class="pvis m3"><p class="ghost wide fit" aria-hidden="true">${esc(nm)}</p><model-viewer id="mvP" src="${esc(p.model.cycle && !reduce ? p.model.cycle : p.model.src)}" alt="" aria-hidden="true" camera-orbit="${esc(p.model.orbit)}" environment-image="neutral" exposure="0.95" shadow-intensity="0.8" shadow-softness="0.9" interaction-prompt="none" disable-zoom loading="eager"></model-viewer>
        <div class="hint"><span>${p.model.cycle ? 'Baja para verlo en movimiento' : 'Baja para rodearlo'}</span></div></div>
@@ -447,7 +448,7 @@ function project(p) {
 <section class="wrap ph-hero">
   <a class="back" href="${AH('proyectos')}"><span aria-hidden="true">←</span> Todos los proyectos</a>
   <h1 class="wide" aria-label="${esc(nm)}">${masked(lines(nm, nm.split(' ').length > 1 ? 2 : 1), 'fit')}</h1>
-  <div class="sub"><p class="lead rv">${esc(p.tagline)}</p><p class="meta rv">${meta.map(m => `<span>${esc(m)}</span>`).join('')}</p></div>
+  <div class="sub"><p class="lead rv">${esc(p.tagline)}</p>${p.ficha ? `<dl class="ficha rv"><dt>Responsable</dt><dd>${esc(p.ficha[0])}</dd><dt>Fecha</dt><dd>${esc(p.ficha[1])}</dd><dt>Herramientas</dt><dd>${esc(p.ficha[2])}</dd></dl>` : ''}</div>
 </section>
 ${vis}
 ${figs}
