@@ -252,10 +252,11 @@ def build_home(lang):
         m = MODELS[key]
         pr = [p for p in PROJECTS if p['slug'] == m['slug']][0]
         n = PROJECTS.index(pr) + 1
-        sq += ('<div class="cs" tabindex="0" role="button" aria-pressed="false" aria-label="%s"><span class="cs-3d" data-model="%s" data-alt="%s" data-orbit="%s" data-static></span>'
-               '<span class="tag"><b>%02d</b>%s</span><a class="go" href="%s">%s →</a></div>') % (
-            e(pname(pr, lang)), msrc_of(key), e(m['label']), ' '.join(m['orbit'].split()[:2] + [SQ_R[key]]), n, e(pname(pr, lang).split(' · ')[0]),
-            rel(frm, proj_path(m['slug'], lang)), e(t(UI['see_project'], lang)))
+        # cada pieza es un enlace directo a su proyecto; el modelo gira solo y no se puede manipular
+        sq += ('<a class="cs" href="%s" aria-label="%s"><span class="cs-3d" data-model="%s" data-alt="%s" data-orbit="%s" data-static></span>'
+               '<span class="tag"><b>%02d</b>%s</span><span class="go" aria-hidden="true">%s →</span></a>') % (
+            rel(frm, proj_path(m['slug'], lang)), e(pname(pr, lang)), msrc_of(key), e(m['label']), ' '.join(m['orbit'].split()[:2] + [SQ_R[key]]),
+            n, e(pname(pr, lang).split(' · ')[0]), e(t(UI['see_project'], lang)))
     b.append(('<section class="hero3"><div class="sq">%s<span class="cross" aria-hidden="true"></span></div>'
               '<div class="sq-foot"><p class="hint">%s</p><div class="tblock" aria-hidden="true"><span>MENDI</span><span>UVa · 2026</span><span>HOJA 01</span></div></div></section></div>') % (
         sq, e(H('hero_hint'))))

@@ -321,44 +321,6 @@
   tl.forEach(function (a) { var s = document.getElementById(a.getAttribute('href').slice(1)); if (s) io.observe(s); });
 })();
 
-// Portada 2x2: tocar una pieza la activa (manipulable); las demás quedan en reposo, borrosas y girando.
-(function () {
-  var sq = document.querySelector('.sq');
-  if (!sq) return;
-  var cells = Array.prototype.slice.call(sq.querySelectorAll('.cs'));
-  function mvOf(c) { return c.querySelector('model-viewer'); }
-  function setCtl(c, on) {
-    var mv = mvOf(c), box = c.querySelector('.cs-3d');
-    if (!mv) return;
-    if (on) {
-      mv.setAttribute('camera-controls', ''); mv.setAttribute('touch-action', 'pan-y');
-      mv.setAttribute('auto-rotate-delay', '2500'); mv.style.pointerEvents = 'auto';
-    } else {
-      mv.removeAttribute('camera-controls'); mv.setAttribute('auto-rotate-delay', '0'); mv.style.pointerEvents = 'none';
-      if (box && box.getAttribute('data-orbit')) mv.setAttribute('camera-orbit', box.getAttribute('data-orbit'));
-    }
-  }
-  function activate(c) {
-    cells.forEach(function (x) {
-      var on = x === c;
-      if (x.classList.contains('on') !== on) setCtl(x, on);
-      x.classList.toggle('on', on); x.setAttribute('aria-pressed', on ? 'true' : 'false');
-    });
-    sq.classList.toggle('has-on', !!c);
-  }
-  cells.forEach(function (c) {
-    c.addEventListener('click', function (ev) {
-      if (ev.target.closest('.go')) return;
-      if (!c.classList.contains('on')) { ev.preventDefault(); activate(c); }
-    });
-    c.addEventListener('keydown', function (ev) {
-      if ((ev.key === 'Enter' || ev.key === ' ') && ev.target === c) { ev.preventDefault(); activate(c.classList.contains('on') ? null : c); }
-    });
-  });
-  document.addEventListener('click', function (ev) { if (!sq.contains(ev.target)) activate(null); });
-  document.addEventListener('keydown', function (ev) { if (ev.key === 'Escape') activate(null); });
-})();
-
 // Al entrar en un proyecto, siempre desde arriba: la pieza 3D es lo primero que se ve.
 (function () {
   if (!document.querySelector('.titleblock')) return;

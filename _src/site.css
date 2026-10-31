@@ -342,11 +342,15 @@ body {
 .cs .tag b { color: var(--accent-ink); font-weight: 600; }
 .cs .go { position: absolute; right: 8px; bottom: 8px; z-index: 3; display: inline-flex; align-items: center; min-height: 34px; padding: 0 12px; border-radius: 999px;
   background: var(--accent); color: #12161C; font-weight: 600; font-size: 12px; text-decoration: none; opacity: 0; transform: translateY(6px); pointer-events: none; transition: opacity .3s ease, transform .3s ease; }
-/* Estados */
-.sq.has-on .cs:not(.on) { filter: blur(4px) brightness(.5); }
-.cs.on { box-shadow: inset 0 0 0 1px var(--accent); cursor: grab; }
-.cs.on .go { opacity: 1; transform: none; pointer-events: auto; }
-.cs.on .tag { color: var(--ink); }
+/* Estados: cada pieza es un enlace; al pasar o pulsar se marca y aparece «Ver proyecto» */
+.cs { display: block; color: inherit; text-decoration: none; }
+.cs:hover, .cs:focus-visible { box-shadow: inset 0 0 0 1px var(--accent); }
+.cs:hover .go, .cs:focus-visible .go { opacity: 1; transform: none; }
+.cs:active { box-shadow: inset 0 0 0 2px var(--accent); }
+.cs:active .cs-3d { transform: scale(.97); }
+.cs-3d { transition: transform .15s ease; }
+@media (hover: none) { .cs .go { opacity: .9; transform: none; padding: 0; width: 30px; min-height: 30px; justify-content: center; font-size: 0; }
+  .cs .go::after { content: "→"; font-size: 14px; } }
 .sq-foot { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; max-width: min(100%, 76vh, 760px); margin: 10px auto 0; }
 .hint { margin: 0; font-family: var(--f-mono); font-size: 11px; color: var(--muted); }
 .tblock { display: grid; grid-template-columns: repeat(3, auto); border: 1px solid var(--line); font-family: var(--f-mono); font-size: 10px; color: var(--muted); }

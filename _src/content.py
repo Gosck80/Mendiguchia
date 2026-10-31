@@ -392,7 +392,7 @@ HOME = {
     'hero_tags': T('Diseño industrial · DFM · Tolerancias · Prototipado', 'Industrial design · DFM · Tolerances · Prototyping'),
     'hero_btn1': T('Ver proyectos', 'See projects'),
     'hero_btn2': T('Hablemos', "Let's talk"),
-    'hero_hint': T('Toca una pieza para activarla · arrástrala para girarla', 'Tap a piece to activate it · drag to rotate it'),
+    'hero_hint': T('Toca una pieza para ver su proyecto', 'Tap a piece to open its project'),
     'scroll': T('Bajar', 'Scroll'),
     'about_h': T('Del CAD al prototipo que funciona.', 'From CAD to a prototype that works.'),
     'about_p': T('4.º de Ingeniería en Diseño Industrial y Desarrollo de Producto en la Universidad de Valladolid, con taller propio. Esto es lo que aporto:',
