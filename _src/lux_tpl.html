@@ -332,6 +332,14 @@ if (!reduce && typeof Lenis !== 'undefined') {
   else { const r = t => { lenis.raf(t); requestAnimationFrame(r); }; requestAnimationFrame(r); }
 }
 const goTop = () => { if (lenis) lenis.scrollTo(0, { immediate: true }); else window.scrollTo(0, 0); };
+/* Salto a una sección al llegar desde otra página: la posición se calcula cuando las escenas fijadas ya
+   han medido su recorrido, y se vuelve a ajustar si la página cambia de alto (fuentes, imágenes) poco después */
+let pendingAnchor = null, pendingUntil = 0;
+const jumpTo = el => {
+  if (hasG) ScrollTrigger.refresh();
+  if (lenis) { lenis.resize(); lenis.scrollTo(el, { immediate: true, force: true }); }
+  else window.scrollTo(0, el.getBoundingClientRect().top + scrollY);
+};
 const goTo = el => { if (lenis) lenis.scrollTo(el, { offset: 0, duration: 1.4 }); else el.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth' }); };
 
 /* ---------- Portada ---------- */
@@ -721,7 +729,8 @@ function draw(key, proj, anchor) {
   if (proj) projectAnim(proj); else homeAnim();
   common();
   if (hasG) ScrollTrigger.refresh();
-  if (anchor) { const el = document.getElementById(anchor); if (el) setTimeout(() => goTo(el), 60); }
+  pendingAnchor = null;
+  if (anchor) { const el = document.getElementById(anchor); if (el) { pendingAnchor = el; pendingUntil = performance.now() + 2500; requestAnimationFrame(() => jumpTo(el)); } }
 }
 function where() {
   if (PATHS) {
@@ -762,7 +771,11 @@ if (PATHS) {
   document.addEventListener('click', e => { const a = e.target.closest('a[href^="#"]'); if (!a) return; const h = a.getAttribute('href'); if (h === '#') { e.preventDefault(); if (location.hash) location.hash = ''; else goTo(document.body); } });
 }
 route();
-const refit = () => { fitText(); if (hasG) ScrollTrigger.refresh(); };
+const refit = () => { fitText(); if (hasG) ScrollTrigger.refresh(); if (pendingAnchor && performance.now() < pendingUntil) jumpTo(pendingAnchor); };
+// si la página aún crece justo después de llegar, se corrige el salto a la sección
+new ResizeObserver(() => { if (pendingAnchor && performance.now() < pendingUntil) jumpTo(pendingAnchor); }).observe(app);
+addEventListener('wheel', () => { pendingAnchor = null; }, { passive: true });
+addEventListener('touchstart', () => { pendingAnchor = null; }, { passive: true });
 addEventListener('load', refit);
 if (document.fonts) document.fonts.ready.then(refit);
 let rz = 0, lw = innerWidth; addEventListener('resize', () => { if (innerWidth === lw) return; lw = innerWidth; clearTimeout(rz); rz = setTimeout(refit, 150); });
