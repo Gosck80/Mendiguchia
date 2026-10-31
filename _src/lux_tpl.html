@@ -211,8 +211,8 @@ html.rm .pzs{height:auto}html.rm .pzi{position:relative;height:90svh}
 .fig .bx.wh{background:var(--white)}
 .fig .bx img{width:100%;will-change:transform}
 .fig figcaption{font-size:15px;color:var(--ink-2)}
-.full .bx{display:flex;justify-content:center}
-.full .bx img{height:auto;width:auto;max-width:100%;max-height:92svh}
+/* imagen a todo el ancho: nunca se recorta; si es muy alta se encaja dentro del alto de pantalla */
+.full .bx img{display:block;width:100%;height:auto;max-height:92svh;object-fit:contain}
 .grid{display:grid;gap:24px;align-items:start}
 .g2{grid-template-columns:repeat(2,minmax(0,1fr))}.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
 .drawband{background:var(--white);padding-block:110px;margin-top:120px}
@@ -496,7 +496,7 @@ const PZ = [
     f: (mv, u) => { const e = Math.min(1, u * 1.35); mv.currentTime = Math.min(.999, e); mv.cameraOrbit = `${150 + 70 * u}deg ${74 - 6 * u}deg ${3.7 - .7 * u}m`; } },
   { slug: 'ovum-g1', name: 'OVUM G-1', src: 'models/gafas.glb.wasm', o0: '-48deg 74deg 3.1m', t: '-0.22m 0m 0m', anim: true, line: 'Montura en biocerámico: voltereta y plegado de las patillas.',
     f: (mv, u) => { mv.currentTime = Math.min(6.39, u * 6.4); } },
-  { slug: 'mies', name: 'MIES', src: 'models/mies.glb.wasm', o0: '28deg 74deg 105%', anim: true, line: 'Vigas de aluminio y baldas de chopo: se monta pieza a pieza al bajar.',
+  { slug: 'mies', name: 'MIES', src: 'models/mies.glb.wasm', o0: '28deg 74deg 105%', anim: true, line: 'Pilares de aluminio y baldas de chopo: se monta pieza a pieza al bajar.',
     f: (mv, u) => { mv.currentTime = Math.min(5.5, u * 1.3 * 5.5); mv.cameraOrbit = `${28 + 50 * u}deg ${74 - 6 * u}deg 105%`; } },
   { slug: 'ingenieria-inversa', name: 'Ingeniería inversa', src: 'models/rev.glb.wasm', o0: '40deg 62deg 140%', line: 'La pieza del calefactor del Peugeot 205, rehecha desde el calibre.',
     f: (mv, u) => { mv.cameraOrbit = `${40 + 300 * u}deg ${62 - 14 * u}deg ${140 - 50 * u}%`; } },
