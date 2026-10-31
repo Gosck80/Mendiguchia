@@ -1,0 +1,460 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Variaciones portada Mendi</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Barlow+Condensed:wght@600;800&family=IBM+Plex+Sans:wght@400;500;600&family=Bricolage+Grotesque:opsz,wght@12..96,400..800&display=swap">
+<style>
+/* Tres portadas para la misma persona. Cada variación lleva su propio sistema (fondo, tinta, acento, tipografía);
+   las comparte solo la estructura: cabecera, momento de scroll, proyectos, sobre mí, cierre. */
+:root{color-scheme:light;--sw-bg:#101214;--sw-ink:#F2F3F4;--sw-on:#FF4F00}
+*{box-sizing:border-box}
+html{scroll-behavior:auto}
+body{margin:0;overflow-x:hidden;background:#E7E9EC}
+img{max-width:100%;display:block}
+a{color:inherit}
+p,h1,h2,h3{margin:0}
+:focus-visible{outline:3px solid currentColor;outline-offset:4px}
+.v{display:none;min-height:100vh;overflow-x:clip}
+.v.on{display:block}
+.gut{padding-left:max(18px,env(safe-area-inset-left,0px));padding-right:max(18px,env(safe-area-inset-right,0px))}
+@media(min-width:900px){.gut{padding-left:max(40px,env(safe-area-inset-left,0px));padding-right:max(40px,env(safe-area-inset-right,0px))}}
+.max{max-width:1440px;margin:0 auto}
+.hd{display:flex;align-items:center;justify-content:space-between;gap:20px;height:84px}
+.hd nav{display:flex;align-items:center;gap:26px}
+.hd nav a.t{text-decoration:none;font-size:16px;font-weight:500;padding:12px 2px;position:relative}
+.hd nav a.t::after{content:"";position:absolute;left:2px;right:2px;bottom:6px;height:2px;background:currentColor;transform:scaleX(0);transform-origin:left;transition:transform .3s ease}
+.hd nav a.t:hover::after{transform:scaleX(1)}
+@media(max-width:760px){.hd nav a.t{display:none}}
+.b{display:inline-flex;align-items:center;justify-content:center;min-height:52px;padding:0 26px;font-weight:600;font-size:16px;text-decoration:none;border:0;cursor:pointer;transition:transform .2s ease,filter .2s ease}
+.b:hover{transform:translateY(-2px);filter:brightness(1.07)}
+.b:active{transform:translateY(0) scale(.98)}
+.b.s{min-height:44px;padding:0 18px;font-size:15px}
+.go{display:inline-flex;align-items:center;gap:10px;text-decoration:none;font-weight:600;font-size:17px;min-height:44px}
+.go span{display:inline-block;transition:transform .35s cubic-bezier(.2,.75,.2,1)}
+.go:hover span{transform:translateX(10px)}
+
+/* Selector de variación (herramienta de la simulación, no forma parte del diseño) */
+.sw{position:fixed;left:0;right:0;bottom:0;z-index:40;background:var(--sw-bg);color:var(--sw-ink);display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:8px max(12px,env(safe-area-inset-right,0px)) calc(8px + env(safe-area-inset-bottom,0px)) max(12px,env(safe-area-inset-left,0px));font:500 14px/1 'IBM Plex Sans',system-ui,sans-serif}
+.sw span{margin-right:8px;opacity:.75}
+.sw button{font:inherit;color:inherit;background:transparent;border:0;min-height:40px;padding:0 14px;cursor:pointer}
+.sw button[aria-pressed="true"]{background:var(--sw-ink);color:var(--sw-bg)}
+.v{padding-bottom:56px}
+
+/* ============ 1 · CAPA A CAPA ============ */
+.v1{--g:#E7E9EC;--s:#D7DBDF;--ink:#101214;--a:#FF4F00;background:var(--g);color:var(--ink);font-family:'Archivo',system-ui,sans-serif;font-size:18px;line-height:1.55;font-stretch:100%}
+.v1 .wm{font-weight:700;font-size:18px;text-decoration:none;white-space:nowrap}
+.v1 .b{background:var(--a);color:var(--ink)}
+.v1 .b.k{background:var(--ink);color:var(--g)}
+.v1 .hero{padding-top:28px;display:flex;flex-direction:column;gap:40px}
+.v1 .hero .top{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:24px 40px;align-items:end}
+.v1 .hero .lead{font-size:clamp(20px,2vw,26px);line-height:1.4;max-width:640px;font-weight:500}
+.v1 .mendi{position:relative;font-weight:900;font-stretch:125%;font-size:min(29vw,520px);line-height:.74;letter-spacing:-.045em;text-transform:uppercase;margin:0 -0.02em;color:transparent;user-select:none}
+.v1 .mendi .ly{position:absolute;inset:0;color:var(--ink);will-change:transform,clip-path}
+.v1 .mendi .noz{position:absolute;left:0;right:0;height:6px;background:var(--a);bottom:0;opacity:0}
+.v1 .run .noz{animation:noz 1.7s cubic-bezier(.4,0,.2,1) both}
+@keyframes noz{0%{opacity:1;transform:translateY(0)}92%{opacity:1;transform:translateY(calc(-1 * var(--h)))}100%{opacity:0;transform:translateY(calc(-1 * var(--h)))}}
+.v1 .sec{padding-top:200px}
+.v1 h2{font-weight:850;font-stretch:125%;font-size:clamp(48px,7.4vw,120px);line-height:.86;letter-spacing:-.04em;text-transform:uppercase}
+.v1 .sh{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:24px 40px;align-items:end;margin-bottom:72px}
+.v1 .sh p{max-width:480px}
+.v1 .pj{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:32px;align-items:end;padding-bottom:140px}
+.v1 .pj .im{grid-column:1/span 7;overflow:hidden;background:var(--s)}
+.v1 .pj .tx{grid-column:9/span 4;display:flex;flex-direction:column;gap:16px;padding-bottom:6px}
+.v1 .pj.r .im{grid-column:6/span 7;grid-row:1}
+.v1 .pj.r .tx{grid-column:1/span 4;grid-row:1}
+.v1 .pj .im img{width:100%;aspect-ratio:16/10;object-fit:cover}
+.v1 .pj .im.wh{background:#fff}.v1 .pj .im.wh img{object-fit:contain;padding:5%}
+.v1 .pj h3{font-weight:850;font-stretch:115%;font-size:clamp(40px,4.6vw,76px);line-height:.88;letter-spacing:-.035em;text-transform:uppercase}
+.v1 .pj .m{font-size:16px}
+.v1 .proc{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,4fr) minmax(0,3fr);gap:24px;align-items:end}
+.v1 .proc figure{margin:0;display:flex;flex-direction:column;gap:10px}
+.v1 .proc .wbox{background:#fff;overflow:hidden}
+.v1 .proc figcaption{font-size:16px}
+.v1 .about{background:var(--a);margin-top:200px;padding-block:140px}
+.v1 .about .in{display:grid;grid-template-columns:minmax(0,6fr) minmax(0,6fr);gap:56px;align-items:center}
+.v1 .about .t{display:flex;flex-direction:column;gap:26px}
+.v1 .about .im{overflow:hidden;aspect-ratio:4/3}
+.v1 .about .im img{width:100%;height:100%;object-fit:cover}
+.v1 .tools{display:flex;flex-wrap:wrap;gap:8px}
+.v1 .tools span{background:var(--ink);color:var(--a);padding:8px 14px;font-size:16px;font-weight:600}
+.v1 .end{padding-block:120px 48px;display:flex;flex-direction:column;gap:48px}
+.v1 .end .big{font-weight:900;font-stretch:125%;font-size:clamp(44px,9.6vw,170px);line-height:.82;letter-spacing:-.045em;text-transform:uppercase}
+.v1 .end .row{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;align-items:center}
+@supports (animation-timeline: view()){
+  .v1 .print{animation:print linear both;animation-timeline:view();animation-range:entry 5% cover 42%;animation-timing-function:steps(22,end)}
+  .v1 .rise{animation:rise1 linear both;animation-timeline:view();animation-range:entry 0% cover 28%}
+}
+@keyframes print{from{clip-path:inset(100% 0 0 0)}to{clip-path:inset(0 0 0 0)}}
+@keyframes rise1{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:none}}
+@media(max-width:899px){
+  .v1 .hero .top,.v1 .sh,.v1 .about .in{grid-template-columns:minmax(0,1fr)}
+  .v1 .pj,.v1 .pj.r{grid-template-columns:minmax(0,1fr);gap:20px;padding-bottom:96px}
+  .v1 .pj .im,.v1 .pj .tx,.v1 .pj.r .im,.v1 .pj.r .tx{grid-column:1;grid-row:auto}
+  .v1 .proc{grid-template-columns:minmax(0,1fr)}
+  .v1 .sec{padding-top:120px}.v1 .about{margin-top:120px;padding-block:96px}
+}
+
+/* ============ 2 · DESPIECE DEL NOMBRE ============ */
+.v2{--g:#0C0E11;--s:#171A1F;--ink:#F2F3F4;--ink2:#AEB5BF;--a:#47B5FF;background:var(--g);color:var(--ink);font-family:'IBM Plex Sans',system-ui,sans-serif;font-size:18px;line-height:1.55;color-scheme:dark}
+.v2 .wm{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:24px;text-transform:uppercase;text-decoration:none;white-space:nowrap}
+.v2 .b{background:var(--a);color:var(--g)}
+.v2 .b.l{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 2px var(--ink)}
+.v2 .stage{position:relative;height:820vh}
+.v2 .pin{position:sticky;top:0;height:100vh;overflow:hidden}
+.v2 .lt{position:absolute;left:50%;top:50%;font-family:'Barlow Condensed',sans-serif;font-weight:800;line-height:.8;text-transform:uppercase;font-size:min(30vw,52vh);will-change:transform;color:var(--ink);transform:translate(-50%,-50%)}
+.v2 h1{position:absolute;inset:0;margin:0;font-size:inherit}
+.v2 .intro{position:absolute;left:0;right:0;bottom:84px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:20px 40px;align-items:end}
+.v2 .intro p{font-size:clamp(19px,1.7vw,23px);line-height:1.45;max-width:560px}
+.v2 .slot{position:absolute;inset:0;display:grid;place-items:center;opacity:0;pointer-events:none}
+.v2 .slot.on{pointer-events:auto}
+.v2 .vis{width:min(52vw,62vh);aspect-ratio:1;position:relative}
+.v2 .vis model-viewer{width:100%;height:100%;background:transparent;--poster-color:transparent;pointer-events:none}
+.v2 .vis img{width:100%;height:100%;object-fit:cover}
+.v2 .vis.wh{background:#F2F2F0}.v2 .vis.wh img{object-fit:contain;padding:6%}
+.v2 .cap{position:absolute;left:0;right:0;bottom:76px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,auto);gap:12px 40px;align-items:end}
+.v2 .cap h3{font-family:'Barlow Condensed',sans-serif;font-weight:800;text-transform:uppercase;font-size:clamp(46px,6.4vw,104px);line-height:.86;letter-spacing:-.01em}
+.v2 .cap p{max-width:520px}
+.v2 .cap .r{display:flex;flex-direction:column;gap:6px;align-items:flex-end;text-align:right}
+.v2 .cap .r small{font-size:16px;color:var(--ink2)}
+.v2 .sec{padding-block:180px}
+.v2 h2{font-family:'Barlow Condensed',sans-serif;font-weight:800;text-transform:uppercase;font-size:clamp(52px,7.4vw,120px);line-height:.86}
+.v2 .ab{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:56px;align-items:start}
+.v2 .ab .t{display:flex;flex-direction:column;gap:24px}
+.v2 .ab .grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;align-items:end}
+.v2 .ab figure{margin:0;display:flex;flex-direction:column;gap:10px}
+.v2 .ab figcaption{font-size:16px;color:var(--ink2)}
+.v2 .ab .wbox{background:#fff;overflow:hidden}
+.v2 .end{background:var(--a);color:var(--g);padding-block:110px 48px}
+.v2 .end .in{display:flex;flex-direction:column;gap:44px}
+.v2 .end .big{font-family:'Barlow Condensed',sans-serif;font-weight:800;text-transform:uppercase;font-size:clamp(52px,11.6vw,190px);line-height:.82}
+.v2 .end .b{background:var(--g);color:var(--ink)}
+.v2 .end .row{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;align-items:center}
+@media(max-width:899px){
+  .v2 .intro,.v2 .cap,.v2 .ab{grid-template-columns:minmax(0,1fr)}
+  .v2 .cap .r{align-items:flex-start;text-align:left}
+  .v2 .vis{width:min(84vw,46vh)}
+  .v2 .slot{place-items:start center;padding-top:110px}
+  .v2 .ab .grid3{grid-template-columns:minmax(0,1fr)}
+  .v2 .sec{padding-block:120px}
+}
+.v2.static .stage{height:auto}.v2.static .pin{position:relative;height:auto;overflow:visible}
+.v2.static .lt{position:relative;left:auto;top:auto;transform:none!important;display:inline-block}
+.v2.static .slot{position:relative;opacity:1!important;padding-block:60px}
+
+/* ============ 3 · RECORRIDO HORIZONTAL ============ */
+.v3{--g:#F4F4F2;--ink:#0E0F11;--a:#1D3BFF;background:var(--g);color:var(--ink);font-family:'Bricolage Grotesque',system-ui,sans-serif;font-size:18px;line-height:1.55}
+.v3 .wm{font-weight:700;font-size:19px;text-decoration:none;white-space:nowrap}
+.v3 .b{background:var(--ink);color:var(--g)}
+.v3 .hero{padding-block:48px 120px;display:flex;flex-direction:column;gap:40px}
+.v3 h1{font-weight:800;font-size:clamp(56px,10.6vw,184px);line-height:.86;letter-spacing:-.045em;font-variation-settings:"opsz" 96}
+.v3 .hero .row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:20px 40px;align-items:end}
+.v3 .hero .row p{font-size:clamp(19px,1.8vw,24px);line-height:1.45;max-width:620px}
+.v3 .say{padding-block:40px 200px}
+.v3 .say p{font-size:clamp(24px,2.6vw,36px);line-height:1.3;font-weight:600;max-width:980px;letter-spacing:-.01em}
+.v3 .say .w{transition:opacity .2s linear}
+.v3 .track{position:relative}
+.v3 .tpin{position:sticky;top:0;height:100vh;overflow:hidden;display:flex;flex-direction:column;justify-content:center;transition:background-color .5s ease,color .5s ease}
+.v3 .tpin h2{position:absolute;top:28px;font-weight:800;font-size:clamp(22px,2vw,28px);letter-spacing:-.01em}
+.v3 .rail{display:flex;gap:7vw;will-change:transform;padding-left:max(18px,env(safe-area-inset-left,0px))}
+.v3 .card{flex:0 0 min(80vw,1200px);display:grid;grid-template-columns:minmax(0,6fr) minmax(0,5fr);gap:32px;align-items:end;min-width:0}
+.v3 .card .im{overflow:hidden;aspect-ratio:4/3}
+.v3 .card .im img{width:100%;height:100%;object-fit:cover;transform:scale(1.06);transition:transform 1.2s cubic-bezier(.2,.75,.2,1)}
+.v3 .card.near .im img{transform:none}
+.v3 .card .im.wh{background:#fff}.v3 .card .im.wh img{object-fit:contain;padding:6%}
+.v3 .card .tx{display:flex;flex-direction:column;gap:16px;padding-bottom:4px;min-width:0}
+.v3 .card h3{font-weight:800;font-size:clamp(38px,4vw,72px);overflow-wrap:anywhere;line-height:.88;letter-spacing:-.04em}
+.v3 .card .m{font-size:16px;opacity:.85}
+.v3 .card .go{color:inherit}
+.v3 .ab{padding-block:200px 160px;display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);gap:56px;align-items:center}
+.v3 h2.big{font-weight:800;font-size:clamp(52px,7.4vw,120px);line-height:.86;letter-spacing:-.045em}
+.v3 .ab .t{display:flex;flex-direction:column;gap:24px}
+.v3 .ab .im{overflow:hidden;aspect-ratio:4/5}
+.v3 .ab .im img{width:100%;height:100%;object-fit:cover}
+.v3 .end{background:var(--ink);color:var(--g);padding-block:110px 48px}
+.v3 .end .in{display:flex;flex-direction:column;gap:44px}
+.v3 .end .big{font-weight:800;font-size:clamp(48px,10.4vw,180px);line-height:.84;letter-spacing:-.05em}
+.v3 .end .b{background:var(--g);color:var(--ink)}
+.v3 .end .row{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;align-items:center}
+@media(max-width:899px){
+  .v3 .hero .row,.v3 .ab{grid-template-columns:minmax(0,1fr)}
+  .v3 .card{flex-basis:84vw;grid-template-columns:minmax(0,1fr);gap:18px}
+  .v3 .card .im{aspect-ratio:4/3}
+  .v3 .ab{padding-block:120px}
+}
+.v3.static .track{height:auto!important}.v3.static .tpin{position:relative;height:auto;padding-block:100px}
+.v3.static .rail{flex-direction:column;gap:96px;transform:none!important;padding-right:max(18px,env(safe-area-inset-right,0px))}
+.v3.static .card{flex-basis:auto}
+
+@media(prefers-reduced-motion:reduce){
+  .v1 .print,.v1 .rise{animation:none!important}
+  .v1 .run .noz{animation:none}
+}
+</style>
+</head>
+<body>
+
+
+<!-- ===================== 1 · CAPA A CAPA ===================== -->
+<div class="v v1" id="v-capa" data-v="capa">
+  <header class="gut max hd">
+    <a class="wm" href="#capa">Óscar Ramón Mendiguchía</a>
+    <nav aria-label="Principal"><a class="t" href="#capa-proyectos">Proyectos</a><a class="t" href="#capa-sobre">Sobre mí</a><a class="b s" href="https://www.linkedin.com/in/oramonmendiguchia">Contactar</a></nav>
+  </header>
+  <section class="gut max hero">
+    <div class="top">
+      <p class="lead">Óscar Ramón Mendiguchía. Ingeniero de producto: diseño piezas que se pueden fabricar y las imprimo para probarlas.</p>
+      <a class="b" href="#capa-proyectos">Ver proyectos</a>
+    </div>
+    <h1 class="mendi" id="mendi1" aria-label="Mendi">MENDI<span class="noz" aria-hidden="true"></span></h1>
+  </section>
+
+  <section class="gut max sec" id="capa-proyectos">
+    <div class="sh rise"><h2>Proyectos</h2><p>Seis piezas llevadas del boceto al prototipo. Cada una se imprime capa a capa al llegar a ella.</p></div>
+    <div id="v1list"></div>
+  </section>
+
+  <section class="gut max sec" style="padding-top:60px">
+    <div class="sh rise"><h2>Mido, acoto, imprimo</h2><p>El mismo recorrido en cada pieza: el boceto plantea el mecanismo, el plano lo hace fabricable y el prototipo demuestra que funciona.</p></div>
+    <div class="proc">
+      <figure><div class="wbox"><img class="print" src="img/boceto.jpg" alt="Boceto del mecanismo dosificador con el tornillo sin fin" loading="lazy"></div><figcaption>Boceto: tornillo sin fin y tapón en sección.</figcaption></figure>
+      <figure><div class="wbox"><img class="print" src="img/plano.jpg" alt="Plano acotado del conjunto" loading="lazy"></div><figcaption>Plano: conjunto acotado, tolerancia ±0,10 mm.</figcaption></figure>
+      <figure><div style="overflow:hidden"><img class="print" src="img/inv-print.jpg" alt="Pieza imprimiéndose en FDM" loading="lazy" style="aspect-ratio:3/4;object-fit:cover"></div><figcaption>Prototipo: impresión FDM en el taller.</figcaption></figure>
+    </div>
+  </section>
+
+  <section class="about" id="capa-sobre">
+    <div class="gut max in">
+      <div class="t rise">
+        <h2>Sobre mí</h2>
+        <p style="font-size:clamp(20px,2vw,26px);line-height:1.4;font-weight:500">Ingeniero en formación constante con perfil técnico híbrido. Combino diseño paramétrico, optimización topológica y fabricación propia.</p>
+        <p>Especializado en mecanismos, con enfoque estricto en GD&amp;T y DFM/DFA. Curso 4.º de Ingeniería en Diseño Industrial y Desarrollo de Producto en la Universidad de Valladolid y publico diagnosis y reparaciones en MendiMekanik.</p>
+        <div class="tools"><span>CATIA V5</span><span>Fusion 360</span><span>Blender</span><span>FDM y SLA</span><span>Moldeo en silicona</span><span>CNC</span><span>GD&amp;T</span></div>
+      </div>
+      <div class="im rise"><img src="img/belug-b.jpg" alt="Render del dron BeluG-04 con su banda de luz" loading="lazy"></div>
+    </div>
+  </section>
+
+  <footer class="gut max end">
+    <p class="big">Óscar Ramón Mendiguchía</p>
+    <div class="row"><p>¿Una pieza que hay que hacer fabricable? Hablemos.</p><div style="display:flex;gap:12px;flex-wrap:wrap"><a class="b k" href="https://www.linkedin.com/in/oramonmendiguchia">LinkedIn ↗</a><a class="b" href="https://www.youtube.com/@MendiMekanik">YouTube · MendiMekanik ↗</a></div></div>
+  </footer>
+</div>
+
+<!-- ===================== 2 · DESPIECE DEL NOMBRE ===================== -->
+<div class="v v2" id="v-despiece" data-v="despiece">
+  <header class="gut max hd">
+    <a class="wm" href="#despiece">Óscar Ramón Mendiguchía</a>
+    <nav aria-label="Principal"><a class="t" href="#despiece-sobre">Sobre mí</a><a class="b s" href="https://www.linkedin.com/in/oramonmendiguchia">Contactar</a></nav>
+  </header>
+  <section class="stage" id="stage2">
+    <div class="pin">
+      <h1 aria-label="Mendi">
+        <span class="lt" aria-hidden="true">M</span><span class="lt" aria-hidden="true">E</span><span class="lt" aria-hidden="true">N</span><span class="lt" aria-hidden="true">D</span><span class="lt" aria-hidden="true">I</span>
+      </h1>
+      <div class="gut intro" id="intro2">
+        <p>Óscar Ramón Mendiguchía, ingeniero de producto. Baja y el nombre se abre en piezas: entre ellas pasan mis seis proyectos.</p>
+        <a class="b" href="#despiece-sobre">Contactar</a>
+      </div>
+      <div id="v2slots"></div>
+    </div>
+  </section>
+  <section class="gut max sec" id="despiece-sobre">
+    <div class="ab">
+      <div class="t">
+        <h2>Sobre mí</h2>
+        <p style="font-size:clamp(20px,2vw,24px);line-height:1.45">Ingeniero en formación constante con perfil técnico híbrido. Combino diseño paramétrico, optimización topológica y fabricación propia.</p>
+        <p>Especializado en mecanismos, con enfoque estricto en GD&amp;T y DFM/DFA. Curso 4.º en la Universidad de Valladolid. Trabajo con CATIA V5, Fusion 360, Blender, impresión FDM y SLA, moldeo en silicona y CNC.</p>
+      </div>
+      <div class="grid3">
+        <figure><div class="wbox"><img src="img/boceto.jpg" alt="Boceto del mecanismo" loading="lazy"></div><figcaption>Boceto</figcaption></figure>
+        <figure><div class="wbox"><img src="img/plano.jpg" alt="Plano acotado" loading="lazy"></div><figcaption>Plano acotado</figcaption></figure>
+        <figure><div style="overflow:hidden"><img src="img/inv-print.jpg" alt="Prototipo imprimiéndose" loading="lazy" style="aspect-ratio:3/4;object-fit:cover"></div><figcaption>Prototipo impreso</figcaption></figure>
+      </div>
+    </div>
+  </section>
+  <footer class="end">
+    <div class="gut max in">
+      <div class="row"><p style="font-size:clamp(20px,2vw,26px);font-weight:500">¿Una pieza que hay que hacer fabricable? Hablemos.</p><div style="display:flex;gap:12px;flex-wrap:wrap"><a class="b" href="https://www.linkedin.com/in/oramonmendiguchia">LinkedIn ↗</a><a class="b" href="https://www.youtube.com/@MendiMekanik">YouTube · MendiMekanik ↗</a></div></div>
+      <p class="big">Óscar Ramón Mendiguchía</p>
+    </div>
+  </footer>
+</div>
+
+<!-- ===================== 3 · RECORRIDO HORIZONTAL ===================== -->
+<div class="v v3" id="v-recorrido" data-v="recorrido">
+  <header class="gut max hd">
+    <a class="wm" href="#recorrido">Óscar Ramón Mendiguchía</a>
+    <nav aria-label="Principal"><a class="t" href="#recorrido-proyectos">Proyectos</a><a class="t" href="#recorrido-sobre">Sobre mí</a><a class="b s" href="https://www.linkedin.com/in/oramonmendiguchia">Contactar</a></nav>
+  </header>
+  <section class="gut max hero">
+    <h1>Piezas que se pueden fabricar.</h1>
+    <div class="row"><p>Óscar Ramón Mendiguchía, ingeniero de producto. Diseño industrial, DFM, tolerancias y prototipado propio desde la Universidad de Valladolid.</p><a class="b" href="#recorrido-proyectos">Ver el recorrido</a></div>
+  </section>
+  <section class="gut max say"><p id="say3">Mido, modelo, acoto e imprimo. Cada proyecto empieza en un boceto y termina en una pieza que se puede sujetar con la mano.</p></section>
+  <section class="track" id="recorrido-proyectos">
+    <div class="tpin" id="tpin3">
+      <h2 class="gut">Proyectos</h2>
+      <div class="rail" id="rail3"></div>
+    </div>
+  </section>
+  <section class="gut max ab" id="recorrido-sobre">
+    <div class="t">
+      <h2 class="big">Sobre mí</h2>
+      <p style="font-size:clamp(20px,2vw,24px);line-height:1.45">Ingeniero en formación constante con perfil técnico híbrido. Combino diseño paramétrico, optimización topológica y fabricación propia.</p>
+      <p>Especializado en mecanismos, con enfoque estricto en GD&amp;T y DFM/DFA. Curso 4.º de Ingeniería en Diseño Industrial y Desarrollo de Producto en la Universidad de Valladolid y publico diagnosis y reparaciones en MendiMekanik.</p>
+    </div>
+    <div class="im"><img src="img/inv-print.jpg" alt="Pieza de recambio imprimiéndose en el taller" loading="lazy"></div>
+  </section>
+  <footer class="end">
+    <div class="gut max in">
+      <p class="big">Óscar Ramón Mendiguchía</p>
+      <div class="row"><p>¿Una pieza que hay que hacer fabricable? Hablemos.</p><div style="display:flex;gap:12px;flex-wrap:wrap"><a class="b" href="https://www.linkedin.com/in/oramonmendiguchia">LinkedIn ↗</a><a class="b" href="https://www.youtube.com/@MendiMekanik">YouTube · MendiMekanik ↗</a></div></div>
+    </div>
+  </footer>
+</div>
+
+<nav class="sw" aria-label="Variaciones de la portada">
+  <span>Variación</span>
+  <button type="button" data-go="capa">1 · Capa a capa</button>
+  <button type="button" data-go="despiece">2 · Despiece del nombre</button>
+  <button type="button" data-go="recorrido">3 · Recorrido horizontal</button>
+</nav>
+
+<script type="module" src="https://cdn.jsdelivr.net/npm/@google/model-viewer@3.5.0/dist/model-viewer.min.js"></script>
+<script>
+const BASE = 'https://ormendiguchia.vercel.app/proyectos/';
+const PJ = [
+  { slug: 'belug-04', name: 'BeluG-04', tag: 'Dron conceptual con hélices helicoidales y carcasa de cuerpo continuo.', meta: 'Proyecto personal · MON Drones', img: 'img/belug.jpg', model: 'models/belug.glb.wasm', orbit: '35deg 68deg 105%', col: '#1D3BFF', on: '#F4F4F2' },
+  { slug: 'mecanismo-dosificador', name: 'Mecanismo dosificador', tag: 'Un tapón que dosifica especias por giros de 120°, sin agitar el bote.', meta: 'Trabajo en equipo · 3.er curso', img: 'img/mec.jpg', model: 'models/qiub.glb.wasm', orbit: '30deg 78deg 125%', col: '#FF5B1F', on: '#0E0F11' },
+  { slug: 'ovum-g1', name: 'OVUM G-1', tag: 'Monturas ultraligeras de biocerámico de cáscara de huevo.', meta: 'Concurso SILMO Optical Design', img: 'img/ovum.jpg', model: 'models/ovum.glb.wasm', orbit: '25deg 72deg 105%', col: '#D6D1C8', on: '#0E0F11' },
+  { slug: 'bmw-m6-concept', name: 'BMW M6 concept', tag: 'Investigación de marca y modelo 3D de un nuevo M6 en CATIA V5, superficie a superficie.', meta: 'Diseño Asistido por Ordenador · UVa', img: 'img/bmw.jpg', col: '#C4161C', on: '#F4F4F2' },
+  { slug: 'mies', name: 'MIES', tag: 'Mobiliario modular: la espiga de cereal convertida en viga de aluminio.', meta: 'Proyecto de cátedra · ETSAVA', img: 'img/mies.jpg', white: true, col: '#23593A', on: '#F4F4F2' },
+  { slug: 'ingenieria-inversa', name: 'Ingeniería inversa', tag: 'Una pieza descatalogada del calefactor de un Peugeot 205, medida, modelada e instalada en horas.', meta: 'Taller propio · FDM', img: 'img/inv.jpg', model: 'models/rev.glb.wasm', orbit: '40deg 62deg 115%', col: '#FFD21F', on: '#0E0F11' },
+];
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
+const ease = u => u < .5 ? 4 * u * u * u : 1 - Math.pow(-2 * u + 2, 3) / 2;
+const prog = el => { const r = el.getBoundingClientRect(); return clamp(-r.top / Math.max(1, r.height - innerHeight)); };
+
+/* ---------- 1 · Capa a capa ---------- */
+document.getElementById('v1list').innerHTML = PJ.map((p, i) => `
+<article class="pj ${i % 2 ? 'r' : ''}">
+  <div class="im ${p.white ? 'wh' : ''}"><img class="print" src="${p.img}" alt="${esc(p.name)}" loading="lazy"></div>
+  <div class="tx rise"><h3>${esc(p.name)}</h3><p>${esc(p.tag)}</p><p class="m">${esc(p.meta)}</p><a class="go" href="${BASE + p.slug}">Ver proyecto <span aria-hidden="true">→</span></a></div>
+</article>`).join('');
+const M1 = document.getElementById('mendi1'), LAYERS = 18;
+M1.insertAdjacentHTML('afterbegin', Array.from({ length: LAYERS }, (_, i) => {
+  const top = (i / LAYERS * 100).toFixed(3), bot = (100 - (i + 1) / LAYERS * 100).toFixed(3);
+  return `<span class="ly" aria-hidden="true" style="clip-path:inset(${top}% 0 ${bot}% 0)">MENDI</span>`;
+}).join(''));
+const lys = [...M1.querySelectorAll('.ly')];
+function printIn() {
+  if (reduce) return;
+  M1.style.setProperty('--h', M1.offsetHeight + 'px');
+  M1.classList.remove('run'); void M1.offsetWidth; M1.classList.add('run');
+  lys.forEach((l, i) => { const k = LAYERS - 1 - i; l.animate([{ opacity: 0, transform: 'translateY(-6px)' }, { opacity: 1, transform: 'none' }], { duration: 160, delay: 80 + k * 86, fill: 'both', easing: 'steps(2,end)' }); });
+}
+function v1() {
+  // al bajar, las capas del nombre se desplazan alternadas, como un apilado que se descuadra
+  const r = M1.getBoundingClientRect(), p = clamp(-r.top / (r.height + 200) + .12);
+  lys.forEach((l, i) => { l.style.transform = `translateX(${((i % 2 ? 1 : -1) * p * p * (8 + i * 1.2)).toFixed(2)}vw)`; });
+}
+
+/* ---------- 2 · Despiece del nombre ---------- */
+document.getElementById('v2slots').innerHTML = PJ.map(p => `
+<div class="slot gut" data-slot>
+  <div class="vis ${p.white ? 'wh' : ''}">${p.model
+    ? `<model-viewer src="${p.model}" alt="Modelo 3D de ${esc(p.name)}" camera-orbit="${p.orbit}" environment-image="neutral" exposure="1" shadow-intensity="0.7" interaction-prompt="none" auto-rotate auto-rotate-delay="0" rotation-per-second="22deg" disable-zoom loading="eager"></model-viewer>`
+    : `<img src="${p.img}" alt="${esc(p.name)}" loading="lazy">`}</div>
+  <div class="cap gut"><div style="display:flex;flex-direction:column;gap:14px"><h3>${esc(p.name)}</h3><p>${esc(p.tag)}</p></div><div class="r"><small>${esc(p.meta)}</small><a class="go" href="${BASE + p.slug}">Ver proyecto <span aria-hidden="true">→</span></a></div></div>
+</div>`).join('');
+const S2 = document.getElementById('stage2'), LT = [...S2.querySelectorAll('.lt')], SLOTS = [...S2.querySelectorAll('[data-slot]')], INTRO = document.getElementById('intro2');
+const OUT = [[-.40, -.34], [0, -.40], [.40, -.34], [-.40, .30], [.40, .30]];
+const SPIN = [-38, 24, -16, 30, -44];
+function v2() {
+  const p = prog(S2), w = innerWidth, h = innerHeight;
+  const open = ease(clamp(p / .11)) * (1 - ease(clamp((p - .93) / .07)));
+  const lw = LT.map(l => l.offsetWidth), tot = lw.reduce((a, b) => a + b, 0);
+  let x0 = -tot / 2;
+  LT.forEach((l, i) => {
+    const cx = x0 + lw[i] / 2; x0 += lw[i];
+    const tx = cx + (OUT[i][0] * w - cx) * open, ty = OUT[i][1] * h * open;
+    const rot = SPIN[i] * open + (p * 120 * (i % 2 ? 1 : -1)) * open;
+    l.style.transform = `translate(calc(-50% + ${tx.toFixed(1)}px), calc(-50% + ${ty.toFixed(1)}px)) rotate(${rot.toFixed(2)}deg) scale(${(1 - .58 * open).toFixed(3)})`;
+    l.style.opacity = (1 - .78 * open).toFixed(3);
+  });
+  INTRO.style.opacity = (1 - clamp(p / .05)).toFixed(3);
+  INTRO.style.pointerEvents = p < .04 ? 'auto' : 'none';
+  const seg = .82 / SLOTS.length;
+  SLOTS.forEach((s, i) => {
+    const c = .11 + seg * (i + .5), d = (p - c) / seg;
+    const o = clamp(1 - Math.max(0, Math.abs(d) - .28) / .22);
+    s.style.opacity = o.toFixed(3);
+    s.classList.toggle('on', o > .6);
+    const v = s.querySelector('.vis'), cap = s.querySelector('.cap');
+    v.style.transform = `translateY(${(-d * 6).toFixed(2)}vh) scale(${(0.86 + .14 * o).toFixed(3)})`;
+    cap.style.transform = `translateY(${(Math.max(0, -d) * 40).toFixed(1)}px)`;
+  });
+}
+
+/* ---------- 3 · Recorrido horizontal ---------- */
+document.getElementById('rail3').innerHTML = PJ.map(p => `
+<article class="card" data-col="${p.col}" data-on="${p.on}">
+  <div class="im ${p.white ? 'wh' : ''}"><img src="${p.img}" alt="${esc(p.name)}" loading="lazy"></div>
+  <div class="tx"><h3>${esc(p.name)}</h3><p>${esc(p.tag)}</p><p class="m">${esc(p.meta)}</p><a class="go" href="${BASE + p.slug}">Ver proyecto <span aria-hidden="true">→</span></a></div>
+</article>`).join('') + '<div style="flex:0 0 8vw" aria-hidden="true"></div>';
+const SAY = document.getElementById('say3');
+SAY.innerHTML = SAY.textContent.split(' ').map(w => `<span class="w">${esc(w)}</span>`).join(' ');
+const WS = [...SAY.querySelectorAll('.w')], TR = document.getElementById('recorrido-proyectos'), PIN3 = document.getElementById('tpin3'), RAIL = document.getElementById('rail3'), CARDS = [...RAIL.querySelectorAll('.card')];
+function sizeTrack() { TR.style.height = (RAIL.scrollWidth - innerWidth + innerHeight) + 'px'; }
+function v3() {
+  const r = SAY.getBoundingClientRect(), sp = clamp((innerHeight * .85 - r.top) / (innerHeight * .6));
+  WS.forEach((w, i) => { w.style.opacity = (0.16 + .84 * clamp(sp * WS.length * 1.1 - i)).toFixed(3); });
+  const p = prog(TR), dist = RAIL.scrollWidth - innerWidth;
+  RAIL.style.transform = `translateX(${(-p * dist).toFixed(1)}px)`;
+  let best = 0, bd = 1e9;
+  CARDS.forEach((c, i) => { const cr = c.getBoundingClientRect(), d = Math.abs(cr.left + cr.width / 2 - innerWidth / 2); c.classList.toggle('near', d < innerWidth * .45); if (d < bd) { bd = d; best = i; } });
+  const inTrack = TR.getBoundingClientRect().top < innerHeight * .5 && TR.getBoundingClientRect().bottom > innerHeight * .5;
+  PIN3.style.backgroundColor = inTrack ? CARDS[best].dataset.col : 'transparent';
+  PIN3.style.color = inTrack ? CARDS[best].dataset.on : 'inherit';
+}
+
+/* ---------- Selector y bucle ---------- */
+const VS = { capa: v1, despiece: v2, recorrido: v3 };
+let cur = null;
+function show() {
+  const h = location.hash.slice(1), key = Object.keys(VS).find(k => h === k || h.startsWith(k + '-')) || 'capa';
+  if (key !== cur) {
+    cur = key;
+    document.querySelectorAll('.v').forEach(v => v.classList.toggle('on', v.dataset.v === key));
+    document.querySelectorAll('.sw button').forEach(b => b.setAttribute('aria-pressed', b.dataset.go === key ? 'true' : 'false'));
+    const bg = { capa: ['#101214', '#E7E9EC'], despiece: ['#F2F3F4', '#0C0E11'], recorrido: ['#0E0F11', '#F4F4F2'] }[key];
+    document.documentElement.style.setProperty('--sw-bg', bg[0]); document.documentElement.style.setProperty('--sw-ink', bg[1]);
+    document.body.style.background = { capa: '#E7E9EC', despiece: '#0C0E11', recorrido: '#F4F4F2' }[key];
+    if (key === 'recorrido') sizeTrack();
+    if (h === key || !h) window.scrollTo(0, 0);
+    if (key === 'capa') printIn();
+  }
+  if (h && h !== key) { const el = document.getElementById(h); if (el) el.scrollIntoView(); }
+  tick();
+}
+document.querySelectorAll('.sw button').forEach(b => b.addEventListener('click', () => { location.hash = b.dataset.go; }));
+if (reduce) { document.querySelector('.v2').classList.add('static'); document.querySelector('.v3').classList.add('static'); }
+let queued = false;
+function tick() { queued = false; if (!reduce && VS[cur]) VS[cur](); }
+addEventListener('scroll', () => { if (!queued) { queued = true; requestAnimationFrame(tick); } }, { passive: true });
+addEventListener('resize', () => { if (cur === 'recorrido' && !reduce) sizeTrack(); tick(); });
+addEventListener('hashchange', show);
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { if (cur === 'recorrido') sizeTrack(); tick(); });
+show();
+</script>
+
+</body>
+</html>
