@@ -145,7 +145,7 @@ html.rm .pzs{height:auto}html.rm .pzi{position:relative;height:90svh}
 .prow:hover .t{color:var(--signal)}
 .prow:hover .k{transform:none;opacity:1}
 .prow .mi{display:none}
-.float{position:fixed;left:0;top:0;width:min(30vw,440px);aspect-ratio:4/3;pointer-events:none;z-index:20;overflow:hidden;opacity:0;transform:translate(-50%,-50%) scale(.6);will-change:transform,opacity}
+.float{position:fixed;left:0;top:0;width:min(21vw,308px);aspect-ratio:4/3;pointer-events:none;z-index:20;overflow:hidden;opacity:0;transform:translate(-50%,-50%) scale(.6);will-change:transform,opacity}
 .float img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .35s ease}
 .float img.on{opacity:1}
 .float img.wh{object-fit:contain;background:#fff;padding:6%}
@@ -173,7 +173,7 @@ html.rm .pzs{height:auto}html.rm .pzi{position:relative;height:90svh}
 /* Cierre */
 .end{background:var(--signal);color:var(--ink);padding-block:160px 40px;overflow:hidden}
 .end .q{font-size:clamp(30px,3.6vw,56px);line-height:1.08;font-weight:650;letter-spacing:-.03em;max-width:15em}
-.end .acts{display:flex;gap:14px;flex-wrap:wrap;margin-top:48px}
+.end .acts{display:flex;gap:14px;flex-wrap:wrap}
 .end .big{font-size:min(10.6vw,200px);margin-top:140px;white-space:nowrap}
 .end .legal{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-top:40px;font-size:15px}
 
@@ -447,7 +447,6 @@ function endBlock() {
   return `
 <footer class="end" id="contacto">
   <div class="wrap">
-    <p class="q rv">¿Tienes una pieza que hay que hacer fabricable? Hablemos.</p>
     <div class="acts rv"><a class="btn" href="${LINKEDIN}">Escribir por LinkedIn <span class="ar" aria-hidden="true">↗</span></a><a class="btn inv" href="${YT}">YouTube · MendiMekanik <span class="ar" aria-hidden="true">↗</span></a></div>
     <p class="big wide mask fill" aria-hidden="true" id="bigname"><span>Óscar Ramón Mendiguchía</span></p>
     <div class="legal"><span>© 2026 Óscar Ramón Mendiguchía</span><span>Valladolid · Diseñado y construido por Mendi</span></div>
