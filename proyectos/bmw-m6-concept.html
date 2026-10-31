@@ -133,7 +133,7 @@ html.rm .pzs{height:auto}html.rm .pzi{position:relative;height:90svh}
 .rail .num:nth-child(4n+1) b{color:var(--signal)}
 
 /* Proyectos */
-.work{padding-block:120px 160px;position:relative}
+.work{padding-block:160px 200px;position:relative}
 .work .top{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap;margin-bottom:56px}
 .work h2{font-size:clamp(56px,8.6vw,150px)}
 .work .top p{max-width:380px;font-size:17px}
@@ -157,21 +157,6 @@ html.rm .pzs{height:auto}html.rm .pzi{position:relative;height:90svh}
   .prow .mi.wh{background:#fff}.prow .mi.wh img{object-fit:contain;padding:6%}
   .prow .k{display:none}
 }
-
-/* Índice de proyectos */
-.tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:56px 28px}
-.tile{display:flex;flex-direction:column;gap:14px;text-decoration:none;min-width:0}
-.ti{display:block;aspect-ratio:4/3;overflow:hidden;background:var(--paper-2)}
-.ti img{width:100%;height:100%;object-fit:cover;transition:transform 1s var(--e-out)}
-.ti.wh{background:var(--white)}.ti.wh img{object-fit:contain;padding:5%}
-.tile:hover .ti img{transform:scale(1.05)}
-.tn{display:flex;align-items:baseline;gap:14px;min-width:0}
-.tn .no{font-size:14px;font-weight:600;color:var(--ink-2);font-variant-numeric:tabular-nums}
-.tn .t{font-stretch:118%;font-weight:750;letter-spacing:-.035em;text-transform:uppercase;font-size:clamp(24px,2.1vw,34px);line-height:.95;transition:color .3s ease;min-width:0}
-.tile:hover .tn .t{color:var(--signal)}
-.tile .d{font-size:16px;color:var(--ink-2);max-width:34em}
-@media(max-width:1000px){.tiles{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media(max-width:600px){.tiles{grid-template-columns:minmax(0,1fr);gap:44px}}
 
 /* Sobre mí */
 .about{background:var(--paper-2);padding-block:200px}
@@ -343,7 +328,7 @@ function fitText() {
     else if (tw > avail) el.style.fontSize = fs * avail / tw * .99 + 'px';
     for (let k = 0; k < 4; k++) { const r = el.scrollWidth / el.clientWidth; if (!(r > 1.002)) break; el.style.fontSize = parseFloat(el.style.fontSize || cs.fontSize) / r * .99 + 'px'; }
   });
-  document.querySelectorAll('.wide:not(.fit):not(.fill), .prow .t, .tile .t, .figs .n').forEach(el => {
+  document.querySelectorAll('.wide:not(.fit):not(.fill), .prow .t, .figs .n').forEach(el => {
     el.style.fontSize = '';
     for (let k = 0; k < 4; k++) {
       const boxes = [el, ...el.querySelectorAll('.mask')];
@@ -374,9 +359,6 @@ const goTo = el => { if (lenis) lenis.scrollTo(el, { offset: 0, duration: 1.4 })
 
 /* ---------- Portada ---------- */
 const IMG = s => '/img/' + s;
-/* Imagen de cada proyecto en el índice de la portada (true = dibujo sobre blanco) */
-const TILE = { 'belug-04': ['/img/belug-04-02.jpg?v=79981152'], 'mecanismo-dosificador': ['/img/qiub-01.jpg?v=3e6fc449'], 'ovum-g1': ['/img/ovum-g1-02.jpg?v=2bab08dc'],
-  'bmw-m6-concept': ['/img/bmw-m6-concept-02.jpg?v=28659ad2'], 'mies': ['/img/mies-01.jpg?v=696039d1', true], 'ingenieria-inversa': ['/img/ingenieria-inversa-01.jpg?v=42ae29cc'] };
 /* Enlaces: en la web publicada cada proyecto tiene su URL; en la vista previa se usan anclas */
 const PH = s => PATHS ? '/proyectos/' + s : '#p-' + s;
 const AH = id => PATHS ? '/#' + id : '#' + id;
@@ -388,20 +370,16 @@ const STAGES = [
 ];
 function home() {
   const rows = P.map((p, i) => `
-    <a class="tile rv" href="${PH(p.slug)}">
-      <span class="ti ${TILE[p.slug][1] ? 'wh' : ''}"><img src="${TILE[p.slug][0]}" alt="" loading="${i < 3 ? 'eager' : 'lazy'}"></span>
-      <span class="tn"><span class="no">${String(i + 1).padStart(2, '0')}</span><span class="t">${esc(short(p.name))}</span></span>
+    <a class="prow" href="${PH(p.slug)}" data-i="${i}">
+      <span class="mi ${p.coverKind !== 'photo' ? 'wh' : ''}"><img src="${esc(p.cover.src)}" alt="" loading="lazy"></span>
+      <span class="t">${esc(short(p.name))}</span>
       <span class="d">${esc(p.tagline)}</span>
+      <span class="k" aria-hidden="true">→</span>
     </a>`).join('');
   return `
 <section class="hero" id="inicio">
   <div class="wrap in"><h1 class="wide" id="hh" aria-label="Ingeniero de producto"><span class="mask fill"><span>${chars('Ingeniero')}</span></span><span class="mask fill l2"><span>${chars('de producto')}</span></span></h1></div>
   <span class="cue" aria-hidden="true"></span>
-</section>
-
-<section class="wrap work" id="proyectos" aria-labelledby="work-h">
-  <div class="top"><h2 id="work-h" class="wide rvh">Proyectos</h2><p class="rv">Seis proyectos, de la idea al prototipo.</p></div>
-  <div class="tiles" id="plist">${rows}</div>
 </section>
 
 <section class="pz" id="piezas" aria-labelledby="pz-h">
@@ -418,41 +396,11 @@ function home() {
   </div>
 </section>
 
-<section class="proc" aria-labelledby="proc-h">
-  <h2 id="proc-h" class="wrap" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Cómo trabajo: boceto, plano, modelo y pieza</h2>
-  <div class="wrap pstage" id="pstage">
-    <div class="pwords">
-      <div class="pwin wide" aria-hidden="true"><div class="preel" id="preel">${STAGES.map(s => `<div>${s.w}</div>`).join('')}</div></div>
-      <div class="pdesc" id="pdesc">${STAGES.map((s, i) => `<p data-k="${i}"><strong class="vh" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">${s.w}. </strong>${esc(s.d)}<span>${esc(s.s)}</span></p>`).join('')}</div>
-    </div>
-    <div class="pmedia" id="pmedia">
-      <div class="layer" data-k="0">
-        <div class="it ph1" data-z="1.0"><img src="${'/img/080d5c52-boceto.jpg?v=9f8c3883'}" alt="Bocetos del BMW M6 concept"></div>
-        <div class="it ph2" data-z="1.6"><img src="${'/img/7aee43e1-boceto.jpg?v=dbde653e'}" alt="Bocetos de las gafas OVUM G-1"></div>
-        <div class="it ph3" data-z="0.7"><img src="${'/img/cfaad656-boceto.jpg?v=df1fc49f'}" alt="Bocetos de la carcasa del dron BeluG-04"></div>
-        <div class="it ph4" data-z="2.0"><img src="${'/img/42e1e9e0-boceto.jpg?v=dfb0b728'}" alt="Bocetos del mecanismo dosificador"></div>
-      </div>
-      <div class="layer" data-k="1">
-        <div class="it pl1" data-z="0.8"><img src="${'/img/qiub-04.jpg?v=101c216c'}" alt="Plano de conjunto del mecanismo dosificador"></div>
-        <div class="it pl2" data-z="1.6"><img src="${'/img/ovum-g1-10.jpg?v=b287a8a0'}" alt="Vistas acotadas de la montura OVUM G-1"></div>
-        <div class="it pl3" data-z="1.2"><img src="${'/img/9ed85c93-boceto.jpg?v=8f02f949'}" alt="Alzados del BMW M6 concept"></div>
-      </div>
-      <div class="layer" data-k="2">
-        <div class="it ph pk1" data-z="1.0"><img src="${'/img/qiub-01.jpg?v=3e6fc449'}" alt="Render del mecanismo dosificador"></div>
-        <div class="it ph pk2" data-z="1.7"><img src="${'/img/belug-04-04.jpg?v=afc63d58'}" alt="Render del dron BeluG-04"></div>
-        <div class="it ph pk3" data-z="0.6"><img src="${'/img/bmw-m6-concept-04.jpg?v=c6695852'}" alt="Render del BMW M6 concept"></div>
-      </div>
-      <div class="layer" data-k="3">
-        <div class="it ph pk1" data-z="1.0"><img src="${'/img/ingenieria-inversa-01.jpg?v=42ae29cc'}" alt="Pieza original del Peugeot 205 y su réplica impresa"></div>
-        <div class="it ph pk2" data-z="1.7"><img src="${'/img/ovum-proto-01.jpg?v=48927c69'}" alt="Montura OVUM G-1 recién impresa en la Bambu Lab"></div>
-        <div class="it ph pk3" data-z="0.6"><img src="${'/img/ingenieria-inversa-07.jpg?v=7c31c2f8'}" alt="Pieza imprimiéndose en FDM"></div>
-      </div>
-    </div>
-  </div>
+
+<section class="wrap work" id="proyectos" aria-labelledby="work-h">
+  <div class="top"><h2 id="work-h" class="wide rvh">Proyectos</h2><p class="rv">Seis piezas, de la idea al prototipo. Pasa por encima para verlas; entra para girar su modelo.</p></div>
+  <div id="plist">${rows}</div>
 </section>
-
-
-
 
 <section class="about" id="sobre-mi" aria-labelledby="ab-h">
   <div class="wrap in">
@@ -548,26 +496,6 @@ function homeAnim() {
   gsap.to('.hero h1 .mask:first-child>span', { xPercent: -16, ease: 'none', scrollTrigger: hs });
   gsap.to('.hero h1 .l2>span', { xPercent: 12, ease: 'none', scrollTrigger: hs });
 
-  // Proceso: escena fijada con cuatro mesas
-  const stage = document.getElementById('pstage'), reel = document.getElementById('preel');
-  const layers = [...stage.querySelectorAll('.layer')], descs = [...stage.querySelectorAll('.pdesc p')], model = document.getElementById('pmodel');
-  const N = layers.length;
-  layers.forEach((l, i) => gsap.set(l, { clipPath: i ? 'inset(100% 0% 0% 0%)' : 'inset(0% 0% 0% 0%)', autoAlpha: i ? 0 : 1 }));
-  descs.forEach((d, i) => gsap.set(d, { opacity: i ? 0 : 1, y: i ? 24 : 0 }));
-  const tl = gsap.timeline({ defaults: { ease: 'none' }, scrollTrigger: { trigger: stage, start: 'top top', end: () => '+=' + innerHeight * 2.4, pin: true, scrub: 0.8, anticipatePin: 1 } });
-  layers.forEach((l, i) => {
-    const its = l.querySelectorAll('.it');
-    its.forEach(it => tl.fromTo(it, { y: 60 * +it.dataset.z }, { y: -60 * +it.dataset.z, duration: 1 }, i));
-    if (i < N - 1) {
-      tl.set(layers[i + 1], { autoAlpha: 1 }, i + .6)
-        .to(layers[i + 1], { clipPath: 'inset(0% 0% 0% 0%)', duration: .45, ease: 'power2.inOut' }, i + .62)
-        .to(l, { scale: .94, opacity: 0, duration: .45, ease: 'power2.inOut' }, i + .62)
-        .to(reel, { yPercent: -(100 / N) * (i + 1), duration: .45, ease: 'power3.inOut' }, i + .62)
-        .to(descs[i], { opacity: 0, y: -24, duration: .25 }, i + .62)
-        .to(descs[i + 1], { opacity: 1, y: 0, duration: .3 }, i + .8);
-    }
-  });
-  tl.to({}, { duration: .4 });
   pieces();
 
 
@@ -597,15 +525,23 @@ function pieces() {
   const st = PZ.map(() => ({ u: 0 }));
   // cada pieza: el nombre sube letra a letra, el modelo llega desde el fondo, gira con el scroll
   // y sale hacia la cámara mientras la siguiente aparece detrás
-  const tl = gsap.timeline({ defaults: { ease: 'none' }, scrollTrigger: { trigger: '#pzs', start: 'top top', end: () => '+=' + innerHeight * .75 * N, pin: true, scrub: 0.6, anticipatePin: 1 } });
+  const tl = gsap.timeline({ defaults: { ease: 'none' }, scrollTrigger: { trigger: '#pzs', start: 'top top', end: () => '+=' + innerHeight * 1.35 * N, pin: true, scrub: 0.6, anticipatePin: 1 } });
   items.forEach((it, i) => {
     const mv = mvs[i], cs = it.querySelectorAll('.nm .ch'), row = it.querySelector('.row'), idx = it.querySelector('.idx'), t0 = i ? i - .06 : 0;
     tl.to(st[i], { u: 1, duration: 1, onUpdate: () => { if (mv.loaded) PZ[i].f(mv, st[i].u); } }, i);
     if (i) tl.set(it, { autoAlpha: 1 }, t0);
-    tl.fromTo(mv, { scale: .35, yPercent: 14, autoAlpha: 0 }, { scale: 1, yPercent: 0, autoAlpha: 1, duration: .32, ease: 'power3.out' }, t0)
-      .fromTo(cs, { yPercent: 115, rotate: 8 }, { yPercent: 0, rotate: 0, stagger: .012, duration: .22, ease: 'power3.out' }, t0 + .02)
-      .fromTo([idx, row], { y: 24, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: .16, ease: 'power2.out' }, t0 + .14)
-      .fromTo(it.querySelector('.nmw'), { xPercent: 4 }, { xPercent: -4, duration: 1 }, i);
+    if (i) {
+      tl.fromTo(mv, { scale: .35, yPercent: 14, autoAlpha: 0 }, { scale: 1, yPercent: 0, autoAlpha: 1, duration: .32, ease: 'power3.out' }, t0)
+        .fromTo(cs, { yPercent: 115, rotate: 8 }, { yPercent: 0, rotate: 0, stagger: .012, duration: .22, ease: 'power3.out' }, t0 + .02)
+        .fromTo([idx, row], { y: 24, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: .16, ease: 'power2.out' }, t0 + .14);
+    } else {
+      // la primera pieza entra mientras la sección sube desde el titular, para que no haya pantalla vacía
+      gsap.timeline({ defaults: { ease: 'none' }, scrollTrigger: { trigger: '#pzs', start: 'top 85%', end: 'top top', scrub: .6 } })
+        .fromTo(mv, { scale: .35, yPercent: 14, autoAlpha: 0 }, { scale: 1, yPercent: 0, autoAlpha: 1, duration: 1, ease: 'power3.out' }, 0)
+        .fromTo(cs, { yPercent: 115, rotate: 8 }, { yPercent: 0, rotate: 0, stagger: .04, duration: .6, ease: 'power3.out' }, .15)
+        .fromTo([idx, row], { y: 24, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: .4, ease: 'power2.out' }, .5);
+    }
+    tl.fromTo(it.querySelector('.nmw'), { xPercent: 4 }, { xPercent: -4, duration: 1 }, i);
     if (i < N - 1) {
       tl.to(cs, { yPercent: -115, rotate: -8, stagger: .01, duration: .18, ease: 'power2.in' }, i + .8)
         .to(mv, { scale: 2.4, autoAlpha: 0, duration: .2, ease: 'power2.in' }, i + .8)
