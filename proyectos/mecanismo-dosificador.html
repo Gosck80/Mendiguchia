@@ -591,17 +591,34 @@ function pieces() {
     }
   });
 }
-function listHover() {
-  const fl = document.getElementById('float');
-  fl.innerHTML = P.map((p, i) => `<img src="${esc(p.cover.src)}" alt="" data-i="${i}" class="${p.coverKind !== 'photo' ? 'wh' : ''}">`).join('');
-  if (!fine || !hasG) return;
-  const imgs = [...fl.children], qx = gsap.quickTo(fl, 'x', { duration: .6, ease: 'expo.out' }), qy = gsap.quickTo(fl, 'y', { duration: .6, ease: 'expo.out' });
-  const list = document.getElementById('plist');
-  list.addEventListener('mousemove', e => { qx(e.clientX); qy(e.clientY); });
-  list.querySelectorAll('.prow').forEach(r => {
-    r.addEventListener('mouseenter', () => { imgs.forEach(im => im.classList.toggle('on', im.dataset.i === r.dataset.i)); gsap.to(fl, { opacity: 1, scale: 1, duration: .5, ease: 'expo.out' }); });
-  });
-  list.addEventListener('mouseleave', () => gsap.to(fl, { opacity: 0, scale: .6, duration: .4, ease: 'power2.out' }));
+/* Imagen que sigue al cursor en la lista de proyectos.
+   Solo se ve mientras el cursor está encima de una fila; se comprueba en cada movimiento,
+   en cada scroll (la fila puede salir de debajo del cursor) y se oculta al cambiar de página. */
+const fl = document.getElementById('float');
+fl.innerHTML = P.map((p, i) => `<img src="${esc(p.cover.src)}" alt="" data-i="${i}" class="${p.coverKind !== 'photo' ? 'wh' : ''}">`).join('');
+let flOn = null, mx = -1, my = -1;
+const flImgs = [...fl.children];
+const qx = hasG ? gsap.quickTo(fl, 'x', { duration: .6, ease: 'expo.out' }) : null, qy = hasG ? gsap.quickTo(fl, 'y', { duration: .6, ease: 'expo.out' }) : null;
+function flShow(row) {
+  const k = row ? row.dataset.i : null;
+  if (k === flOn) return;
+  flOn = k;
+  if (k !== null) {
+    flImgs.forEach(im => im.classList.toggle('on', im.dataset.i === k));
+    gsap.to(fl, { opacity: 1, scale: 1, duration: .5, ease: 'expo.out', overwrite: 'auto' });
+  } else gsap.to(fl, { opacity: 0, scale: .6, duration: .3, ease: 'power2.out', overwrite: 'auto' });
+}
+function flCheck() {
+  if (mx < 0) return;
+  const el = document.elementFromPoint(mx, my);
+  flShow(el && el.closest('#plist .prow'));
+}
+function flHide() { flOn = null; if (hasG) { gsap.killTweensOf(fl, 'opacity,scale'); gsap.set(fl, { opacity: 0, scale: .6 }); } }
+if (fine && hasG) {
+  addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; qx(mx); qy(my); flCheck(); }, { passive: true });
+  addEventListener('scroll', flCheck, { passive: true });
+  document.documentElement.addEventListener('mouseleave', () => { mx = -1; flShow(null); });
+  addEventListener('blur', () => flShow(null));
 }
 function projectAnim(p) {
   if (hasG && !reduce) {
@@ -717,7 +734,8 @@ function draw(key, proj, anchor) {
   document.title = proj ? short(proj.name) + ' · Óscar Ramón Mendiguchía' : 'Óscar Ramón Mendiguchía · Ingeniero de producto';
   goTop();
   fitText();
-  if (proj) projectAnim(proj); else { homeAnim(); listHover(); }
+  flHide();
+  if (proj) projectAnim(proj); else homeAnim();
   common();
   if (hasG) ScrollTrigger.refresh();
   if (anchor) { const el = document.getElementById(anchor); if (el) setTimeout(() => goTo(el), 60); }
