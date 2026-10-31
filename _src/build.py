@@ -66,7 +66,7 @@ def page(path, title, desc, image, ld, p=None):
     b = body.replace('<main id="app"></main>', f'<main id="app">{seo_text(p)}</main>')
     return head(title, desc, path, image, ld) + b + '\n</body>\n</html>\n'
 home_desc = 'Seis proyectos de producto: bocetos, planos acotados, modelos 3D, prototipos y lo que hubo que cambiar por el camino.'
-(OUT / 'index.html').write_text(page('/', f'{NAME} · Ingeniero de producto', home_desc, BASE + '/og.png', [person, site]))
+(OUT / 'index.html').write_text(page('/', f'{NAME} · Ingeniero de producto', home_desc, f"{BASE}/og.png?v={ver('/og.png')}", [person, site]))
 (OUT / 'proyectos').mkdir(exist_ok=True)
 urls = ['/']
 for p in d['projects']:
