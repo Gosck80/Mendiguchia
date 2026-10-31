@@ -27,7 +27,7 @@ body = re.sub(r'^\s*<meta charset="utf-8">\s*<title>.*?</title>\s*<meta name="cl
 person = {"@context": "https://schema.org", "@type": "Person", "@id": BASE + "/#persona", "name": NAME, "givenName": "Óscar", "familyName": "Ramón Mendiguchía",
           "alternateName": ["Mendi", "Ó. Ramón Mendiguchía"], "jobTitle": "Ingeniero de producto",
           "description": "Estudiante de 4.º de Ingeniería en Diseño Industrial y Desarrollo de Producto (UVa). Diseño industrial, DFM, tolerancias y prototipado.",
-          "url": BASE + "/", "image": BASE + "/og.png",
+          "url": BASE + "/", "image": BASE + "/og-portada.png",
           "affiliation": {"@type": "CollegeOrUniversity", "name": "Universidad de Valladolid", "url": "https://www.uva.es"},
           "knowsAbout": ["Diseño industrial", "Desarrollo de producto", "DFM", "GD&T", "Tolerancias", "Prototipado", "CATIA V5", "Fusion 360", "Impresión 3D"],
           "sameAs": ["https://www.linkedin.com/in/oramonmendiguchia", "https://www.youtube.com/@MendiMekanik"]}
@@ -47,7 +47,14 @@ def head(title, desc, path, image, ld):
 <meta property="og:description" content="{E(desc)}">
 <meta property="og:type" content="website">
 <meta property="og:url" content="{BASE}{path}">
+<meta property="og:site_name" content="{NAME}">
+<meta property="og:locale" content="es_ES">
 <meta property="og:image" content="{image}">
+<meta property="og:image:secure_url" content="{image}">
+<meta property="og:image:alt" content="{E(title)}">
+<meta name="twitter:image" content="{image}">
+<meta name="twitter:title" content="{E(title)}">
+<meta name="twitter:description" content="{E(desc)}">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="google-site-verification" content="4uTWSXBqHokK83WS0hxgulw6_TuUM_2P6R0Kl9rAQEQ">
 <link rel="icon" href="/assets/favicon.svg">
@@ -66,7 +73,7 @@ def page(path, title, desc, image, ld, p=None):
     b = body.replace('<main id="app"></main>', f'<main id="app">{seo_text(p)}</main>')
     return head(title, desc, path, image, ld) + b + '\n</body>\n</html>\n'
 home_desc = 'Seis proyectos de producto: bocetos, planos acotados, modelos 3D, prototipos y lo que hubo que cambiar por el camino.'
-(OUT / 'index.html').write_text(page('/', f'{NAME} · Ingeniero de producto', home_desc, f"{BASE}/og.png?v={ver('/og.png')}", [person, site]))
+(OUT / 'index.html').write_text(page('/', f'{NAME} · Ingeniero de producto', home_desc, f"{BASE}/og-portada.png?v={ver('/og-portada.png')}", [person, site]))
 (OUT / 'proyectos').mkdir(exist_ok=True)
 urls = ['/']
 for p in d['projects']:
