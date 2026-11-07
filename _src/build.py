@@ -31,12 +31,13 @@ person = {"@context": "https://schema.org", "@type": "Person", "@id": BASE + "/#
           "affiliation": {"@type": "CollegeOrUniversity", "name": "Universidad de Valladolid", "url": "https://www.uva.es"},
           "knowsAbout": ["Diseño industrial", "Desarrollo de producto", "DFM", "GD&T", "Tolerancias", "Prototipado", "CATIA V5", "Fusion 360", "Impresión 3D"],
           "sameAs": ["https://www.linkedin.com/in/oramonmendiguchia", "https://www.youtube.com/@MendiMekanik"]}
-site = {"@context": "https://schema.org", "@type": "WebSite", "name": NAME, "url": BASE + "/", "inLanguage": "es", "author": {"@id": BASE + "/#persona"}}
+site = {"@context": "https://schema.org", "@type": "WebSite", "name": NAME, "url": BASE + "/", "inLanguage": "en", "author": {"@id": BASE + "/#persona"}}
 E = lambda s: html.escape(str(s), quote=True)
 # cada página enlaza su equivalente en el otro idioma
 def urls_of(lang, slug=None):
-    if slug: return f"/proyectos/{slug}" if lang == 'es' else f"/en/projects/{slug}"
-    return '/' if lang == 'es' else '/en'
+    # inglés por defecto en la raíz; español en /es y /proyectos/<slug>
+    if slug: return f"/proyectos/{slug}" if lang == 'es' else f"/projects/{slug}"
+    return '/es' if lang == 'es' else '/'
 def head(lang, title, desc, path, alt, image, ld):
     return f"""<!doctype html>
 <html lang="{lang}">
@@ -49,7 +50,7 @@ def head(lang, title, desc, path, alt, image, ld):
 <link rel="canonical" href="{BASE}{path}">
 <link rel="alternate" hreflang="es" href="{BASE}{alt['es']}">
 <link rel="alternate" hreflang="en" href="{BASE}{alt['en']}">
-<link rel="alternate" hreflang="x-default" href="{BASE}{alt['es']}">
+<link rel="alternate" hreflang="x-default" href="{BASE}{alt['en']}">
 <meta property="og:title" content="{E(title)}">
 <meta property="og:description" content="{E(desc)}">
 <meta property="og:type" content="website">
@@ -83,20 +84,21 @@ def seo_text(lang, p=None):
     return f'<div class="seo">{inner}</div>'
 def page(lang, path, alt, title, desc, image, ld, p=None):
     b = body.replace('<main id="app"></main>', f'<main id="app">{seo_text(lang, p)}</main>')
-    if lang == 'en':   # cabecera ya en inglés antes de que arranque la aplicación
-        for x, y in (('>Proyectos</a>', '>Projects</a>'), ('>Sobre mí</a>', '>About</a>'), ('>Contacto</a>', '>Contact</a>'),
-                     ('hreflang="en" lang="en" aria-label="English version">EN</a>', 'hreflang="es" lang="es" aria-label="Versión en español">ES</a>')):
+    if lang == 'es':   # cabecera ya en español antes de que arranque la aplicación
+        for x, y in (('>Projects</a>', '>Proyectos</a>'), ('>About</a>', '>Sobre mí</a>'), ('>Contact</a>', '>Contacto</a>'),
+                     ('hreflang="es" lang="es" aria-label="Versión en español">ES</a>', 'hreflang="en" lang="en" aria-label="English version">EN</a>'),
+                     ('aria-label="Header"', 'aria-label="Cabecera"'), ('<nav aria-label="Main">', '<nav aria-label="Principal">')):
             b = b.replace(x, y, 1)
     return head(lang, title, desc, path, alt, image, ld) + b + '\n</body>\n</html>\n'
 DESC = {'es': 'Seis proyectos de producto: bocetos, planos acotados, modelos 3D, prototipos y lo que hubo que cambiar por el camino.',
         'en': 'Six product projects: sketches, dimensioned drawings, 3D models, prototypes and what had to change along the way.'}
 og = f"{BASE}/og-portada.png?v={ver('/og-portada.png')}"
 urls = []
-(OUT / 'proyectos').mkdir(exist_ok=True); (OUT / 'en' / 'projects').mkdir(parents=True, exist_ok=True)
-for lang in ('es', 'en'):
+(OUT / 'proyectos').mkdir(exist_ok=True); (OUT / 'projects').mkdir(exist_ok=True); (OUT / 'es').mkdir(exist_ok=True)
+for lang in ('en', 'es'):
     alt = {l: urls_of(l) for l in ('es', 'en')}
     st = dict(site, url=BASE + urls_of(lang), inLanguage=lang)
-    out = OUT / ('index.html' if lang == 'es' else 'en/index.html')
+    out = OUT / ('index.html' if lang == 'en' else 'es/index.html')
     out.write_text(page(lang, urls_of(lang), alt, f'{NAME} · {ROLE[lang]}', DESC[lang], og, [person, st]))
     urls.append(urls_of(lang))
     for p in DATAS[lang]['projects']:
@@ -105,7 +107,7 @@ for lang in ('es', 'en'):
         path = urls_of(lang, p['slug']); alt = {l: urls_of(l, p['slug']) for l in ('es', 'en')}
         ld = [{"@context": "https://schema.org", "@type": "CreativeWork", "name": p['name'], "description": p['tagline'], "image": img, "inLanguage": lang,
                "url": BASE + path, "creator": {"@id": BASE + "/#persona"}}]
-        f = OUT / ('proyectos' if lang == 'es' else 'en/projects') / f"{p['slug']}.html"
+        f = OUT / ('proyectos' if lang == 'es' else 'projects') / f"{p['slug']}.html"
         f.write_text(page(lang, path, alt, f'{short} · {NAME}', p['tagline'], img, ld, p))
         urls.append(path)
 today = datetime.date.today().isoformat()

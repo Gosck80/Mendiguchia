@@ -1,5 +1,5 @@
 <meta charset="utf-8">
-<title>Óscar Ramón Mendiguchía · Ingeniero de producto</title>
+<title>Óscar Ramón Mendiguchía · Product engineer</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -60,7 +60,7 @@ p,h1,h2,h3,figure{margin:0}
 /* ---------- PORTADA ---------- */
 .hero{height:100svh;position:relative;overflow:hidden;background:var(--paper)}
 .hero .in{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;padding-top:60px}
-.hero h1{line-height:.84;position:relative;will-change:transform}
+.hero h1{line-height:.84;position:relative;will-change:transform;width:min(86%,1180px);margin:0 auto}
 .hero h1 .l2{text-align:right}
 .hero .ch{display:inline-block;will-change:transform}
 .hero .cue{position:absolute;left:50%;bottom:max(28px,env(safe-area-inset-bottom,0px));width:1px;height:64px;background:rgba(11,12,13,.18);overflow:hidden}
@@ -268,10 +268,10 @@ td:not(:first-child),th:not(:first-child){text-align:right}
 }
 </style>
 
-<header class="hd" aria-label="Cabecera">
+<header class="hd" aria-label="Header">
   <div class="wrap in">
     <a class="wm" href="#">Óscar Ramón Mendiguchía</a>
-    <nav aria-label="Principal"><a class="opt" data-a="proyectos" href="#proyectos">Proyectos</a><a class="opt" data-a="sobre-mi" href="#sobre-mi">Sobre mí</a><a data-a="contacto" href="#contacto">Contacto</a><a class="lang" id="lang" href="#" hreflang="en" lang="en" aria-label="English version">EN</a></nav>
+    <nav aria-label="Main"><a class="opt" data-a="proyectos" href="#proyectos">Projects</a><a class="opt" data-a="sobre-mi" href="#sobre-mi">About</a><a data-a="contacto" href="#contacto">Contact</a><a class="lang" id="lang" href="#" hreflang="es" lang="es" aria-label="Versión en español">ES</a></nav>
   </div>
 </header>
 <div class="veil" aria-hidden="true"><span id="veilT"></span></div>
@@ -285,10 +285,12 @@ td:not(:first-child),th:not(:first-child){text-align:right}
 <script>
 const DATAS = /*__DATA__*/;
 const PATHS = false;
-/* Idioma: en la web publicada lo da la URL (/en/...); en la vista previa se recuerda en el navegador */
+/* Idioma: inglés por defecto. En la web publicada lo da la URL (español en /es y /proyectos/...);
+   en la vista previa se recuerda en el navegador */
+const langOf = path => /^\/(es|proyectos)(\/|$)/.test(path) ? 'es' : 'en';
 const lsGet = k => { try { return localStorage.getItem(k); } catch (e) { return null; } };
 const lsSet = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
-let LANG = PATHS ? (/^\/en(\/|$)/.test(location.pathname) ? 'en' : 'es') : (lsGet('lang') === 'en' ? 'en' : 'es');
+let LANG = PATHS ? langOf(location.pathname) : (lsGet('lang') === 'es' ? 'es' : 'en');
 let P = DATAS[LANG].projects;
 const UI = {
   es: { projects: 'Proyectos', about: 'Sobre mí', contact: 'Contacto', other: 'EN', otherLabel: 'English version', hero1: 'Ingeniero', hero2: 'de producto', role: 'Ingeniero de producto',
@@ -369,9 +371,9 @@ const goTo = el => { if (lenis) lenis.scrollTo(el, { offset: 0, duration: 1.4 })
 /* ---------- Portada ---------- */
 const IMG = s => 'img/' + s;
 /* Enlaces: en la web publicada cada proyecto tiene su URL; en la vista previa se usan anclas */
-const HOME = () => LANG === 'en' ? '/en' : '/';
-const PH = s => PATHS ? (LANG === 'en' ? '/en/projects/' : '/proyectos/') + s : '#p-' + s;
-const AH = id => PATHS ? (LANG === 'en' ? '/en#' : '/#') + id : '#' + id;
+const HOME = () => LANG === 'en' ? '/' : '/es';
+const PH = s => PATHS ? (LANG === 'en' ? '/projects/' : '/proyectos/') + s : '#p-' + s;
+const AH = id => PATHS ? (LANG === 'en' ? '/#' : '/es#') + id : '#' + id;
 const STAGES = [
   { w: 'Boceto', d: 'La idea se decide a mano: mecanismos, proporciones, alternativas que se descartan.', s: 'Dron, gafas, coche y dosificador en papel.' },
   { w: 'Plano', d: 'Lo que se va a fabricar se acota: tolerancias, ajustes y vistas que alguien pueda leer en un taller.', s: 'Conjunto, montura y alzados.' },
@@ -723,8 +725,8 @@ function chrome() {
 }
 function otherUrl() {
   const { proj } = where(), ot = LANG === 'en' ? 'es' : 'en';
-  if (proj) return (ot === 'en' ? '/en/projects/' : '/proyectos/') + proj.slug;
-  return (ot === 'en' ? '/en' : '/') + location.hash;
+  if (proj) return (ot === 'en' ? '/projects/' : '/proyectos/') + proj.slug;
+  return (ot === 'en' ? '/' : '/es') + location.hash;
 }
 function setLang(l) {
   if (l === LANG) return;
@@ -742,7 +744,7 @@ document.getElementById('lang').addEventListener('click', e => {
 });
 function where() {
   if (PATHS) {
-    const m = location.pathname.match(/^\/(?:proyectos|en\/projects)\/([^/]+?)\/?$/), proj = m ? P.find(p => p.slug === m[1]) : null;
+    const m = location.pathname.match(/^\/(?:proyectos|projects)\/([^/]+?)\/?$/), proj = m ? P.find(p => p.slug === m[1]) : null;
     return { proj, anchor: !proj && location.hash.length > 1 ? location.hash.slice(1) : null };
   }
   const h = location.hash.slice(1), proj = h.startsWith('p-') ? P.find(p => p.slug === h.slice(2)) : null;
@@ -764,7 +766,7 @@ function route() {
 }
 if (PATHS) {
   // navegación sin recargar entre las páginas de la web
-  addEventListener('popstate', () => { const l = /^\/en(\/|$)/.test(location.pathname) ? 'en' : 'es'; if (l !== LANG) setLang(l); else route(); });
+  addEventListener('popstate', () => { const l = langOf(location.pathname); if (l !== LANG) setLang(l); else route(); });
   document.addEventListener('click', e => {
     const a = e.target.closest('a[href^="/"]'); if (!a || a.target || e.metaKey || e.ctrlKey || e.shiftKey) return;
     e.preventDefault();
