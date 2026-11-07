@@ -33,17 +33,7 @@
     },
     {
       "source": "/en/projects/envase-dosificador",
-      "destination": "/proyectos/mecanismo-dosificador",
-      "permanent": true
-    },
-    {
-      "source": "/en/projects/:slug",
-      "destination": "/proyectos/:slug",
-      "permanent": true
-    },
-    {
-      "source": "/en",
-      "destination": "/",
+      "destination": "/en/projects/mecanismo-dosificador",
       "permanent": true
     }
   ]

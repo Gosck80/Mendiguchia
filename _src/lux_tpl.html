@@ -40,7 +40,9 @@ p,h1,h2,h3,figure{margin:0}
 .hd nav a{font-size:16px;font-weight:500;position:relative;padding:12px 2px}
 .hd nav a::after{content:"";position:absolute;left:2px;right:2px;bottom:6px;height:2px;background:currentColor;transform:scaleX(0);transform-origin:right;transition:transform .5s var(--e-out)}
 .hd nav a:hover::after{transform:scaleX(1);transform-origin:left}
-@media(max-width:700px){.hd nav .opt{display:none}}
+.hd nav a.lang{border:1px solid currentColor;border-radius:999px;padding:6px 12px;font-size:13px;font-weight:650;letter-spacing:.04em;min-width:44px;text-align:center}
+.hd nav a.lang::after{display:none}
+@media(max-width:700px){.hd nav .opt{display:none}.hd nav{gap:14px}.hd .wm{font-size:15px;white-space:nowrap}}
 
 /* Botón */
 .btn{display:inline-flex;align-items:center;gap:12px;min-height:56px;padding:0 28px;border-radius:999px;background:var(--ink);color:var(--paper);text-decoration:none;font-weight:600;font-size:16px;position:relative;overflow:hidden;isolation:isolate;transition:color .45s var(--e-out)}
@@ -269,7 +271,7 @@ td:not(:first-child),th:not(:first-child){text-align:right}
 <header class="hd" aria-label="Cabecera">
   <div class="wrap in">
     <a class="wm" href="#">Óscar Ramón Mendiguchía</a>
-    <nav aria-label="Principal"><a class="opt" href="#proyectos">Proyectos</a><a class="opt" href="#sobre-mi">Sobre mí</a><a href="#contacto">Contacto</a></nav>
+    <nav aria-label="Principal"><a class="opt" data-a="proyectos" href="#proyectos">Proyectos</a><a class="opt" data-a="sobre-mi" href="#sobre-mi">Sobre mí</a><a data-a="contacto" href="#contacto">Contacto</a><a class="lang" id="lang" href="#" hreflang="en" lang="en" aria-label="English version">EN</a></nav>
   </div>
 </header>
 <div class="veil" aria-hidden="true"><span id="veilT"></span></div>
@@ -281,9 +283,31 @@ td:not(:first-child),th:not(:first-child){text-align:right}
 <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
 <script type="module" src="https://cdn.jsdelivr.net/npm/@google/model-viewer@3.5.0/dist/model-viewer.min.js"></script>
 <script>
-const DATA = /*__DATA__*/;
+const DATAS = /*__DATA__*/;
 const PATHS = false;
-const P = DATA.projects;
+/* Idioma: en la web publicada lo da la URL (/en/...); en la vista previa se recuerda en el navegador */
+const lsGet = k => { try { return localStorage.getItem(k); } catch (e) { return null; } };
+const lsSet = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
+let LANG = PATHS ? (/^\/en(\/|$)/.test(location.pathname) ? 'en' : 'es') : (lsGet('lang') === 'en' ? 'en' : 'es');
+let P = DATAS[LANG].projects;
+const UI = {
+  es: { projects: 'Proyectos', about: 'Sobre mí', contact: 'Contacto', other: 'EN', otherLabel: 'English version', hero1: 'Ingeniero', hero2: 'de producto', role: 'Ingeniero de producto',
+    pz: 'Seis piezas en 3D', see: 'Ver proyecto', workP: 'Seis piezas, de la idea al prototipo. Pasa por encima para verlas; entra para girar su modelo.',
+    say: 'Ingeniero en formación constante con perfil técnico híbrido. Combino diseño paramétrico, optimización topológica y fabricación propia, con enfoque estricto en GD&T y DFM/DFA. Curso 4.º de Ingeniería en Diseño Industrial y Desarrollo de Producto en la Universidad de Valladolid.',
+    fdm: 'FDM y SLA', silicone: 'Moldeo en silicona', yt: 'Fuera del estudio, diagnostico y reparo coches en mi canal', li: 'Escribir por LinkedIn', made: 'Valladolid · Diseñado y construido por Mendi',
+    enlarge: 'Ampliar', image: 'imagen', hintCycle: 'Baja para verlo en movimiento', hintOrbit: 'Baja para rodearlo', explore: 'Explóralo', exploreP: 'Arrastra para girar · pellizca o usa + y − para acercar',
+    comps: 'Composiciones', zin: 'Acercar', zout: 'Alejar', center: 'Centrar', modelOf: 'Modelo 3D de', interactive: 'interactivo', back: 'Todos los proyectos',
+    resp: 'Responsable', date: 'Fecha', tools: 'Herramientas', next: 'Siguiente proyecto', close: 'Cerrar', home: 'Inicio', header: 'Cabecera', main: 'Principal' },
+  en: { projects: 'Projects', about: 'About', contact: 'Contact', other: 'ES', otherLabel: 'Versión en español', hero1: 'Product', hero2: 'engineer', role: 'Product engineer',
+    pz: 'Six parts in 3D', see: 'View project', workP: 'Six projects, from idea to prototype. Hover to preview them; open one to rotate its model.',
+    say: 'Engineer in constant training with a hybrid technical profile. I combine parametric design, topology optimisation and in-house fabrication, with a strict focus on GD&T and DFM/DFA. Fourth-year student of Industrial Design and Product Development Engineering at the University of Valladolid.',
+    fdm: 'FDM & SLA', silicone: 'Silicone moulding', yt: 'Outside the studio, I diagnose and repair cars on my channel', li: 'Message me on LinkedIn', made: 'Valladolid · Designed and built by Mendi',
+    enlarge: 'Enlarge', image: 'image', hintCycle: 'Scroll to see it in motion', hintOrbit: 'Scroll to orbit it', explore: 'Explore it', exploreP: 'Drag to rotate · pinch or use + and − to zoom',
+    comps: 'Compositions', zin: 'Zoom in', zout: 'Zoom out', center: 'Reset', modelOf: '3D model of', interactive: 'interactive', back: 'All projects',
+    resp: 'Responsible for', date: 'Date', tools: 'Tools', next: 'Next project', close: 'Close', home: 'Home', header: 'Header', main: 'Main' },
+};
+const t = k => UI[LANG][k];
+const pname = slug => P.find(p => p.slug === slug).name.split(' · ')[0];
 const LINKEDIN = 'https://www.linkedin.com/in/oramonmendiguchia', YT = 'https://www.youtube.com/@MendiMekanik';
 const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 if (reduce) document.documentElement.classList.add('rm');
@@ -345,8 +369,9 @@ const goTo = el => { if (lenis) lenis.scrollTo(el, { offset: 0, duration: 1.4 })
 /* ---------- Portada ---------- */
 const IMG = s => 'img/' + s;
 /* Enlaces: en la web publicada cada proyecto tiene su URL; en la vista previa se usan anclas */
-const PH = s => PATHS ? '/proyectos/' + s : '#p-' + s;
-const AH = id => PATHS ? '/#' + id : '#' + id;
+const HOME = () => LANG === 'en' ? '/en' : '/';
+const PH = s => PATHS ? (LANG === 'en' ? '/en/projects/' : '/proyectos/') + s : '#p-' + s;
+const AH = id => PATHS ? (LANG === 'en' ? '/en#' : '/#') + id : '#' + id;
 const STAGES = [
   { w: 'Boceto', d: 'La idea se decide a mano: mecanismos, proporciones, alternativas que se descartan.', s: 'Dron, gafas, coche y dosificador en papel.' },
   { w: 'Plano', d: 'Lo que se va a fabricar se acota: tolerancias, ajustes y vistas que alguien pueda leer en un taller.', s: 'Conjunto, montura y alzados.' },
@@ -363,19 +388,19 @@ function home() {
     </a>`).join('');
   return `
 <section class="hero" id="inicio">
-  <div class="wrap in"><h1 class="wide" id="hh" aria-label="Ingeniero de producto"><span class="mask fill"><span>${chars('Ingeniero')}</span></span><span class="mask fill l2"><span>${chars('de producto')}</span></span></h1></div>
+  <div class="wrap in"><h1 class="wide" id="hh" aria-label="${esc(t('role'))}"><span class="mask fill"><span>${chars(t('hero1'))}</span></span><span class="mask fill l2"><span>${chars(t('hero2'))}</span></span></h1></div>
   <span class="cue" aria-hidden="true"></span>
 </section>
 
 <section class="pz" id="piezas" aria-labelledby="pz-h">
-  <h2 id="pz-h" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Seis piezas en 3D</h2>
+  <h2 id="pz-h" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">${t('pz')}</h2>
   <div class="pzs" id="pzs">${PZ.map((z, i) => `
     <div class="pzi" data-k="${i}">
-      <div class="nmw wrap"><p class="nm wide mask fit" aria-hidden="true"><span>${chars(z.name)}</span></p></div>
-      <model-viewer id="pzm${i}" src="${z.src}" alt="Modelo 3D de ${esc(z.name)}" camera-orbit="${z.o0}" ${z.t ? `camera-target="${z.t}"` : ''} environment-image="neutral" exposure="${z.ex || 1.05}" shadow-intensity="0.9" shadow-softness="1" interaction-prompt="none" disable-zoom loading="eager"></model-viewer>
-      <div class="idx wrap" aria-hidden="true"><span>${String(i + 1).padStart(2, '0')} / ${String(PZ.length).padStart(2, '0')}</span><span>${esc(z.name)}</span></div>
+      <div class="nmw wrap"><p class="nm wide mask fit" aria-hidden="true"><span>${chars(pname(z.slug))}</span></p></div>
+      <model-viewer id="pzm${i}" src="${z.src}" alt="${t('modelOf')} ${esc(pname(z.slug))}" camera-orbit="${z.o0}" ${z.t ? `camera-target="${z.t}"` : ''} environment-image="neutral" exposure="${z.ex || 1.05}" shadow-intensity="0.9" shadow-softness="1" interaction-prompt="none" disable-zoom loading="eager"></model-viewer>
+      <div class="idx wrap" aria-hidden="true"><span>${String(i + 1).padStart(2, '0')} / ${String(PZ.length).padStart(2, '0')}</span><span>${esc(pname(z.slug))}</span></div>
       <div class="pzt wrap">
-        <div class="row"><p>${esc(z.line)}</p><a class="btn" href="${PH(z.slug)}">Ver proyecto <span class="ar" aria-hidden="true">→</span></a></div>
+        <div class="row"><p>${esc(z.line[LANG])}</p><a class="btn" href="${PH(z.slug)}">${t('see')} <span class="ar" aria-hidden="true">→</span></a></div>
       </div>
     </div>`).join('')}
   </div>
@@ -383,19 +408,19 @@ function home() {
 
 
 <section class="wrap work" id="proyectos" aria-labelledby="work-h">
-  <div class="top"><h2 id="work-h" class="wide rvh">Proyectos</h2><p class="rv">Seis piezas, de la idea al prototipo. Pasa por encima para verlas; entra para girar su modelo.</p></div>
+  <div class="top"><h2 id="work-h" class="wide rvh">${t('projects')}</h2><p class="rv">${t('workP')}</p></div>
   <div id="plist">${rows}</div>
 </section>
 
 <section class="about" id="sobre-mi" aria-labelledby="ab-h">
   <div class="wrap in">
     <div>
-      <h2 id="ab-h" class="wide rvh">Sobre mí</h2>
-      <p class="say" id="say">Ingeniero en formación constante con perfil técnico híbrido. Combino diseño paramétrico, optimización topológica y fabricación propia, con enfoque estricto en GD&amp;T y DFM/DFA. Curso 4.º de Ingeniería en Diseño Industrial y Desarrollo de Producto en la Universidad de Valladolid.</p>
+      <h2 id="ab-h" class="wide rvh">${t('about')}</h2>
+      <p class="say" id="say">${esc(t('say'))}</p>
     </div>
     <div class="side">
-      <div class="tools"><span>CATIA V5</span><span>Fusion 360</span><span>Blender</span><span>3ds Max</span><span>FDM y SLA</span><span>Moldeo en silicona</span><span>CNC</span><span>GD&amp;T</span></div>
-      <p>Fuera del estudio, diagnostico y reparo coches en mi canal <a href="${YT}">MendiMekanik</a>.</p>
+      <div class="tools"><span>CATIA V5</span><span>Fusion 360</span><span>Blender</span><span>3ds Max</span><span>${t('fdm')}</span><span>${t('silicone')}</span><span>CNC</span><span>GD&amp;T</span></div>
+      <p>${t('yt')} <a href="${YT}">MendiMekanik</a>.</p>
     </div>
   </div>
 </section>` + endBlock();
@@ -404,16 +429,16 @@ function endBlock() {
   return `
 <footer class="end" id="contacto">
   <div class="wrap">
-    <div class="acts rv"><a class="btn" href="${LINKEDIN}">Escribir por LinkedIn <span class="ar" aria-hidden="true">↗</span></a><a class="btn inv" href="${YT}">YouTube · MendiMekanik <span class="ar" aria-hidden="true">↗</span></a></div>
+    <div class="acts rv"><a class="btn" href="${LINKEDIN}">${t('li')} <span class="ar" aria-hidden="true">↗</span></a><a class="btn inv" href="${YT}">YouTube · MendiMekanik <span class="ar" aria-hidden="true">↗</span></a></div>
     <p class="big wide mask fill" aria-hidden="true" id="bigname"><span>Óscar Ramón Mendiguchía</span></p>
-    <div class="legal"><span>© 2026 Óscar Ramón Mendiguchía</span><span>Valladolid · Diseñado y construido por Mendi</span></div>
+    <div class="legal"><span>© 2026 Óscar Ramón Mendiguchía</span><span>${t('made')}</span></div>
   </div>
 </footer>`;
 }
 
 /* ---------- Proyecto ---------- */
 function fig(it, cls = '') {
-  return `<figure class="fig ${cls}"><div class="bx ${it.kind && it.kind !== 'photo' ? 'wh' : ''}" data-zoom="${esc(it.src)}" data-cap="${esc(it.cap || '')}" role="button" tabindex="0" aria-label="Ampliar: ${esc(it.cap || 'imagen')}"><img class="par" src="${esc(it.src)}" alt="${esc(it.cap || '')}" width="${it.w}" height="${it.h}" loading="lazy" decoding="async"></div>${it.cap ? `<figcaption>${esc(it.cap)}</figcaption>` : ''}</figure>`;
+  return `<figure class="fig ${cls}"><div class="bx ${it.kind && it.kind !== 'photo' ? 'wh' : ''}" data-zoom="${esc(it.src)}" data-cap="${esc(it.cap || '')}" role="button" tabindex="0" aria-label="${t('enlarge')}: ${esc(it.cap || t('image'))}"><img class="par" src="${esc(it.src)}" alt="${esc(it.cap || '')}" width="${it.w}" height="${it.h}" loading="lazy" decoding="async"></div>${it.cap ? `<figcaption>${esc(it.cap)}</figcaption>` : ''}</figure>`;
 }
 function block(b) {
   if (b.type === 'text') {
@@ -435,26 +460,26 @@ function project(p) {
   const nm = short(p.name), sub = p.name.split(' · ')[1];
   const vis = p.model
     ? `<div class="pvis m3"><p class="ghost wide fit" aria-hidden="true">${esc(nm)}</p><model-viewer id="mvP" src="${esc(p.model.cycle && !reduce ? p.model.cycle : p.model.src)}" alt="" aria-hidden="true" camera-orbit="${esc(p.model.orbit)}" environment-image="neutral" exposure="0.95" shadow-intensity="0.8" shadow-softness="0.9" interaction-prompt="none" disable-zoom loading="eager"></model-viewer>
-       <div class="hint"><span>${p.model.cycle ? 'Baja para verlo en movimiento' : 'Baja para rodearlo'}</span></div></div>
+       <div class="hint"><span>${p.model.cycle ? t('hintCycle') : t('hintOrbit')}</span></div></div>
      <section class="viewer" aria-labelledby="vw-h">
-       <div class="wrap vtop"><h2 id="vw-h" class="wide rvh">Explóralo</h2><p class="rv">Arrastra para girar · pellizca o usa + y − para acercar</p></div>
-       ${p.model.comps ? `<div class="wrap vcomp" role="group" aria-label="Composiciones">${p.model.comps.map(([t, f, r], k) => `<button type="button" data-src="${esc(f)}" data-r="${r}" aria-pressed="${k ? 'false' : 'true'}">${esc(t)}</button>`).join('')}</div>` : ''}
-       <div class="vbox"><model-viewer id="mvV" src="${esc(p.model.src)}" alt="Modelo 3D de ${esc(nm)}, interactivo" camera-controls touch-action="pan-y" disable-pan camera-orbit="${esc(p.model.orbit)}" min-camera-orbit="auto 8deg auto" max-camera-orbit="auto 172deg auto" environment-image="neutral" exposure="0.95" shadow-intensity="0.8" shadow-softness="0.9" interaction-prompt="auto" loading="lazy"></model-viewer>
-         <div class="vbtn"><button type="button" data-z="1" aria-label="Acercar">+</button><button type="button" data-z="-1" aria-label="Alejar">−</button><button type="button" data-z="0" class="txt">Centrar</button></div></div>
+       <div class="wrap vtop"><h2 id="vw-h" class="wide rvh">${t('explore')}</h2><p class="rv">${t('exploreP')}</p></div>
+       ${p.model.comps ? `<div class="wrap vcomp" role="group" aria-label="${t('comps')}">${p.model.comps.map(([t, f, r], k) => `<button type="button" data-src="${esc(f)}" data-r="${r}" aria-pressed="${k ? 'false' : 'true'}">${esc(t)}</button>`).join('')}</div>` : ''}
+       <div class="vbox"><model-viewer id="mvV" src="${esc(p.model.src)}" alt="${t('modelOf')} ${esc(nm)}, ${t('interactive')}" camera-controls touch-action="pan-y" disable-pan camera-orbit="${esc(p.model.orbit)}" min-camera-orbit="auto 8deg auto" max-camera-orbit="auto 172deg auto" environment-image="neutral" exposure="0.95" shadow-intensity="0.8" shadow-softness="0.9" interaction-prompt="auto" loading="lazy"></model-viewer>
+         <div class="vbtn"><button type="button" data-z="1" aria-label="${t('zin')}">+</button><button type="button" data-z="-1" aria-label="${t('zout')}">−</button><button type="button" data-z="0" class="txt">${t('center')}</button></div></div>
      </section>`
     : `<div class="pvis"><img class="pimg" src="${esc(p.hero.src)}" alt="${esc(nm)}" data-zoom="${esc(p.hero.src)}"></div>`;
   const figs = p.figures && p.figures.length ? `<section class="wrap figs">${p.figures.map(([n, l]) => `<div class="rv"><span class="n" data-count="${esc(n)}">${esc(n)}</span><span class="l">${esc(l)}</span></div>`).join('')}</section>` : '';
   return `
 <section class="wrap ph-hero">
-  <a class="back" href="${AH('proyectos')}"><span aria-hidden="true">←</span> Todos los proyectos</a>
+  <a class="back" href="${AH('proyectos')}"><span aria-hidden="true">←</span> ${t('back')}</a>
   <h1 class="wide" aria-label="${esc(nm)}">${masked(lines(nm, nm.split(' ').length > 1 ? 2 : 1), 'fit')}</h1>
-  <div class="sub"><p class="lead rv">${esc(p.tagline)}</p>${p.ficha ? `<dl class="ficha rv"><dt>Responsable</dt><dd>${esc(p.ficha[0])}</dd><dt>Fecha</dt><dd>${esc(p.ficha[1])}</dd><dt>Herramientas</dt><dd>${esc(p.ficha[2])}</dd></dl>` : ''}</div>
+  <div class="sub"><p class="lead rv">${esc(p.tagline)}</p>${p.ficha ? `<dl class="ficha rv"><dt>${t('resp')}</dt><dd>${esc(p.ficha[0])}</dd><dt>${t('date')}</dt><dd>${esc(p.ficha[1])}</dd><dt>${t('tools')}</dt><dd>${esc(p.ficha[2])}</dd></dl>` : ''}</div>
 </section>
 ${vis}
 ${figs}
 ${p.blocks.map(block).join('')}
 <a class="nextp" href="${PH(nx.slug)}">
-  <div class="wrap row"><div><span class="k">Siguiente proyecto</span><p class="t wide fit">${esc(short(nx.name))}</p></div><span class="im ${nx.coverKind !== 'photo' ? 'wh' : ''}"><img src="${esc(nx.cover.src)}" alt="" loading="lazy"></span></div>
+  <div class="wrap row"><div><span class="k">${t('next')}</span><p class="t wide fit">${esc(short(nx.name))}</p></div><span class="im ${nx.coverKind !== 'photo' ? 'wh' : ''}"><img src="${esc(nx.cover.src)}" alt="" loading="lazy"></span></div>
 </a>` + endBlock();
 }
 
@@ -488,17 +513,17 @@ function homeAnim() {
   gsap.to(ws, { opacity: 1, stagger: .05, ease: 'none', scrollTrigger: { trigger: '#say', start: 'top 78%', end: 'bottom 40%', scrub: true } });
 }
 const PZ = [
-  { slug: 'belug-04', name: 'BeluG-04', src: 'models/belug.glb.wasm', o0: '-40deg 78deg 150%', line: 'Dron con hélices helicoidales y carcasa de cuerpo continuo.',
+  { slug: 'belug-04', name: 'BeluG-04', src: 'models/belug.glb.wasm', o0: '-40deg 78deg 150%', line: { es: 'Dron con hélices helicoidales y carcasa de cuerpo continuo.', en: 'Drone with helical propellers and a continuous-body shell.' },
     f: (mv, u) => { mv.cameraOrbit = `${-40 + 270 * u}deg ${78 - 20 * u}deg ${150 - 70 * u}%`; } },
-  { slug: 'bmw-m6-concept', name: 'BMW M6 concept', src: 'models/bmw.glb.wasm', o0: '20deg 80deg 120%', ex: 1.15, line: 'Coupé conceptual: una línea que envuelve el coche de morro a zaga.',
+  { slug: 'bmw-m6-concept', name: 'BMW M6 concept', src: 'models/bmw.glb.wasm', o0: '20deg 80deg 120%', ex: 1.15, line: { es: 'Coupé conceptual: una línea que envuelve el coche de morro a zaga.', en: 'Concept coupé: one line wraps the car from nose to tail.' },
     f: (mv, u) => { mv.cameraOrbit = `${20 + 210 * u}deg ${80 - 16 * u}deg ${120 - 32 * u}%`; } },
-  { slug: 'mecanismo-dosificador', name: 'Mecanismo dosificador', src: 'models/mec_explode.glb.wasm', o0: '150deg 74deg 3.7m', t: '0m -0.5m 0m', anim: true, line: 'Bote, tapa y tornillo sin fin: se abre en sus piezas al bajar.',
+  { slug: 'mecanismo-dosificador', name: 'Mecanismo dosificador', src: 'models/mec_explode.glb.wasm', o0: '150deg 74deg 3.7m', t: '0m -0.5m 0m', anim: true, line: { es: 'Bote, tapa y tornillo sin fin: se abre en sus piezas al bajar.', en: 'Jar, lid and worm screw: it opens into its parts as you scroll.' },
     f: (mv, u) => { const e = Math.min(1, u * 1.35); mv.currentTime = Math.min(.999, e); mv.cameraOrbit = `${150 + 70 * u}deg ${74 - 6 * u}deg ${3.7 - .7 * u}m`; } },
-  { slug: 'ovum-g1', name: 'OVUM G-1', src: 'models/gafas.glb.wasm', o0: '-48deg 74deg 3.1m', t: '-0.22m 0m 0m', anim: true, line: 'Montura en biocerámico: voltereta y plegado de las patillas.',
+  { slug: 'ovum-g1', name: 'OVUM G-1', src: 'models/gafas.glb.wasm', o0: '-48deg 74deg 3.1m', t: '-0.22m 0m 0m', anim: true, line: { es: 'Montura en biocerámico: voltereta y plegado de las patillas.', en: 'Bioceramic frame: a flip and the temples folding.' },
     f: (mv, u) => { mv.currentTime = Math.min(6.39, u * 6.4); } },
-  { slug: 'mies', name: 'MIES', src: 'models/mies.glb.wasm', o0: '28deg 74deg 105%', anim: true, line: 'Pilares de aluminio y baldas de chopo: se monta pieza a pieza al bajar.',
+  { slug: 'mies', name: 'MIES', src: 'models/mies.glb.wasm', o0: '28deg 74deg 105%', anim: true, line: { es: 'Pilares de aluminio y baldas de chopo: se monta pieza a pieza al bajar.', en: 'Aluminium pillars and poplar shelves: it assembles piece by piece as you scroll.' },
     f: (mv, u) => { mv.currentTime = Math.min(5.5, u * 1.3 * 5.5); mv.cameraOrbit = `${28 + 50 * u}deg ${74 - 6 * u}deg 105%`; } },
-  { slug: 'ingenieria-inversa', name: 'Ingeniería inversa', src: 'models/rev.glb.wasm', o0: '40deg 62deg 140%', line: 'La pieza del calefactor del Peugeot 205, rehecha desde el calibre.',
+  { slug: 'ingenieria-inversa', name: 'Ingeniería inversa', src: 'models/rev.glb.wasm', o0: '40deg 62deg 140%', line: { es: 'La pieza del calefactor del Peugeot 205, rehecha desde el calibre.', en: 'The Peugeot 205 heater part, remade from calliper measurements.' },
     f: (mv, u) => { mv.cameraOrbit = `${40 + 300 * u}deg ${62 - 14 * u}deg ${140 - 50 * u}%`; } },
 ];
 function pieces() {
@@ -658,8 +683,8 @@ function viewer(m) {
 
 /* ---------- Visor ---------- */
 function lb(src, cap) {
-  const d = document.createElement('div'); d.className = 'lb'; d.setAttribute('role', 'dialog'); d.setAttribute('aria-modal', 'true'); d.setAttribute('aria-label', cap || 'Imagen');
-  d.innerHTML = `<button class="btn inv" type="button">Cerrar</button><img src="${esc(src)}" alt="${esc(cap)}">${cap ? `<p>${esc(cap)}</p>` : ''}`;
+  const d = document.createElement('div'); d.className = 'lb'; d.setAttribute('role', 'dialog'); d.setAttribute('aria-modal', 'true'); d.setAttribute('aria-label', cap || t('image'));
+  d.innerHTML = `<button class="btn inv" type="button">${t('close')}</button><img src="${esc(src)}" alt="${esc(cap)}">${cap ? `<p>${esc(cap)}</p>` : ''}`;
   const close = () => { d.remove(); removeEventListener('keydown', key); if (lenis) lenis.start(); };
   const key = e => { if (e.key === 'Escape') close(); };
   d.addEventListener('click', close); addEventListener('keydown', key); document.body.appendChild(d); d.querySelector('button').focus(); if (lenis) lenis.stop();
@@ -674,7 +699,8 @@ function draw(key, proj, anchor) {
   if (hasG) ScrollTrigger.getAll().forEach(t => t.kill());
   cur = key;
   app.innerHTML = proj ? project(proj) : home();
-  document.title = proj ? short(proj.name) + ' · Óscar Ramón Mendiguchía' : 'Óscar Ramón Mendiguchía · Ingeniero de producto';
+  document.title = proj ? short(proj.name) + ' · Óscar Ramón Mendiguchía' : 'Óscar Ramón Mendiguchía · ' + t('role');
+  chrome();
   goTop();
   fitText();
   flHide();
@@ -684,9 +710,39 @@ function draw(key, proj, anchor) {
   pendingAnchor = null;
   if (anchor) { const el = document.getElementById(anchor); if (el) { pendingAnchor = el; pendingUntil = performance.now() + 2500; requestAnimationFrame(() => jumpTo(el)); } }
 }
+/* Cabecera en el idioma actual, con el botón que lleva a la misma página en el otro idioma */
+function chrome() {
+  document.documentElement.lang = LANG;
+  const hd = document.querySelector('.hd');
+  hd.setAttribute('aria-label', t('header')); hd.querySelector('nav').setAttribute('aria-label', t('main'));
+  hd.querySelector('.wm').setAttribute('href', PATHS ? HOME() : '#');
+  hd.querySelectorAll('nav a[data-a]').forEach(a => { a.textContent = t({ proyectos: 'projects', 'sobre-mi': 'about', contacto: 'contact' }[a.dataset.a]); a.setAttribute('href', AH(a.dataset.a)); });
+  const lg = document.getElementById('lang'), ot = LANG === 'en' ? 'es' : 'en';
+  lg.textContent = t('other'); lg.setAttribute('aria-label', t('otherLabel')); lg.setAttribute('hreflang', ot); lg.setAttribute('lang', ot);
+  lg.setAttribute('href', PATHS ? otherUrl() : '#');
+}
+function otherUrl() {
+  const { proj } = where(), ot = LANG === 'en' ? 'es' : 'en';
+  if (proj) return (ot === 'en' ? '/en/projects/' : '/proyectos/') + proj.slug;
+  return (ot === 'en' ? '/en' : '/') + location.hash;
+}
+function setLang(l) {
+  if (l === LANG) return;
+  LANG = l; P = DATAS[LANG].projects; lsSet('lang', l);
+  const y = scrollY; cur = null; target = null;
+  const { proj } = where();
+  draw(proj ? proj.slug : 'home', proj, null);
+  if (!proj) requestAnimationFrame(() => { if (lenis) lenis.scrollTo(y, { immediate: true, force: true }); else scrollTo(0, y); });
+}
+document.getElementById('lang').addEventListener('click', e => {
+  e.preventDefault(); e.stopPropagation();
+  const ot = LANG === 'en' ? 'es' : 'en';
+  if (PATHS) { const u = otherUrl(); history.pushState(null, '', u); }
+  setLang(ot);
+});
 function where() {
   if (PATHS) {
-    const m = location.pathname.match(/^\/proyectos\/([^/]+?)\/?$/), proj = m ? P.find(p => p.slug === m[1]) : null;
+    const m = location.pathname.match(/^\/(?:proyectos|en\/projects)\/([^/]+?)\/?$/), proj = m ? P.find(p => p.slug === m[1]) : null;
     return { proj, anchor: !proj && location.hash.length > 1 ? location.hash.slice(1) : null };
   }
   const h = location.hash.slice(1), proj = h.startsWith('p-') ? P.find(p => p.slug === h.slice(2)) : null;
@@ -699,7 +755,7 @@ function route() {
   if (key === cur) { if (anchor) { const el = document.getElementById(anchor); if (el) goTo(el); } else if (!h) goTo(document.body); return; }
   target = key;
   if (cur === null || !hasG || reduce) { draw(key, proj, anchor); return; }
-  veilT.textContent = proj ? short(proj.name) : 'Inicio';
+  veilT.textContent = proj ? short(proj.name) : t('home');
   gsap.killTweensOf(veil);
   gsap.fromTo(veil, { y: 0, yPercent: 100 }, { yPercent: 0, duration: .7, ease: 'expo.inOut', onComplete: () => {
     draw(key, proj, anchor);
@@ -708,16 +764,14 @@ function route() {
 }
 if (PATHS) {
   // navegación sin recargar entre las páginas de la web
-  addEventListener('popstate', route);
+  addEventListener('popstate', () => { const l = /^\/en(\/|$)/.test(location.pathname) ? 'en' : 'es'; if (l !== LANG) setLang(l); else route(); });
   document.addEventListener('click', e => {
     const a = e.target.closest('a[href^="/"]'); if (!a || a.target || e.metaKey || e.ctrlKey || e.shiftKey) return;
     e.preventDefault();
     const href = a.getAttribute('href');
-    if (href === '/' && location.pathname === '/' && !location.hash) { goTo(document.body); return; }
+    if (href === HOME() && location.pathname === HOME() && !location.hash) { goTo(document.body); return; }
     history.pushState(null, '', href); route();
   });
-  document.querySelector('.hd .wm').setAttribute('href', '/');
-  document.querySelectorAll('.hd nav a').forEach(a => a.setAttribute('href', '/' + a.getAttribute('href')));
 } else {
   addEventListener('hashchange', route);
   document.addEventListener('click', e => { const a = e.target.closest('a[href^="#"]'); if (!a) return; const h = a.getAttribute('href'); if (h === '#') { e.preventDefault(); if (location.hash) location.hash = ''; else goTo(document.body); } });

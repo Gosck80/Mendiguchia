@@ -1,6 +1,6 @@
 # Web de proyectos · Óscar Ramón Mendiguchía
 
-Sitio estático en español. Sin paso de build en Vercel: lo que hay en esta carpeta es lo que se publica.
+Sitio estático en español (`/`) e inglés (`/en`). Sin paso de build en Vercel: lo que hay en esta carpeta es lo que se publica.
 
 ## Estructura
 
@@ -30,4 +30,4 @@ El generador añade `?v=<hash>` a cada imagen y modelo, porque `/img` y `/models
 
 ## Redirecciones
 
-La antigua versión en inglés (`/en/...`) redirige a la española (ver `vercel.json`).
+La versión en inglés vive en `/en` y `/en/projects/<slug>`; el botón EN/ES de la cabecera lleva a la misma página en el otro idioma.
