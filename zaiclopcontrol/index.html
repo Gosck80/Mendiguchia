@@ -197,6 +197,7 @@ nav.tabs{display:none}
   <div class="col">
     <section class="card" data-tab="mando">
       <div class="row"><h2>Estado</h2><span class="state" id="stateTxt" aria-live="polite">En reposo</span></div>
+      <div class="eye bigeye" id="eyeBig" role="img" aria-label="Matriz del robot en tiempo real"></div>
       <div class="tiles">
         <div class="tile"><span class="k">Batería</span><span class="v" id="tBat">–</span><span class="bar"><i id="tBatBar"></i></span></div>
         <div class="tile"><span class="k">Programa</span><span class="v" id="tProg">–</span><span class="s" id="tProgN">Mando manual</span></div>
@@ -319,27 +320,61 @@ var EYE = FR[AN.reposo[0]][0];
 paint($('#eyeHero'), EYE);
 paint($('#eyeHead'), EYE);
 
-var ANIMS = [['reposo','Reposo'],['andar','Andar'],['explorar','Explorar'],['obstaculo','Obstáculo'],['feliz','Feliz'],['dormir','Dormir'],['arranque','Arranque'],['bluetooth','Bluetooth'],['conectado','Conectado'],['bateria','Batería'],['error','Error']];
+var ANIMS = [['reposo','Reposo'],['andar','Andar'],['explorar','Explorar'],['obstaculo','Obstáculo'],['feliz','Feliz'],['dormir','Dormir'],['bluetooth','Bluetooth'],['conectado','Conectado'],['bateria','Batería']];
 $('#anims').innerHTML = ANIMS.map(function (a) {
   return '<button class="anim" data-anim="' + a[0] + '" aria-pressed="false"><span class="eye" aria-hidden="true"></span>' + a[1] + '</button>';
 }).join('');
+// Miniatura fija: el fotograma que más tiempo se muestra en cada animación
+function keyFrame(name) {
+  var a = AN[name], best = a[0];
+  for (var k = a[0]; k < a[0] + a[1]; k++) if (FR[k][1] > FR[best][1]) best = k;
+  return FR[best][0];
+}
+$$('.anim').forEach(function (b) { paint(b.querySelector('.eye'), keyFrame(b.dataset.anim)); });
+
+/* ---------- Matriz en tiempo real ---------- */
+// Reproduce en la app la misma animación que está mostrando el robot, con sus fotogramas y tiempos.
 var still = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
-function play(el, name) {
-  var a = AN[name], i = 0;
-  if (still) {
-    var best = a[0];
-    for (var k = a[0]; k < a[0] + a[1]; k++) if (FR[k][1] > FR[best][1]) best = k;
-    paint(el, FR[best][0]); return;
-  }
+var EYE_LIVE = { name: null, timer: null, lockUntil: 0 };
+function runAnim(name) {
+  clearTimeout(EYE_LIVE.timer);
+  EYE_LIVE.name = name;
+  var a = AN[name], i = 0, el = $('#eyeBig');
+  if (still) { paint(el, keyFrame(name)); return; }
   (function step() {
     var f = FR[a[0] + i];
     paint(el, f[0]);
     var t = f[1] * 10;
-    if (++i >= a[1]) { i = 0; if (!a[2]) t += 1200; }
-    setTimeout(step, t);
+    if (++i >= a[1]) {
+      if (!a[2]) { EYE_LIVE.timer = setTimeout(function () { EYE_LIVE.name = null; syncEye(); }, t); return; }
+      i = 0;
+    }
+    EYE_LIVE.timer = setTimeout(step, t);
   })();
 }
-$$('.anim').forEach(function (b) { play(b.querySelector('.eye'), b.dataset.anim); });
+function animMs(name) {
+  var a = AN[name], t = 0;
+  for (var k = a[0]; k < a[0] + a[1]; k++) t += FR[k][1] * 10;
+  return a[2] ? Math.max(3000, t) : t;
+}
+function playOnce(name, ms) {
+  ms = ms || animMs(name);
+  EYE_LIVE.lockUntil = Date.now() + ms;
+  runAnim(name);
+  setTimeout(syncEye, ms + 20);
+}
+function wantedEye() {
+  if (S.modo === 99) return 'dormir';
+  if (S.prog === 1 && S.dist > 0 && S.dist < 25) return 'obstaculo';
+  if (S.prog === 1) return 'explorar';
+  if (S.orden >= 5 || S.dir) return 'andar';
+  return 'reposo';
+}
+function syncEye() {
+  if (Date.now() < EYE_LIVE.lockUntil) return;
+  var w = wantedEye();
+  if (w !== EYE_LIVE.name) runAnim(w);
+}
 
 /* ---------- Estado ---------- */
 var S = { bat: null, dist: null, modo: 0, prog: 0, orden: 0, gait: 'trote', dir: null, animUntil: 0, anim: null };
@@ -354,6 +389,7 @@ function batPct(v) {
 }
 
 function render() {
+  if (live) syncEye();
   var txt = S.modo === 99 ? 'Servos sueltos' : (S.dist > 0 && S.dist < 25 ? 'Obstáculo delante' : (ORDEN[S.orden] || 'En reposo'));
   if (S.prog === 1 && S.modo !== 99 && !(S.dist > 0 && S.dist < 25)) txt = 'Explorando';
   $('#stateTxt').textContent = txt;
@@ -462,7 +498,7 @@ async function connect(bt) {
   goLive(bt ? 'Conectado · Bluetooth' : 'Conectado · USB');
   readLoop();
   log('Arrancando el robot…', 'tx');
-  setTimeout(function () { send('tele 1'); send('e'); send('anim bluetooth'); setTimeout(function () { send('anim conectado'); }, 2500); }, 2600);
+  setTimeout(function () { send('tele 1'); send('e'); send('anim bluetooth'); playOnce('bluetooth', 2500); setTimeout(function () { send('anim conectado'); playOnce('conectado'); }, 2500); }, 2600);
 }
 
 async function readLoop() {
@@ -523,6 +559,7 @@ function startDemo() {
     onLine('T bat=' + S.bat + ' modo=' + S.modo + ' lim=0 dist=' + Math.round(d) + ' prog=' + S.prog + ' marcha=' + S.gait + ' orden=' + S.orden);
   }, 250);
   goLive('Modo demostración');
+  playOnce('bluetooth', 2500); setTimeout(function () { playOnce('conectado'); }, 2500);
   log('Modo demostración: sin robot conectado.', 'tx');
 }
 
@@ -603,7 +640,7 @@ $$('.prog').forEach(function (p) {
 });
 $$('.chip').forEach(function (c) { c.addEventListener('click', function () { send(c.dataset.cmd); }); });
 $$('.anim').forEach(function (a) {
-  a.addEventListener('click', function () { send('anim ' + a.dataset.anim); S.anim = a.dataset.anim; S.animUntil = Date.now() + 2500; render(); setTimeout(render, 2600); });
+  a.addEventListener('click', function () { send('anim ' + a.dataset.anim); S.anim = a.dataset.anim; S.animUntil = Date.now() + animMs(a.dataset.anim); playOnce(a.dataset.anim); render(); setTimeout(render, animMs(a.dataset.anim) + 50); });
 });
 $('#btRelease').addEventListener('click', function () { send('soltar'); S.modo = 99; S.prog = 0; render(); });
 
