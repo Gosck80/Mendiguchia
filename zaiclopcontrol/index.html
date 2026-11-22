@@ -346,7 +346,7 @@ function runAnim(name) {
     paint(el, f[0]);
     var t = f[1] * 10;
     if (++i >= a[1]) {
-      if (!a[2]) { EYE_LIVE.timer = setTimeout(function () { EYE_LIVE.name = null; syncEye(); }, t); return; }
+      if (!a[2]) return; // sin bucle: se queda en el último fotograma hasta la siguiente
       i = 0;
     }
     EYE_LIVE.timer = setTimeout(step, t);
@@ -363,17 +363,17 @@ function playOnce(name, ms) {
   runAnim(name);
   setTimeout(syncEye, ms + 20);
 }
-function wantedEye() {
-  if (S.modo === 99) return 'dormir';
-  if (S.prog === 1 && S.dist > 0 && S.dist < 25) return 'obstaculo';
-  if (S.prog === 1) return 'explorar';
-  if (S.orden >= 5 || S.dir) return 'andar';
-  return 'reposo';
-}
+// El firmware informa de la animación que está mostrando ("anim=" en la telemetría y "A <nombre>"
+// al empezar cada una). Si lo hace, la matriz la sigue estrictamente. Si no, solo muestra lo que
+// la app ha pedido y, entre medias, reposo.
+var NOMBRES = ['arranque','reposo','andar','explorar','obstaculo','bateria','bluetooth','conectado','feliz','error','dormir'];
 function syncEye() {
+  if (S.animRobot) {
+    if (S.animRobot !== EYE_LIVE.name) { EYE_LIVE.lockUntil = 0; runAnim(S.animRobot); }
+    return;
+  }
   if (Date.now() < EYE_LIVE.lockUntil) return;
-  var w = wantedEye();
-  if (w !== EYE_LIVE.name) runAnim(w);
+  if (EYE_LIVE.name !== 'reposo') runAnim('reposo');
 }
 
 /* ---------- Estado ---------- */
@@ -390,8 +390,7 @@ function batPct(v) {
 
 function render() {
   if (live) syncEye();
-  var txt = S.modo === 99 ? 'Servos sueltos' : (S.dist > 0 && S.dist < 25 ? 'Obstáculo delante' : (ORDEN[S.orden] || 'En reposo'));
-  if (S.prog === 1 && S.modo !== 99 && !(S.dist > 0 && S.dist < 25)) txt = 'Explorando';
+  var txt = S.modo === 99 ? 'Servos sueltos' : (S.prog ? (PROGS[S.prog] || 'Programa') + ' en marcha' : (ORDEN[S.orden] || 'En reposo'));
   $('#stateTxt').textContent = txt;
 
   // Cifras
@@ -455,6 +454,7 @@ function onLine(line) {
     if ('prog' in o) S.prog = o.prog;
     if ('orden' in o) S.orden = o.orden;
     if ('marcha' in o && (o.marcha === 'trote' || o.marcha === 'andar')) setGait(o.marcha, true);
+    if ('anim' in o) { var an = typeof o.anim === 'number' ? NOMBRES[o.anim] : o.anim; if (AN[an]) S.animRobot = an; }
     if (c === 'E') {
       log(line);
       if ('vel' in o) $('#rVel').value = o.vel;
@@ -464,6 +464,12 @@ function onLine(line) {
     render();
     return;
   }
+  if (c === 'A' && line.charAt(1) === ' ') { // el robot empieza una animación
+    var nm = line.slice(2).trim(); if (/^\d+$/.test(nm)) nm = NOMBRES[+nm];
+    if (AN[nm]) { S.animRobot = nm; EYE_LIVE.lockUntil = 0; runAnim(nm); }
+    return;
+  }
+  if (/^ok joy/.test(line)) { if (JOY.ok !== true) { JOY.ok = true; } return; }
   log(line);
 }
 
@@ -471,9 +477,9 @@ function onLine(line) {
 var SPP = '00001101-0000-1000-8000-00805f9b34fb';
 var port = null, writer = null, reader = null, demo = null, live = false;
 
-function send(cmd) {
+function send(cmd, quiet) {
   if (!live) return;
-  log('> ' + cmd, 'tx');
+  if (!quiet) log('> ' + cmd, 'tx');
   if (demo) { demo(cmd); return; }
   if (writer) writer.write(cmd + '\n').catch(function (e) { log('Error al enviar: ' + e.message, 'er'); });
 }
@@ -525,7 +531,7 @@ async function disconnect(lost) {
   try { if (writer) { await writer.close(); } } catch (e) {}
   try { if (port) await port.close(); } catch (e) {}
   port = writer = reader = null;
-  S.batFix = null; HIST.length = 0;
+  S.batFix = null; HIST.length = 0; S.animRobot = null; JOY.ok = null;
   $('#hDot').classList.remove('ok'); $('#hTxt').textContent = 'Desconectado';
   $('#connect').hidden = false;
   if (lost) { var err = $('#cErr'); err.textContent = 'Se ha perdido la conexión con Zaiclop.'; err.hidden = false; }
@@ -550,16 +556,19 @@ function startDemo() {
     if (p[0] === 'explorar') { S.prog = 1; S.modo = 0; S.orden = 6; }
     if (p[0] === 'show') { S.prog = 2; S.modo = 0; }
     if (p[0] === 'prog') { S.prog = +p[1] || 0; S.modo = 0; }
+    if (p[0] === 'joy') { var mv = +p[1] || +p[2]; S.orden = mv ? (S.gait === 'trote' ? 6 : 5) : 1; S.modo = 0; S.prog = 0; }
+    if (p[0] === 'anim' && AN[p[1]]) { demo.anim = p[1]; demo.animEnd = Date.now() + animMs(p[1]); }
     setTimeout(function () { onLine('ok ' + cmd); render(); }, 60);
   };
   demo.t = setInterval(function () {
     t0++;
     d += (Math.random() - 0.5) * 14 + (S.orden >= 5 ? -3 : 1);
     if (d < 12) d = 110; if (d > 118) d = 118;
-    onLine('T bat=' + S.bat + ' modo=' + S.modo + ' lim=0 dist=' + Math.round(d) + ' prog=' + S.prog + ' marcha=' + S.gait + ' orden=' + S.orden);
+    var an = Date.now() < (demo.animEnd || 0) ? demo.anim : S.modo === 99 ? 'dormir' : S.prog === 1 ? (d < 25 ? 'obstaculo' : 'explorar') : S.orden >= 5 ? 'andar' : 'reposo';
+    if (t0 < 20) an = t0 < 10 ? 'bluetooth' : 'conectado';
+    onLine('T bat=' + S.bat + ' modo=' + S.modo + ' lim=0 dist=' + Math.round(d) + ' prog=' + S.prog + ' marcha=' + S.gait + ' orden=' + S.orden + ' anim=' + an);
   }, 250);
   goLive('Modo demostración');
-  playOnce('bluetooth', 2500); setTimeout(function () { playOnce('conectado'); }, 2500);
   log('Modo demostración: sin robot conectado.', 'tx');
 }
 
@@ -580,53 +589,92 @@ function setGait(g, fromRobot) {
   if (S.gait === g && fromRobot) return;
   S.gait = g;
   $$('[data-gait]').forEach(function (b) { b.setAttribute('aria-pressed', b.dataset.gait === g); });
-  if (!fromRobot && S.dir === 'up') send(g);
+  if (!fromRobot) { if (JOY.ok !== false) send('marcha ' + g); else if (S.dir === 'up') send(g); }
   updJoyTxt();
 }
 $$('[data-gait]').forEach(function (b) { b.addEventListener('click', function () { setGait(b.dataset.gait, false); }); });
 
 /* ---------- Joystick ---------- */
+// Proporcional: "joy <avance> <giro>" (−100…100) cada 100 ms mientras está fuera del centro, y
+// "joy 0 0" al soltar. Si el firmware no contesta "ok joy", pasa a 4 direcciones con los comandos de siempre.
 var joy = $('#joy'), knob = $('#knob'), dragging = false;
+var JOY = { vx: 0, w: 0, ok: null, probe: null, lastCmd: '', lastT: 0 };
 var CMD = function (d) { return { up: S.gait, down: 'atras', left: 'izq', right: 'der' }[d]; };
-var TXT = { up: function () { return S.gait === 'trote' ? 'Adelante · trote' : 'Adelante · paso'; }, down: function () { return 'Atrás'; }, left: function () { return 'Gira a la izquierda'; }, right: function () { return 'Gira a la derecha'; } };
-function updJoyTxt() { $('#joyTxt').textContent = S.dir ? TXT[S.dir]() : 'Quieto · arrastra para mover'; }
-function setDir(d) {
+function moveKnob(dx, dy) { knob.style.transform = 'translate(' + dx + 'px,' + dy + 'px)'; }
+function updJoyTxt() {
+  var t;
+  if (!JOY.vx && !JOY.w) t = 'Quieto · arrastra para mover';
+  else if (JOY.ok === false) t = { up: 'Adelante', down: 'Atrás', left: 'Gira a la izquierda', right: 'Gira a la derecha' }[S.dir] || 'Quieto';
+  else {
+    var p = [];
+    if (JOY.vx) p.push((JOY.vx > 0 ? 'Adelante ' : 'Atrás ') + Math.abs(JOY.vx) + '%');
+    if (JOY.w) p.push('gira a la ' + (JOY.w > 0 ? 'derecha ' : 'izquierda ') + Math.abs(JOY.w) + '%');
+    t = p.join(' · ');
+  }
+  $('#joyTxt').textContent = t;
+}
+function sendJoy(force) {
+  var cmd = 'joy ' + JOY.vx + ' ' + JOY.w, now = Date.now();
+  if (!force && now - JOY.lastT < (cmd === JOY.lastCmd ? 300 : 100)) return; // cambios a 10 Hz, mantenimiento cada 300 ms
+  JOY.lastCmd = cmd; JOY.lastT = now;
+  send(cmd, true);
+  if (JOY.ok === null && !JOY.probe) JOY.probe = setTimeout(function () {
+    JOY.probe = null;
+    if (JOY.ok !== true) { JOY.ok = false; log('Este firmware no tiene joystick proporcional: modo de 4 direcciones.', 'er'); discrete(); updJoyTxt(); }
+  }, 700);
+}
+function discrete() {
+  var d = null, a = Math.abs(JOY.vx), b = Math.abs(JOY.w);
+  if (a >= 25 || b >= 25) d = a >= b ? (JOY.vx > 0 ? 'up' : 'down') : (JOY.w > 0 ? 'right' : 'left');
   if (d === S.dir) return;
   S.dir = d;
-  joy.classList.toggle('on', !!d);
-  if (d) { if (S.prog) S.prog = 0; send(CMD(d)); } else send('pie');
+  send(d ? CMD(d) : 'pie');
+}
+function setVec(vx, w) {
+  vx = Math.round(Math.max(-100, Math.min(100, vx))); w = Math.round(Math.max(-100, Math.min(100, w)));
+  if (Math.abs(vx) < 10) vx = 0;
+  if (Math.abs(w) < 10) w = 0;
+  if (vx === JOY.vx && w === JOY.w) return;
+  JOY.vx = vx; JOY.w = w;
+  var moving = !!(vx || w);
+  joy.classList.toggle('on', moving);
+  if (moving && S.prog) S.prog = 0;
+  if (JOY.ok === false) discrete(); else sendJoy(!moving);
   updJoyTxt(); render();
 }
-function moveKnob(dx, dy) { knob.style.transform = 'translate(' + dx + 'px,' + dy + 'px)'; }
+setInterval(function () { if (live && JOY.ok !== false && (JOY.vx || JOY.w)) sendJoy(false); }, 100);
 function fromPointer(e) {
   var r = joy.getBoundingClientRect(), R = r.width / 2, max = R * 0.55;
   var dx = e.clientX - r.left - R, dy = e.clientY - r.top - R, d = Math.sqrt(dx * dx + dy * dy);
   if (d > max) { dx *= max / d; dy *= max / d; }
   moveKnob(dx, dy);
-  setDir(d < R * 0.15 ? null : (Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'right' : 'left') : (dy < 0 ? 'up' : 'down')));
+  setVec(-dy / max * 100, dx / max * 100);
 }
 joy.addEventListener('pointerdown', function (e) { if (!live) return; dragging = true; joy.classList.remove('back'); joy.setPointerCapture(e.pointerId); fromPointer(e); });
 joy.addEventListener('pointermove', function (e) { if (dragging) fromPointer(e); });
-function release() { if (!dragging) return; dragging = false; joy.classList.add('back'); moveKnob(0, 0); setDir(null); }
+function release() { if (!dragging) return; dragging = false; joy.classList.add('back'); moveKnob(0, 0); setVec(0, 0); }
 joy.addEventListener('pointerup', release);
 joy.addEventListener('pointercancel', release);
 
-// Teclado: flechas o WASD mantienen la dirección; espacio para
+// Teclado: flechas o WASD, combinables (adelante + giro); espacio para
 var KEYS = { ArrowUp: 'up', KeyW: 'up', ArrowDown: 'down', KeyS: 'down', ArrowLeft: 'left', KeyA: 'left', ArrowRight: 'right', KeyD: 'right' };
-var held = null;
+var held = {};
+function fromKeys() {
+  var vx = (held.up ? 100 : 0) - (held.down ? 100 : 0), w = (held.right ? 60 : 0) - (held.left ? 60 : 0);
+  var k = joy.getBoundingClientRect().width * 0.275 / 100;
+  joy.classList.add('back');
+  moveKnob(w * k, -vx * k);
+  setVec(vx, w);
+}
 document.addEventListener('keydown', function (e) {
   if (!live || e.target.tagName === 'INPUT' || e.repeat) return;
-  if (e.code === 'Space') { e.preventDefault(); held = null; moveKnob(0, 0); setDir(null); return; }
+  if (e.code === 'Space') { e.preventDefault(); held = {}; fromKeys(); return; }
   var d = KEYS[e.code]; if (!d) return;
-  e.preventDefault(); held = e.code;
-  var k = joy.getBoundingClientRect().width * 0.27;
-  joy.classList.add('back');
-  moveKnob(d === 'left' ? -k : d === 'right' ? k : 0, d === 'up' ? -k : d === 'down' ? k : 0);
-  setDir(d);
+  e.preventDefault(); held[d] = true; fromKeys();
 });
 document.addEventListener('keyup', function (e) {
-  if (e.code !== held) return;
-  held = null; moveKnob(0, 0); setDir(null);
+  var d = KEYS[e.code]; if (!d || !held[d]) return;
+  delete held[d]; fromKeys();
 });
 
 /* ---------- Programas, posturas, animaciones ---------- */
@@ -638,7 +686,7 @@ $$('.prog').forEach(function (p) {
     render();
   });
 });
-$$('.chip').forEach(function (c) { c.addEventListener('click', function () { send(c.dataset.cmd); }); });
+$$('.chip').forEach(function (c) { c.addEventListener('click', function () { send(c.dataset.cmd); S.prog = 0; render(); }); });
 $$('.anim').forEach(function (a) {
   a.addEventListener('click', function () { send('anim ' + a.dataset.anim); S.anim = a.dataset.anim; S.animUntil = Date.now() + animMs(a.dataset.anim); playOnce(a.dataset.anim); render(); setTimeout(render, animMs(a.dataset.anim) + 50); });
 });
