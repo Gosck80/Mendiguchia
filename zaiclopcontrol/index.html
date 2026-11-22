@@ -1,0 +1,642 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#ffffff">
+<title>Zaiclop · Control</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Doto:wght@900&family=Geist:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --amarillo:#f6c800; --tinta:#0a0a0a; --matriz:#151515; --led-off:#2a2a2a;
+  --fondo:#ffffff; --sup:#eaf0f6; --ctrl:#d6e0eb; --gris:#556270;
+  --rojo:#c4242a; --verde:#2e7d32;
+  --marca:"Doto","Geist",monospace; --texto:"Geist",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--fondo);color:var(--tinta);font:400 15px/22px var(--texto);-webkit-tap-highlight-color:transparent}
+button,input{font:inherit;color:inherit}
+button{cursor:pointer;border:0}
+button:focus-visible,input:focus-visible,.joy:focus-visible{outline:2px solid var(--tinta);outline-offset:2px}
+h2{margin:0;font:600 16px/22px var(--texto)}
+.i{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.muted{color:var(--gris)}
+
+/* Ojo */
+.eye{background:var(--matriz);display:inline-flex;flex-direction:column}
+.eye .r{display:flex}
+.eye span{display:block;border-radius:50%;background:var(--led-off)}
+.eye span.on{background:var(--amarillo)}
+
+/* Cabecera */
+header{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px 16px;padding:14px 24px;background:var(--sup)}
+.brand{display:flex;align-items:center;gap:14px}
+.brand .eye{border-radius:8px;padding:7px;gap:3px}.brand .eye .r{gap:3px}.brand .eye span{width:5px;height:5px}
+.word{font:900 30px/1 var(--marca)}
+.hstat{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.pill{display:inline-flex;align-items:center;gap:8px;height:36px;padding:0 14px;border-radius:999px;background:var(--ctrl);font-size:14px}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--gris)}
+.dot.ok{background:var(--verde)}
+.btn{height:44px;padding:0 18px;border-radius:999px;font-size:15px;font-weight:500;display:inline-flex;align-items:center;justify-content:center;gap:10px}
+.btn.pri{background:var(--tinta);color:#fff}
+.btn.sec{background:var(--ctrl);color:var(--tinta)}
+.btn.stop{background:var(--rojo);color:#fff;font-weight:600;height:48px;width:100%}
+
+/* Rejilla */
+main{max-width:1320px;margin:0 auto;padding:24px;display:flex;flex-wrap:wrap;gap:12px;align-items:flex-start}
+.col{flex:1 1 360px;min-width:0;display:flex;flex-direction:column;gap:12px}
+.card{background:var(--sup);border-radius:8px;padding:20px;display:flex;flex-direction:column;gap:16px}
+.row{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+
+/* Ojo grande y cifras */
+.bigeye{align-self:center;border-radius:14px;padding:22px;gap:8px}.bigeye .r{gap:8px}.bigeye span{width:26px;height:26px}
+.state{margin:0;text-align:center;font-weight:500}
+.tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.tile{background:var(--fondo);border-radius:8px;padding:12px;display:flex;flex-direction:column;gap:4px;min-width:0}
+.tile .k{font-size:13px;color:var(--gris)}
+.tile .v{font:900 34px/1.1 var(--marca);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tile .s{font-size:13px;color:var(--gris);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar{display:block;height:6px;border-radius:999px;background:var(--ctrl);overflow:hidden}
+.bar i{display:block;height:6px;width:0;background:var(--tinta);transition:width .3s}
+.bar i.low{background:var(--rojo)}
+
+/* Mando */
+.seg{display:flex;gap:4px;padding:4px;border-radius:999px;background:var(--ctrl)}
+.seg button{height:36px;padding:0 16px;border-radius:999px;font-size:14px;font-weight:500;background:transparent}
+.seg button[aria-pressed="true"]{background:var(--tinta);color:#fff}
+.joywrap{align-self:center;display:flex;flex-direction:column;align-items:center;gap:12px}
+.joy{position:relative;width:220px;height:220px;border-radius:50%;background:var(--ctrl);touch-action:none;cursor:grab;user-select:none}
+.joy svg{position:absolute;left:0;top:0;color:var(--gris);pointer-events:none}
+.knob{position:absolute;left:66px;top:66px;width:88px;height:88px;border-radius:50%;background:var(--tinta);display:flex;align-items:center;justify-content:center;transition:background .15s;pointer-events:none}
+.knob i{display:block;width:14px;height:14px;border-radius:50%;background:var(--amarillo)}
+.joy.on .knob{background:var(--amarillo)}.joy.on .knob i{background:var(--tinta)}
+.joy.back .knob{transition:transform .15s ease-out,background .15s}
+
+/* Programas */
+.prog{display:flex;align-items:center;gap:14px;padding:12px;border-radius:8px;background:var(--fondo)}
+.prog .n{width:44px;text-align:center;font:900 34px/1 var(--marca)}
+.prog .t{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.prog .t b{font-weight:600}
+.prog .t span{font-size:13px;line-height:18px;color:var(--gris)}
+.prog.on{background:var(--amarillo)}.prog.on .t span{color:var(--tinta)}
+.round{width:44px;height:44px;flex:none;border-radius:999px;background:var(--tinta);color:#fff;display:flex;align-items:center;justify-content:center}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{height:44px;padding:0 18px;border-radius:999px;background:var(--ctrl);font-size:15px}
+.chip.on{background:var(--amarillo)}
+.note{margin:0;font-size:13px;line-height:18px;color:var(--gris)}
+.anims{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.anim{border-radius:8px;padding:12px 8px;background:var(--fondo);display:flex;flex-direction:column;align-items:center;gap:8px;font-size:14px}
+.anim.on{background:var(--amarillo)}
+.anim .eye{border-radius:6px;padding:6px;gap:3px}.anim .eye .r{gap:3px}.anim .eye span{width:6px;height:6px}
+
+/* Distancia */
+.chart{position:relative;height:120px;display:flex;align-items:flex-end;gap:1px;border-bottom:1px solid var(--ctrl)}
+.chart .lim{position:absolute;left:0;right:0;bottom:25px;border-top:1px dashed var(--gris)}
+.chart b{flex:1;min-width:1px;border-radius:1px 1px 0 0;background:var(--tinta)}
+.chart b.near{background:var(--rojo)}
+.axis{display:flex;justify-content:space-between;font-size:12px;color:var(--gris)}
+
+/* Ajustes */
+.set{display:flex;flex-direction:column;gap:6px}
+.set label{font-size:15px}
+.set .ends{display:flex;justify-content:space-between;font-size:13px;color:var(--gris)}
+input[type=range]{width:100%;accent-color:var(--tinta);margin:0;height:28px}
+.sw{width:52px;height:32px;border-radius:999px;padding:4px;background:var(--ctrl);display:flex;justify-content:flex-start;transition:background .15s}
+.sw i{display:block;width:24px;height:24px;border-radius:50%;background:#fff}
+.sw[aria-pressed="true"]{background:var(--tinta);justify-content:flex-end}
+
+/* Consola */
+.console{background:var(--matriz);border-radius:8px;padding:14px;height:180px;overflow:auto;font:13px/20px ui-monospace,"SF Mono",Menlo,Consolas,monospace;color:#fff;display:flex;flex-direction:column}
+.console .tx{color:var(--amarillo)}
+.console .er{color:#ff8a8a}
+.cmd{display:flex;gap:8px}
+.cmd input{flex:1;min-width:0;height:44px;padding:0 12px;border:0;border-radius:6px;background:var(--ctrl);font-size:14px}
+
+/* Pantalla de conexión */
+#connect{position:fixed;inset:0;z-index:20;background:var(--fondo);display:flex;align-items:center;justify-content:center;padding:16px;overflow:auto}
+#connect[hidden]{display:none}
+.cbox{width:100%;max-width:400px;display:flex;flex-direction:column;gap:20px}
+.hero{display:flex;flex-direction:column;align-items:center;gap:20px;padding:24px 0}
+.hero .eye{border-radius:14px;padding:22px;gap:8px}.hero .eye .r{gap:8px}.hero .eye span{width:24px;height:24px}
+.hero h1{margin:0;font:900 64px/1 var(--marca)}
+.cbox .card{gap:12px}
+.cbox .btn{height:52px;width:100%}
+.err{margin:0;font-size:14px;line-height:20px;color:var(--rojo)}
+.link{background:none;padding:8px;font-size:14px;color:var(--gris);text-decoration:underline;align-self:center}
+
+/* Pestañas en móvil */
+nav.tabs{display:none}
+@media (max-width:760px){
+  header{padding:12px 16px}
+  .word{font-size:24px}
+  header{flex-wrap:nowrap}
+  .brand{gap:10px}
+  .hstat{flex-wrap:nowrap;gap:6px}
+  .hstat .pill{height:32px;padding:0 10px;font-size:13px}
+  .hstat .pill #hTxt{display:none}
+  .hstat .btn{height:36px;padding:0 14px;font-size:14px}
+  main{padding:12px 16px 96px}
+  .col{flex-basis:100%}
+  body[data-tab] [data-tab]{display:none}
+  body[data-tab="mando"] [data-tab="mando"],
+  body[data-tab="programas"] [data-tab="programas"],
+  body[data-tab="ajustes"] [data-tab="ajustes"]{display:flex}
+  .bigeye{padding:16px;gap:6px}.bigeye .r{gap:6px}.bigeye span{width:18px;height:18px}
+  .joy{width:250px;height:250px}
+  .knob{left:75px;top:75px;width:100px;height:100px}
+  nav.tabs{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:10;background:var(--sup);padding:6px 8px calc(10px + env(safe-area-inset-bottom))}
+  nav.tabs button{flex:1;min-height:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;background:none;color:var(--gris);font-size:13px}
+  nav.tabs button::before{content:"";width:20px;height:3px;border-radius:999px;background:transparent}
+  nav.tabs button[aria-current="page"]{color:var(--tinta);font-weight:600}
+  nav.tabs button[aria-current="page"]::before{background:var(--amarillo)}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body data-tab="mando">
+
+<!-- Conexión -->
+<div id="connect">
+  <div class="cbox">
+    <div class="hero">
+      <div class="eye" id="eyeHero" role="img" aria-label="Ojo de Zaiclop"></div>
+      <h1>ZAICLOP</h1>
+      <p class="muted" style="margin:0">Trota, esquiva y baila.</p>
+    </div>
+    <section class="card">
+      <h2>Conectar</h2>
+      <button class="btn pri" id="btBt">
+        <svg class="i" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10-5 5V2l5 5L7 17"/></svg>Por Bluetooth
+      </button>
+      <button class="btn sec" id="btUsb">
+        <svg class="i" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12M9 6l3-3 3 3M7 11v2a2 2 0 002 2h6a2 2 0 002-2v-2"/><circle cx="12" cy="19" r="2"/></svg>Por cable USB
+      </button>
+      <p class="note" id="cHint">Empareja Zaiclop por Bluetooth en tu dispositivo antes de conectar.</p>
+      <p class="err" id="cErr" hidden></p>
+    </section>
+    <button class="link" id="btDemo">Probar sin robot</button>
+  </div>
+</div>
+
+<header>
+  <div class="brand">
+    <div class="eye" id="eyeHead" role="img" aria-label="Ojo de Zaiclop"></div>
+    <span class="word">ZAICLOP</span>
+  </div>
+  <div class="hstat">
+    <span class="pill"><span class="dot" id="hDot"></span><span id="hTxt">Desconectado</span></span>
+    <button class="btn pri" id="btDisc">Desconectar</button>
+  </div>
+</header>
+
+<main>
+  <div class="col">
+    <section class="card" data-tab="mando">
+      <div class="row"><h2>Ojo</h2><span class="muted" style="font-size:13px">Lo mismo que muestra el robot</span></div>
+      <div class="eye bigeye" id="eyeBig" role="img" aria-label="Ojo del robot"></div>
+      <p class="state" id="stateTxt" aria-live="polite">En reposo</p>
+      <div class="tiles">
+        <div class="tile"><span class="k">Batería</span><span class="v" id="tBat">–</span><span class="bar"><i id="tBatBar"></i></span></div>
+        <div class="tile"><span class="k">Distancia</span><span class="v" id="tDist">–</span><span class="s" id="tDistU">cm</span></div>
+        <div class="tile"><span class="k">Programa</span><span class="v" id="tProg">–</span><span class="s" id="tProgN">Mando manual</span></div>
+      </div>
+    </section>
+
+    <section class="card" data-tab="mando">
+      <div class="row" style="align-items:center;flex-wrap:wrap">
+        <h2>Mando</h2>
+        <div class="seg" role="group" aria-label="Marcha">
+          <button data-gait="andar" aria-pressed="false">Paso</button>
+          <button data-gait="trote" aria-pressed="true">Trote</button>
+        </div>
+      </div>
+      <div class="joywrap">
+        <div class="joy" id="joy" tabindex="0" role="application" aria-label="Joystick. Flechas para mover, espacio para parar.">
+          <svg class="i" viewBox="0 0 220 220" width="100%" height="100%" aria-hidden="true"><path d="M102 24l8-8 8 8M102 196l8 8 8-8M24 102l-8 8 8 8M196 102l8 8-8 8"/></svg>
+          <span class="knob" id="knob"><i></i></span>
+        </div>
+        <span id="joyTxt" style="font-weight:500">Quieto · arrastra para mover</span>
+      </div>
+      <button class="btn stop" id="btRelease">Soltar servos</button>
+    </section>
+
+    <section class="card" data-tab="mando">
+      <div class="row"><h2>Distancia</h2><span class="muted" style="font-size:13px">últimos 30 s</span></div>
+      <div class="chart" id="chart" role="img" aria-label="Distancia medida en los últimos 30 segundos"><span class="lim"></span></div>
+      <div class="axis"><span>−30 s</span><span>ahora</span></div>
+    </section>
+  </div>
+
+  <div class="col">
+    <section class="card" data-tab="programas">
+      <h2>Programas</h2>
+      <div class="prog" data-prog="1"><span class="n">1</span><span class="t"><b>Explorar</b><span>Trota y esquiva lo que tenga a menos de 25 cm</span></span><button class="round" aria-label="Empezar Explorar"></button></div>
+      <div class="prog" data-prog="2"><span class="n">2</span><span class="t"><b>Show</b><span>Posturas, giros y trote en bucle</span></span><button class="round" aria-label="Empezar Show"></button></div>
+      <div class="prog" data-prog="3"><span class="n">3</span><span class="t"><b>Trote libre</b><span>Por definir</span></span><button class="round" aria-label="Empezar Trote libre"></button></div>
+    </section>
+
+    <section class="card" data-tab="programas">
+      <h2>Posturas</h2>
+      <div class="chips">
+        <button class="chip" data-cmd="pie" data-orden="1">De pie</button>
+        <button class="chip" data-cmd="subir" data-orden="2">Subir y bajar</button>
+        <button class="chip" data-cmd="cabeceo" data-orden="3">Cabeceo</button>
+        <button class="chip" data-cmd="sentarse" data-orden="4">Sentarse</button>
+      </div>
+      <p class="note">Se pone de pie antes de cambiar de postura.</p>
+    </section>
+
+    <section class="card" data-tab="programas">
+      <h2>Animaciones del ojo</h2>
+      <div class="anims" id="anims"></div>
+    </section>
+  </div>
+
+  <div class="col">
+    <section class="card" data-tab="ajustes">
+      <h2>Ajustes</h2>
+      <div class="row" style="align-items:center">
+        <span>Silencio</span>
+        <button class="sw" id="swMute" aria-pressed="false" aria-label="Silencio"><i></i></button>
+      </div>
+      <div class="set">
+        <label for="rVol">Volumen</label>
+        <input id="rVol" type="range" min="1" max="2" step="1" value="2">
+        <div class="ends"><span>Bajo</span><span>Alto</span></div>
+      </div>
+      <div class="set">
+        <label for="rVel">Velocidad</label>
+        <input id="rVel" type="range" min="50" max="150" step="5" value="100">
+        <div class="ends"><span>Lenta</span><span>Rápida</span></div>
+      </div>
+      <div class="set">
+        <label for="rBri">Brillo del ojo</label>
+        <input id="rBri" type="range" min="1" max="8" step="1" value="6">
+        <div class="ends"><span>Tenue</span><span>Máximo</span></div>
+      </div>
+    </section>
+
+    <section class="card" data-tab="ajustes">
+      <h2>Consola</h2>
+      <div class="console" id="log" aria-live="polite"></div>
+      <form class="cmd" id="cmdForm">
+        <label for="cmdIn" class="sr">Comando</label>
+        <input id="cmdIn" type="text" placeholder="Escribe un comando" autocomplete="off" autocapitalize="off" spellcheck="false">
+        <button class="btn pri" type="submit">Enviar</button>
+      </form>
+    </section>
+  </div>
+</main>
+
+<nav class="tabs" aria-label="Secciones">
+  <button data-go="mando" aria-current="page"><svg class="i" width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="7" width="20" height="10" rx="5"/><path d="M7 10v4M5 12h4M16 11h.01M18 13h.01"/></svg>Mando</button>
+  <button data-go="programas"><svg class="i" width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01"/></svg>Programas</button>
+  <button data-go="ajustes"><svg class="i" width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h9M17 6h3M4 12h3M11 12h9M4 18h11M19 18h1"/><circle cx="15" cy="6" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="17" cy="18" r="2"/></svg>Ajustes</button>
+</nav>
+
+<script>
+(function () {
+'use strict';
+var $ = function (s) { return document.querySelector(s); };
+var $$ = function (s) { return Array.prototype.slice.call(document.querySelectorAll(s)); };
+
+/* ---------- Ojo: matriz de 6 × 5 ---------- */
+var F = {
+  reposo:    ['011110','111111','110011','111111','011110'],
+  explorar:  ['011110','111111','001111','111111','011110'],
+  andar:     ['000000','111111','110011','111111','000000'],
+  feliz:     ['000000','001100','011110','110011','000000'],
+  obstaculo: ['110011','011110','001100','011110','110011'],
+  dormir:    ['000000','000000','111111','011110','000000']
+};
+function paint(el, name) {
+  if (el.dataset.f === name) return;
+  el.dataset.f = name;
+  el.innerHTML = F[name].map(function (r) {
+    return '<div class="r">' + r.split('').map(function (c) { return '<span' + (c === '1' ? ' class="on"' : '') + '></span>'; }).join('') + '</div>';
+  }).join('');
+}
+paint($('#eyeHero'), 'dormir');
+paint($('#eyeHead'), 'reposo');
+
+var ANIMS = [['reposo','Reposo'],['explorar','Explorar'],['feliz','Feliz'],['obstaculo','Obstáculo'],['andar','Andar'],['dormir','Dormir']];
+$('#anims').innerHTML = ANIMS.map(function (a) {
+  return '<button class="anim" data-anim="' + a[0] + '" aria-pressed="false"><span class="eye" aria-hidden="true"></span>' + a[1] + '</button>';
+}).join('');
+$$('.anim').forEach(function (b) { paint(b.querySelector('.eye'), b.dataset.anim); });
+
+/* ---------- Estado ---------- */
+var S = { bat: null, dist: null, modo: 0, prog: 0, orden: 0, gait: 'trote', dir: null, animUntil: 0, anim: null };
+var HIST = [];
+var ORDEN = { 0: 'En reposo', 1: 'De pie', 2: 'Subiendo y bajando', 3: 'Cabeceando', 4: 'Sentado', 5: 'Andando', 6: 'Trotando', 7: 'Marcha atrás', 8: 'Girando a la izquierda', 9: 'Girando a la derecha' };
+var PROGS = { 1: 'Explorar', 2: 'Show', 3: 'Trote libre' };
+
+function batPct(v) {
+  if (v == null || isNaN(v)) return null;
+  if (v > 100) v = (v - 3450) / (4150 - 3450) * 100; // llega en mV
+  return Math.max(0, Math.min(100, Math.round(v)));
+}
+
+function render() {
+  // Ojo
+  var eye;
+  if (S.anim && Date.now() < S.animUntil) eye = S.anim;
+  else if (S.modo === 99) eye = 'dormir';
+  else if (S.dist > 0 && S.dist < 25) eye = 'obstaculo';
+  else if (S.prog === 1) eye = 'explorar';
+  else if (S.orden >= 5 || S.dir) eye = 'andar';
+  else eye = 'reposo';
+  paint($('#eyeBig'), eye);
+  paint($('#eyeHead'), eye);
+
+  var txt = S.modo === 99 ? 'Servos sueltos' : (S.dist > 0 && S.dist < 25 ? 'Obstáculo delante' : (ORDEN[S.orden] || 'En reposo'));
+  if (S.prog === 1 && S.modo !== 99 && !(S.dist > 0 && S.dist < 25)) txt = 'Explorando';
+  $('#stateTxt').textContent = txt;
+
+  // Cifras
+  var b = batPct(S.bat);
+  $('#tBat').textContent = b == null ? '–' : b + '%';
+  var bar = $('#tBatBar'); bar.style.width = (b || 0) + '%'; bar.classList.toggle('low', b != null && b < 20);
+  if (S.dist == null) { $('#tDist').textContent = '–'; $('#tDistU').textContent = 'cm'; }
+  else if (S.dist === 0) { $('#tDist').textContent = '+120'; $('#tDistU').textContent = 'cm · libre'; }
+  else { $('#tDist').textContent = S.dist; $('#tDistU').textContent = 'cm'; }
+  $('#tProg').textContent = S.prog ? S.prog : '–';
+  $('#tProgN').textContent = S.prog ? PROGS[S.prog] || '' : 'Mando manual';
+
+  // Programas
+  $$('.prog').forEach(function (p) {
+    var n = +p.dataset.prog, on = S.prog === n, btn = p.querySelector('.round');
+    p.classList.toggle('on', on);
+    btn.setAttribute('aria-label', (on ? 'Parar ' : 'Empezar ') + PROGS[n]);
+    btn.innerHTML = on
+      ? '<svg class="i" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="1"/></svg>'
+      : '<svg class="i" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>';
+  });
+  $$('.chip').forEach(function (c) { c.classList.toggle('on', !S.prog && S.modo !== 99 && +c.dataset.orden === S.orden && S.orden > 1); });
+  $$('.anim').forEach(function (a) { var on = S.anim === a.dataset.anim && Date.now() < S.animUntil; a.classList.toggle('on', on); a.setAttribute('aria-pressed', on); });
+
+  // Gráfica
+  var ch = $('#chart'), bars = ch.querySelectorAll('b');
+  for (var i = 0; i < 120; i++) {
+    var el = bars[i];
+    if (!el) { el = document.createElement('b'); ch.appendChild(el); }
+    var v = HIST[HIST.length - 120 + i];
+    if (v == null) { el.style.height = '0'; continue; }
+    var h = v === 0 ? 120 : Math.min(120, v);
+    el.style.height = h + 'px';
+    el.classList.toggle('near', v > 0 && v < 25);
+  }
+}
+
+/* ---------- Consola ---------- */
+var logEl = $('#log');
+function log(line, cls) {
+  var s = document.createElement('span');
+  if (cls) s.className = cls;
+  s.textContent = line;
+  logEl.appendChild(s);
+  while (logEl.childNodes.length > 150) logEl.removeChild(logEl.firstChild);
+  logEl.scrollTop = logEl.scrollHeight;
+}
+
+/* ---------- Protocolo ---------- */
+function kv(line) {
+  var o = {};
+  line.replace(/(\w+)=(-?\d+|\w+)/g, function (_, k, v) { o[k] = /^-?\d+$/.test(v) ? +v : v; });
+  return o;
+}
+function onLine(line) {
+  line = line.trim();
+  if (!line) return;
+  var c = line.charAt(0);
+  if ((c === 'T' || c === 'E') && line.charAt(1) === ' ') {
+    var o = kv(line);
+    if ('bat' in o) S.bat = o.bat;
+    if ('dist' in o) { S.dist = o.dist; if (c === 'T') HIST.push(o.dist); if (HIST.length > 240) HIST.splice(0, HIST.length - 240); }
+    if ('modo' in o) S.modo = o.modo;
+    if ('prog' in o) S.prog = o.prog;
+    if ('orden' in o) S.orden = o.orden;
+    if ('marcha' in o && (o.marcha === 'trote' || o.marcha === 'andar')) setGait(o.marcha, true);
+    if (c === 'E') {
+      log(line);
+      if ('vel' in o) $('#rVel').value = o.vel;
+      if ('vol' in o) { setMuteUI(o.vol === 0); if (o.vol > 0) $('#rVol').value = o.vol; }
+      if ('bri' in o) $('#rBri').value = o.bri;
+    }
+    render();
+    return;
+  }
+  log(line);
+}
+
+/* ---------- Transporte: Web Serial o demo ---------- */
+var SPP = '00001101-0000-1000-8000-00805f9b34fb';
+var port = null, writer = null, reader = null, demo = null, live = false;
+
+function send(cmd) {
+  if (!live) return;
+  log('> ' + cmd, 'tx');
+  if (demo) { demo(cmd); return; }
+  if (writer) writer.write(cmd + '\n').catch(function (e) { log('Error al enviar: ' + e.message, 'er'); });
+}
+
+async function connect(bt) {
+  var err = $('#cErr'); err.hidden = true;
+  try {
+    var opts = bt ? { allowedBluetoothServiceClassIds: [SPP], filters: [{ bluetoothServiceClassId: SPP }] } : {};
+    port = await navigator.serial.requestPort(opts);
+    await port.open({ baudRate: 115200 });
+  } catch (e) {
+    if (e && e.name === 'NotFoundError') return; // el usuario cerró el selector
+    err.textContent = 'No se ha podido conectar. Comprueba que Zaiclop está encendido y emparejado, y vuelve a intentarlo.';
+    err.hidden = false;
+    port = null;
+    return;
+  }
+  var enc = new TextEncoderStream(); enc.readable.pipeTo(port.writable).catch(function () {});
+  writer = enc.writable.getWriter();
+  var dec = new TextDecoderStream(); port.readable.pipeTo(dec.writable).catch(function () {});
+  reader = dec.readable.getReader();
+  goLive(bt ? 'Conectado · Bluetooth' : 'Conectado · USB');
+  readLoop();
+  log('Arrancando el robot…', 'tx');
+  setTimeout(function () { send('tele 1'); send('e'); }, 2600);
+}
+
+async function readLoop() {
+  var buf = '';
+  try {
+    while (true) {
+      var r = await reader.read();
+      if (r.done) break;
+      buf += r.value;
+      var parts = buf.split(/\r?\n/);
+      buf = parts.pop();
+      parts.forEach(onLine);
+    }
+  } catch (e) {
+    log('Conexión perdida', 'er');
+  }
+  if (live && !demo) disconnect(true);
+}
+
+async function disconnect(lost) {
+  live = false;
+  if (demo) { clearInterval(demo.t); demo = null; }
+  try { if (reader) { await reader.cancel(); reader.releaseLock(); } } catch (e) {}
+  try { if (writer) { await writer.close(); } } catch (e) {}
+  try { if (port) await port.close(); } catch (e) {}
+  port = writer = reader = null;
+  $('#hDot').classList.remove('ok'); $('#hTxt').textContent = 'Desconectado';
+  $('#connect').hidden = false;
+  if (lost) { var err = $('#cErr'); err.textContent = 'Se ha perdido la conexión con Zaiclop.'; err.hidden = false; }
+}
+
+function goLive(label) {
+  live = true;
+  $('#connect').hidden = true;
+  $('#hDot').classList.toggle('ok', !demo);
+  $('#hTxt').textContent = label;
+  render();
+}
+
+function startDemo() {
+  var t0 = 0, d = 80;
+  S.bat = 78; S.dist = 80; S.prog = 0; S.orden = 1; S.modo = 0;
+  demo = function (cmd) {
+    var p = cmd.split(' ');
+    var map = { andar: 5, trote: 6, atras: 7, izq: 8, der: 9, pie: 1, subir: 2, cabeceo: 3, sentarse: 4 };
+    if (p[0] in map) { S.orden = map[p[0]]; S.modo = 0; S.prog = 0; }
+    if (p[0] === 'soltar') { S.modo = 99; S.prog = 0; S.orden = 0; }
+    if (p[0] === 'explorar') { S.prog = 1; S.modo = 0; S.orden = 6; }
+    if (p[0] === 'show') { S.prog = 2; S.modo = 0; }
+    if (p[0] === 'prog') { S.prog = +p[1] || 0; S.modo = 0; }
+    setTimeout(function () { onLine('ok ' + cmd); render(); }, 60);
+  };
+  demo.t = setInterval(function () {
+    t0++;
+    d += (Math.random() - 0.5) * 14 + (S.orden >= 5 ? -3 : 1);
+    if (d < 12) d = 110; if (d > 118) d = 118;
+    onLine('T bat=' + S.bat + ' modo=' + S.modo + ' lim=0 dist=' + Math.round(d) + ' prog=' + S.prog + ' marcha=' + S.gait + ' orden=' + S.orden);
+  }, 250);
+  goLive('Modo demostración');
+  log('Modo demostración: sin robot conectado.', 'tx');
+}
+
+/* ---------- Conexión: botones ---------- */
+if (!('serial' in navigator)) {
+  $('#btBt').disabled = true; $('#btUsb').disabled = true;
+  $('#btBt').style.opacity = $('#btUsb').style.opacity = '.45';
+  $('#cHint').textContent = 'Este navegador no puede conectar con el robot. Ábrelo en Chrome, en ordenador o en Android.';
+}
+$('#btBt').addEventListener('click', function () { connect(true); });
+$('#btUsb').addEventListener('click', function () { connect(false); });
+$('#btDemo').addEventListener('click', startDemo);
+$('#btDisc').addEventListener('click', function () { if (live) send('pie'); setTimeout(function () { disconnect(false); }, 80); });
+window.addEventListener('beforeunload', function () { if (live && !demo) send('pie'); });
+
+/* ---------- Marcha ---------- */
+function setGait(g, fromRobot) {
+  if (S.gait === g && fromRobot) return;
+  S.gait = g;
+  $$('[data-gait]').forEach(function (b) { b.setAttribute('aria-pressed', b.dataset.gait === g); });
+  if (!fromRobot && S.dir === 'up') send(g);
+  updJoyTxt();
+}
+$$('[data-gait]').forEach(function (b) { b.addEventListener('click', function () { setGait(b.dataset.gait, false); }); });
+
+/* ---------- Joystick ---------- */
+var joy = $('#joy'), knob = $('#knob'), dragging = false;
+var CMD = function (d) { return { up: S.gait, down: 'atras', left: 'izq', right: 'der' }[d]; };
+var TXT = { up: function () { return S.gait === 'trote' ? 'Adelante · trote' : 'Adelante · paso'; }, down: function () { return 'Atrás'; }, left: function () { return 'Gira a la izquierda'; }, right: function () { return 'Gira a la derecha'; } };
+function updJoyTxt() { $('#joyTxt').textContent = S.dir ? TXT[S.dir]() : 'Quieto · arrastra para mover'; }
+function setDir(d) {
+  if (d === S.dir) return;
+  S.dir = d;
+  joy.classList.toggle('on', !!d);
+  if (d) { if (S.prog) S.prog = 0; send(CMD(d)); } else send('pie');
+  updJoyTxt(); render();
+}
+function moveKnob(dx, dy) { knob.style.transform = 'translate(' + dx + 'px,' + dy + 'px)'; }
+function fromPointer(e) {
+  var r = joy.getBoundingClientRect(), R = r.width / 2, max = R * 0.55;
+  var dx = e.clientX - r.left - R, dy = e.clientY - r.top - R, d = Math.sqrt(dx * dx + dy * dy);
+  if (d > max) { dx *= max / d; dy *= max / d; }
+  moveKnob(dx, dy);
+  setDir(d < R * 0.15 ? null : (Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'right' : 'left') : (dy < 0 ? 'up' : 'down')));
+}
+joy.addEventListener('pointerdown', function (e) { if (!live) return; dragging = true; joy.classList.remove('back'); joy.setPointerCapture(e.pointerId); fromPointer(e); });
+joy.addEventListener('pointermove', function (e) { if (dragging) fromPointer(e); });
+function release() { if (!dragging) return; dragging = false; joy.classList.add('back'); moveKnob(0, 0); setDir(null); }
+joy.addEventListener('pointerup', release);
+joy.addEventListener('pointercancel', release);
+
+// Teclado: flechas o WASD mantienen la dirección; espacio para
+var KEYS = { ArrowUp: 'up', KeyW: 'up', ArrowDown: 'down', KeyS: 'down', ArrowLeft: 'left', KeyA: 'left', ArrowRight: 'right', KeyD: 'right' };
+var held = null;
+document.addEventListener('keydown', function (e) {
+  if (!live || e.target.tagName === 'INPUT' || e.repeat) return;
+  if (e.code === 'Space') { e.preventDefault(); held = null; moveKnob(0, 0); setDir(null); return; }
+  var d = KEYS[e.code]; if (!d) return;
+  e.preventDefault(); held = e.code;
+  var k = joy.getBoundingClientRect().width * 0.27;
+  joy.classList.add('back');
+  moveKnob(d === 'left' ? -k : d === 'right' ? k : 0, d === 'up' ? -k : d === 'down' ? k : 0);
+  setDir(d);
+});
+document.addEventListener('keyup', function (e) {
+  if (e.code !== held) return;
+  held = null; moveKnob(0, 0); setDir(null);
+});
+
+/* ---------- Programas, posturas, animaciones ---------- */
+$$('.prog').forEach(function (p) {
+  p.querySelector('.round').addEventListener('click', function () {
+    var n = +p.dataset.prog;
+    if (S.prog === n) { send('pie'); S.prog = 0; }
+    else { send(n === 1 ? 'explorar' : n === 2 ? 'show' : 'prog 3'); S.prog = n; }
+    render();
+  });
+});
+$$('.chip').forEach(function (c) { c.addEventListener('click', function () { send(c.dataset.cmd); }); });
+$$('.anim').forEach(function (a) {
+  a.addEventListener('click', function () { send('anim ' + a.dataset.anim); S.anim = a.dataset.anim; S.animUntil = Date.now() + 2500; render(); setTimeout(render, 2600); });
+});
+$('#btRelease').addEventListener('click', function () { send('soltar'); S.modo = 99; S.prog = 0; render(); });
+
+/* ---------- Ajustes ---------- */
+function setMuteUI(m) { $('#swMute').setAttribute('aria-pressed', m); $('#rVol').disabled = m; }
+$('#swMute').addEventListener('click', function () {
+  var m = $('#swMute').getAttribute('aria-pressed') !== 'true';
+  setMuteUI(m);
+  send('volumen ' + (m ? 0 : $('#rVol').value));
+});
+$('#rVol').addEventListener('change', function () { send('volumen ' + this.value); });
+$('#rVel').addEventListener('change', function () { send('vel ' + this.value); });
+$('#rBri').addEventListener('input', function () { send('brillo ' + this.value); });
+$('#rBri').addEventListener('change', function () { send('brillo g'); });
+
+$('#cmdForm').addEventListener('submit', function (e) {
+  e.preventDefault();
+  var v = $('#cmdIn').value.trim();
+  if (v) { send(v); $('#cmdIn').value = ''; }
+});
+
+/* ---------- Pestañas (móvil) ---------- */
+$$('nav.tabs button').forEach(function (b) {
+  b.addEventListener('click', function () {
+    document.body.dataset.tab = b.dataset.go;
+    $$('nav.tabs button').forEach(function (x) { if (x === b) x.setAttribute('aria-current', 'page'); else x.removeAttribute('aria-current'); });
+    window.scrollTo(0, 0);
+  });
+});
+
+render();
+})();
+</script>
+</body>
+</html>
