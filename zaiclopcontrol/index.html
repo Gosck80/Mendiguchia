@@ -55,7 +55,7 @@ main{max-width:1320px;margin:0 auto;padding:24px;display:flex;flex-wrap:wrap;gap
 /* Ojo grande y cifras */
 .bigeye{align-self:center;border-radius:14px;padding:22px;gap:8px}.bigeye .r{gap:8px}.bigeye span{width:26px;height:26px}
 .state{margin:0;text-align:center;font-weight:500}
-.tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.tiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
 .tile{background:var(--fondo);border-radius:8px;padding:12px;display:flex;flex-direction:column;gap:4px;min-width:0}
 .tile .k{font-size:13px;color:var(--gris)}
 .tile .v{font:900 34px/1.1 var(--marca);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -196,12 +196,9 @@ nav.tabs{display:none}
 <main>
   <div class="col">
     <section class="card" data-tab="mando">
-      <div class="row"><h2>Ojo</h2><span class="muted" style="font-size:13px">Lo mismo que muestra el robot</span></div>
-      <div class="eye bigeye" id="eyeBig" role="img" aria-label="Ojo del robot"></div>
-      <p class="state" id="stateTxt" aria-live="polite">En reposo</p>
+      <div class="row"><h2>Estado</h2><span class="state" id="stateTxt" aria-live="polite">En reposo</span></div>
       <div class="tiles">
         <div class="tile"><span class="k">Batería</span><span class="v" id="tBat">–</span><span class="bar"><i id="tBatBar"></i></span></div>
-        <div class="tile"><span class="k">Distancia</span><span class="v" id="tDist">–</span><span class="s" id="tDistU">cm</span></div>
         <div class="tile"><span class="k">Programa</span><span class="v" id="tProg">–</span><span class="s" id="tProgN">Mando manual</span></div>
       </div>
     </section>
@@ -304,30 +301,45 @@ nav.tabs{display:none}
 var $ = function (s) { return document.querySelector(s); };
 var $$ = function (s) { return Array.prototype.slice.call(document.querySelectorAll(s)); };
 
-/* ---------- Ojo: matriz de 6 × 5 ---------- */
-var F = {
-  reposo:    ['011110','111111','110011','111111','011110'],
-  explorar:  ['011110','111111','001111','111111','011110'],
-  andar:     ['000000','111111','110011','111111','000000'],
-  feliz:     ['000000','001100','011110','110011','000000'],
-  obstaculo: ['110011','011110','001100','011110','110011'],
-  dormir:    ['000000','000000','111111','011110','000000']
-};
-function paint(el, name) {
-  if (el.dataset.f === name) return;
-  el.dataset.f = name;
-  el.innerHTML = F[name].map(function (r) {
-    return '<div class="r">' + r.split('').map(function (c) { return '<span' + (c === '1' ? ' class="on"' : '') + '></span>'; }).join('') + '</div>';
+/* ---------- Ojo: matriz de 6 × 5, datos de anim_datos.h ---------- */
+// FR: [5 filas de arriba abajo (bit 5 = columna izquierda), duración en 10 ms]. AN: [inicio, n, bucle].
+var FR = [[[0,0,0,0,63],18],[[0,0,0,63,63],18],[[0,0,30,63,63],18],[[0,10,30,63,63],18],[[8,10,30,63,63],18],[[8,10,30,63,63],90],[[0,0,0,0,0],15],[[8,10,30,63,63],50],[[0,0,0,0,0],15],[[0,0,0,63,0],9],[[0,0,51,63,30],6],[[30,63,51,63,30],60],[[30,63,51,63,30],220],[[0,63,51,63,30],5],[[0,0,51,63,30],6],[[0,0,0,63,0],9],[[0,0,51,63,30],6],[[0,63,51,63,30],5],[[30,63,51,63,30],150],[[30,63,39,63,30],70],[[30,63,51,63,30],40],[[30,63,57,63,30],70],[[30,63,51,63,30],90],[[30,51,63,63,30],60],[[30,63,51,63,30],150],[[0,63,51,63,30],5],[[0,0,51,63,30],6],[[0,0,0,63,0],9],[[0,0,51,63,30],6],[[0,63,51,63,30],5],[[30,63,51,63,30],25],[[0,63,51,63,30],5],[[0,0,51,63,30],6],[[0,0,0,63,0],9],[[0,0,51,63,30],6],[[0,63,51,63,30],5],[[30,63,51,63,30],25],[[30,63,63,51,30],25],[[30,63,51,63,30],25],[[30,63,63,51,30],25],[[30,63,51,63,30],25],[[30,63,63,51,30],25],[[30,63,51,63,30],25],[[0,63,51,63,30],5],[[0,0,51,63,30],6],[[0,0,0,63,0],9],[[0,0,51,63,30],5],[[0,63,51,63,30],5],[[30,63,39,63,30],35],[[30,63,51,63,30],20],[[30,63,57,63,30],35],[[30,63,51,63,30],20],[[30,63,39,63,30],35],[[30,63,51,63,30],20],[[30,63,57,63,30],35],[[30,63,51,63,30],20],[[0,63,51,63,30],5],[[0,0,51,63,30],6],[[0,0,0,63,0],9],[[0,0,51,63,30],6],[[0,63,51,63,30],5],[[30,63,51,63,30],30],[[12,12,12,0,12],15],[[0,0,0,0,0],10],[[12,12,12,0,12],15],[[0,0,0,0,0],10],[[12,12,12,0,12],15],[[0,0,0,0,0],10],[[12,12,12,0,12],15],[[0,0,0,0,0],10],[[12,12,12,0,12],15],[[0,0,0,0,0],10],[[12,12,12,0,12],15],[[0,0,0,0,0],10],[[0,62,63,62,0],35],[[0,62,59,62,0],35],[[0,62,51,62,0],35],[[0,62,35,62,0],35],[[0,0,0,0,0],30],[[0,62,35,62,0],35],[[0,0,0,0,0],30],[[6,21,14,21,6],15],[[6,21,14,21,6],45],[[0,0,0,0,0],40],[[0,0,0,0,8],7],[[0,0,0,16,8],7],[[0,0,32,16,8],7],[[0,0,32,20,8],7],[[0,0,34,20,8],7],[[0,1,34,20,8],7],[[0,1,34,20,8],90],[[0,30,33,0,0],15],[[30,33,0,0,0],15],[[0,30,33,0,0],15],[[30,33,0,0,0],15],[[0,30,33,0,0],90],[[33,18,12,18,33],25],[[0,0,0,0,0],15],[[33,18,12,18,33],25],[[0,0,0,0,0],15],[[33,18,12,18,33],25],[[0,0,0,0,0],15],[[33,18,12,18,33],25],[[0,0,0,0,0],15],[[33,18,12,18,33],25],[[0,0,0,0,0],15],[[33,18,12,18,33],25],[[0,0,0,0,0],15],[[0,0,0,63,0],90],[[0,0,7,63,0],25],[[0,7,2,63,0],25],[[7,2,7,63,0],40],[[0,0,0,63,0],60]];
+var AN = {"arranque":[0,12,false],"reposo":[12,24,true],"andar":[36,12,true],"explorar":[48,14,true],"obstaculo":[62,12,true],"bateria":[74,7,true],"bluetooth":[81,3,true],"conectado":[84,7,false],"feliz":[91,5,false],"error":[96,12,true],"dormir":[108,5,true]};
+function paint(el, f) {
+  var key = f.join(',');
+  if (el.dataset.f === key) return;
+  el.dataset.f = key;
+  el.innerHTML = f.map(function (v) {
+    var h = '<div class="r">';
+    for (var c = 5; c >= 0; c--) h += '<span' + ((v >> c) & 1 ? ' class="on"' : '') + '></span>';
+    return h + '</div>';
   }).join('');
 }
-paint($('#eyeHero'), 'dormir');
-paint($('#eyeHead'), 'reposo');
+var EYE = FR[AN.reposo[0]][0];
+paint($('#eyeHero'), EYE);
+paint($('#eyeHead'), EYE);
 
-var ANIMS = [['reposo','Reposo'],['explorar','Explorar'],['feliz','Feliz'],['obstaculo','Obstáculo'],['andar','Andar'],['dormir','Dormir']];
+var ANIMS = [['reposo','Reposo'],['andar','Andar'],['explorar','Explorar'],['obstaculo','Obstáculo'],['feliz','Feliz'],['dormir','Dormir'],['arranque','Arranque'],['bluetooth','Bluetooth'],['conectado','Conectado'],['bateria','Batería'],['error','Error']];
 $('#anims').innerHTML = ANIMS.map(function (a) {
   return '<button class="anim" data-anim="' + a[0] + '" aria-pressed="false"><span class="eye" aria-hidden="true"></span>' + a[1] + '</button>';
 }).join('');
-$$('.anim').forEach(function (b) { paint(b.querySelector('.eye'), b.dataset.anim); });
+var still = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+function play(el, name) {
+  var a = AN[name], i = 0;
+  if (still) {
+    var best = a[0];
+    for (var k = a[0]; k < a[0] + a[1]; k++) if (FR[k][1] > FR[best][1]) best = k;
+    paint(el, FR[best][0]); return;
+  }
+  (function step() {
+    var f = FR[a[0] + i];
+    paint(el, f[0]);
+    var t = f[1] * 10;
+    if (++i >= a[1]) { i = 0; if (!a[2]) t += 1200; }
+    setTimeout(step, t);
+  })();
+}
+$$('.anim').forEach(function (b) { play(b.querySelector('.eye'), b.dataset.anim); });
 
 /* ---------- Estado ---------- */
 var S = { bat: null, dist: null, modo: 0, prog: 0, orden: 0, gait: 'trote', dir: null, animUntil: 0, anim: null };
@@ -342,28 +354,14 @@ function batPct(v) {
 }
 
 function render() {
-  // Ojo
-  var eye;
-  if (S.anim && Date.now() < S.animUntil) eye = S.anim;
-  else if (S.modo === 99) eye = 'dormir';
-  else if (S.dist > 0 && S.dist < 25) eye = 'obstaculo';
-  else if (S.prog === 1) eye = 'explorar';
-  else if (S.orden >= 5 || S.dir) eye = 'andar';
-  else eye = 'reposo';
-  paint($('#eyeBig'), eye);
-  paint($('#eyeHead'), eye);
-
   var txt = S.modo === 99 ? 'Servos sueltos' : (S.dist > 0 && S.dist < 25 ? 'Obstáculo delante' : (ORDEN[S.orden] || 'En reposo'));
   if (S.prog === 1 && S.modo !== 99 && !(S.dist > 0 && S.dist < 25)) txt = 'Explorando';
   $('#stateTxt').textContent = txt;
 
   // Cifras
-  var b = batPct(S.bat);
+  var b = S.batFix;
   $('#tBat').textContent = b == null ? '–' : b + '%';
   var bar = $('#tBatBar'); bar.style.width = (b || 0) + '%'; bar.classList.toggle('low', b != null && b < 20);
-  if (S.dist == null) { $('#tDist').textContent = '–'; $('#tDistU').textContent = 'cm'; }
-  else if (S.dist === 0) { $('#tDist').textContent = '+120'; $('#tDistU').textContent = 'cm · libre'; }
-  else { $('#tDist').textContent = S.dist; $('#tDistU').textContent = 'cm'; }
   $('#tProg').textContent = S.prog ? S.prog : '–';
   $('#tProgN').textContent = S.prog ? PROGS[S.prog] || '' : 'Mando manual';
 
@@ -415,7 +413,7 @@ function onLine(line) {
   var c = line.charAt(0);
   if ((c === 'T' || c === 'E') && line.charAt(1) === ' ') {
     var o = kv(line);
-    if ('bat' in o) S.bat = o.bat;
+    if ('bat' in o && S.batFix == null) { var p = batPct(o.bat); if (p != null && p > 0) S.batFix = Math.round(p / 5) * 5; }
     if ('dist' in o) { S.dist = o.dist; if (c === 'T') HIST.push(o.dist); if (HIST.length > 240) HIST.splice(0, HIST.length - 240); }
     if ('modo' in o) S.modo = o.modo;
     if ('prog' in o) S.prog = o.prog;
@@ -464,7 +462,7 @@ async function connect(bt) {
   goLive(bt ? 'Conectado · Bluetooth' : 'Conectado · USB');
   readLoop();
   log('Arrancando el robot…', 'tx');
-  setTimeout(function () { send('tele 1'); send('e'); }, 2600);
+  setTimeout(function () { send('tele 1'); send('e'); send('anim bluetooth'); setTimeout(function () { send('anim conectado'); }, 2500); }, 2600);
 }
 
 async function readLoop() {
@@ -491,6 +489,7 @@ async function disconnect(lost) {
   try { if (writer) { await writer.close(); } } catch (e) {}
   try { if (port) await port.close(); } catch (e) {}
   port = writer = reader = null;
+  S.batFix = null; HIST.length = 0;
   $('#hDot').classList.remove('ok'); $('#hTxt').textContent = 'Desconectado';
   $('#connect').hidden = false;
   if (lost) { var err = $('#cErr'); err.textContent = 'Se ha perdido la conexión con Zaiclop.'; err.hidden = false; }
