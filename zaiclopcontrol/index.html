@@ -197,7 +197,6 @@ nav.tabs{display:none}
   <div class="col">
     <section class="card" data-tab="mando">
       <div class="row"><h2>Estado</h2><span class="state" id="stateTxt" aria-live="polite">En reposo</span></div>
-      <div class="eye bigeye" id="eyeBig" role="img" aria-label="Matriz del robot en tiempo real"></div>
       <div class="tiles">
         <div class="tile"><span class="k">Batería</span><span class="v" id="tBat">–</span><span class="bar"><i id="tBatBar"></i></span></div>
         <div class="tile"><span class="k">Programa</span><span class="v" id="tProg">–</span><span class="s" id="tProgN">Mando manual</span></div>
@@ -340,6 +339,7 @@ function runAnim(name) {
   clearTimeout(EYE_LIVE.timer);
   EYE_LIVE.name = name;
   var a = AN[name], i = 0, el = $('#eyeBig');
+  if (!el) return;
   if (still) { paint(el, keyFrame(name)); return; }
   (function step() {
     var f = FR[a[0] + i];
@@ -389,7 +389,6 @@ function batPct(v) {
 }
 
 function render() {
-  if (live) syncEye();
   var txt = S.modo === 99 ? 'Servos sueltos' : (S.prog ? (PROGS[S.prog] || 'Programa') + ' en marcha' : (ORDEN[S.orden] || 'En reposo'));
   $('#stateTxt').textContent = txt;
 
@@ -451,7 +450,6 @@ function onLine(line) {
     if ('bat' in o && S.batFix == null) { var p = batPct(o.bat); if (p != null && p > 0) S.batFix = Math.round(p / 5) * 5; }
     if ('dist' in o) { S.dist = o.dist; if (c === 'T') HIST.push(o.dist); if (HIST.length > 240) HIST.splice(0, HIST.length - 240); }
     if ('modo' in o) S.modo = o.modo;
-    if ('prog' in o) S.prog = o.prog;
     if ('orden' in o) S.orden = o.orden;
     if ('marcha' in o && (o.marcha === 'trote' || o.marcha === 'andar')) setGait(o.marcha, true);
     if ('anim' in o) { var an = typeof o.anim === 'number' ? NOMBRES[o.anim] : o.anim; if (AN[an]) S.animRobot = an; }
