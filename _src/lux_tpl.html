@@ -186,6 +186,7 @@ html.rm .pzs{height:auto}html.rm .pzi{position:relative;height:90svh}
 .vcomp{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px}
 .vcomp button{min-height:44px;padding:0 20px;border-radius:999px;border:1px solid rgba(11,12,13,.25);background:transparent;color:var(--ink);font:600 15px var(--f);cursor:pointer;transition:background-color .3s ease,color .3s ease,border-color .3s ease}
 .vcomp button:hover{border-color:var(--ink)}
+.vcomp.vctl{margin-bottom:16px}
 .vcomp button[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
 .vbox model-viewer{display:block;width:100%;height:min(86svh,920px);background:transparent;--poster-color:transparent;cursor:grab}
 .vbox model-viewer:active{cursor:grabbing}
@@ -298,14 +299,14 @@ const UI = {
     say: 'Ingeniero en formación constante con perfil técnico híbrido. Combino diseño paramétrico, optimización topológica y fabricación propia, con enfoque estricto en GD&T y DFM/DFA. Curso 4.º de Ingeniería en Diseño Industrial y Desarrollo de Producto en la Universidad de Valladolid.',
     fdm: 'FDM y SLA', silicone: 'Moldeo en silicona', yt: 'Fuera del estudio, diagnostico y reparo coches en mi canal', li: 'Escribir por LinkedIn', made: 'Valladolid · Diseñado y construido por Mendi',
     enlarge: 'Ampliar', image: 'imagen', hintCycle: 'Baja para verlo en movimiento', hintOrbit: 'Baja para rodearlo', explore: 'Explóralo', exploreP: 'Arrastra para girar · pellizca o usa + y − para acercar',
-    comps: 'Composiciones', zin: 'Acercar', zout: 'Alejar', center: 'Centrar', modelOf: 'Modelo 3D de', interactive: 'interactivo', back: 'Todos los proyectos',
+    comps: 'Composiciones', zin: 'Acercar', zout: 'Alejar', center: 'Centrar', ctl: 'Controles del robot', modelOf: 'Modelo 3D de', interactive: 'interactivo', back: 'Todos los proyectos',
     resp: 'Responsable', date: 'Fecha', tools: 'Herramientas', next: 'Siguiente proyecto', close: 'Cerrar', home: 'Inicio', header: 'Cabecera', main: 'Principal' },
   en: { projects: 'Projects', about: 'About', contact: 'Contact', other: 'ES', otherLabel: 'Versión en español', hero1: 'Product', hero2: 'engineer', role: 'Product engineer',
     pz: 'Seven parts in 3D', see: 'View project', workP: 'Seven projects, from idea to prototype. Hover to preview them; open one to rotate its model.',
     say: 'Engineer in constant training with a hybrid technical profile. I combine parametric design, topology optimisation and in-house fabrication, with a strict focus on GD&T and DFM/DFA. Fourth-year student of Industrial Design and Product Development Engineering at the University of Valladolid.',
     fdm: 'FDM & SLA', silicone: 'Silicone moulding', yt: 'Outside the studio, I diagnose and repair cars on my channel', li: 'Message me on LinkedIn', made: 'Valladolid · Designed and built by Mendi',
     enlarge: 'Enlarge', image: 'image', hintCycle: 'Scroll to see it in motion', hintOrbit: 'Scroll to orbit it', explore: 'Explore it', exploreP: 'Drag to rotate · pinch or use + and − to zoom',
-    comps: 'Compositions', zin: 'Zoom in', zout: 'Zoom out', center: 'Reset', modelOf: '3D model of', interactive: 'interactive', back: 'All projects',
+    comps: 'Compositions', zin: 'Zoom in', zout: 'Zoom out', center: 'Reset', ctl: 'Robot controls', modelOf: '3D model of', interactive: 'interactive', back: 'All projects',
     resp: 'Responsible for', date: 'Date', tools: 'Tools', next: 'Next project', close: 'Close', home: 'Home', header: 'Header', main: 'Main' },
 };
 const t = k => UI[LANG][k];
@@ -475,6 +476,7 @@ function project(p) {
      <section class="viewer" aria-labelledby="vw-h">
        <div class="wrap vtop"><h2 id="vw-h" class="wide rvh">${t('explore')}</h2><p class="rv">${t('exploreP')}</p></div>
        ${p.model.comps ? `<div class="wrap vcomp" role="group" aria-label="${t('comps')}">${p.model.comps.map(([t, f, r], k) => `<button type="button" data-src="${esc(f)}" data-r="${r}" aria-pressed="${k ? 'false' : 'true'}">${esc(t)}</button>`).join('')}</div>` : ''}
+       ${p.model.ctl ? `<div class="wrap vcomp vctl" role="group" aria-label="${t('ctl')}">${p.model.ctl.map(([k, l]) => `<button type="button" data-act="${esc(k)}" aria-pressed="false">${esc(l)}</button>`).join('')}</div>` : ''}
        <div class="vbox"><model-viewer id="mvV" src="${esc(p.model.src)}" alt="${t('modelOf')} ${esc(nm)}, ${t('interactive')}" camera-controls touch-action="pan-y" disable-pan camera-orbit="${esc(p.model.orbit)}" min-camera-orbit="auto 8deg auto" max-camera-orbit="auto 172deg auto" environment-image="neutral" exposure="0.95" shadow-intensity="0.8" shadow-softness="0.9" interaction-prompt="auto" loading="lazy"></model-viewer>
          <div class="vbtn"><button type="button" data-z="1" aria-label="${t('zin')}">+</button><button type="button" data-z="-1" aria-label="${t('zout')}">−</button><button type="button" data-z="0" class="txt">${t('center')}</button></div></div>
      </section>`
@@ -666,6 +668,24 @@ function viewer(m) {
     if (lenis) window.dispatchEvent(new WheelEvent('wheel', { deltaX: e.deltaX, deltaY: e.deltaY, deltaMode: e.deltaMode, clientX: e.clientX, clientY: e.clientY }));
     else scrollBy(0, e.deltaY * (e.deltaMode === 1 ? 40 : e.deltaMode === 2 ? innerHeight : 1));
   }, { capture: true, passive: false });
+  // robot en funcionamiento: reposo por defecto; marcha y baile en bucle; tapa oculta para ver el interior
+  const ab = [...document.querySelectorAll('.vctl button')];
+  if (ab.length) {
+    const lid = { on: false, mats: [] };
+    const setLid = hide => lid.mats.forEach(([mt, c]) => { mt.setAlphaMode(hide ? 'BLEND' : 'OPAQUE'); mt.pbrMetallicRoughness.setBaseColorFactor([c[0], c[1], c[2], hide ? 0 : 1]); });
+    const act = n => { if (!(v.availableAnimations || []).includes(n)) return; v.animationName = n; v.play(); };
+    v.addEventListener('load', () => {
+      lid.mats = ['tapa', 'tornillo_tapa'].map(n => v.model.getMaterialByName(n)).filter(Boolean).map(mt => [mt, [...mt.pbrMetallicRoughness.baseColorFactor]]);
+      act('reposo'); if (lid.on) setLid(true);
+    }, { once: true });
+    ab.forEach(b => b.addEventListener('click', () => {
+      const k = b.dataset.act, on = b.getAttribute('aria-pressed') !== 'true';
+      b.setAttribute('aria-pressed', on ? 'true' : 'false');
+      if (k === 'tapa') { lid.on = on; setLid(on); return; }
+      ab.forEach(x => { if (x !== b && x.dataset.act !== 'tapa') x.setAttribute('aria-pressed', 'false'); });
+      act(on ? k : 'reposo');
+    }));
+  }
   // composiciones de varios módulos: se cargan y se montan una vez
   const cb = [...document.querySelectorAll('.vcomp button')];
   const compOrbit = () => `35deg 58deg ${cb.find(x => x.getAttribute('aria-pressed') === 'true').dataset.r}m`;
