@@ -186,6 +186,7 @@ html.rm .pzs{height:auto}html.rm .pzi{position:relative;height:90svh}
 .vcomp{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px}
 .vcomp button{min-height:44px;padding:0 20px;border-radius:999px;border:1px solid rgba(11,12,13,.25);background:transparent;color:var(--ink);font:600 15px var(--f);cursor:pointer;transition:background-color .3s ease,color .3s ease,border-color .3s ease}
 .vcomp button:hover{border-color:var(--ink)}
+.vcomp.vctl{margin-bottom:16px}
 .vcomp button[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
 .vbox model-viewer{display:block;width:100%;height:min(86svh,920px);background:transparent;--poster-color:transparent;cursor:grab}
 .vbox model-viewer:active{cursor:grabbing}
@@ -294,18 +295,18 @@ let LANG = PATHS ? langOf(location.pathname) : (lsGet('lang') === 'es' ? 'es' : 
 let P = DATAS[LANG].projects;
 const UI = {
   es: { projects: 'Proyectos', about: 'Sobre mí', contact: 'Contacto', other: 'EN', otherLabel: 'English version', hero1: 'Ingeniero', hero2: 'de producto', role: 'Ingeniero de producto',
-    pz: 'Seis piezas en 3D', see: 'Ver proyecto', workP: 'Seis piezas, de la idea al prototipo. Pasa por encima para verlas; entra para girar su modelo.',
+    pz: 'Siete piezas en 3D', see: 'Ver proyecto', workP: 'Siete piezas, de la idea al prototipo. Pasa por encima para verlas; entra para girar su modelo.',
     say: 'Ingeniero en formación constante con perfil técnico híbrido. Combino diseño paramétrico, optimización topológica y fabricación propia, con enfoque estricto en GD&T y DFM/DFA. Curso 4.º de Ingeniería en Diseño Industrial y Desarrollo de Producto en la Universidad de Valladolid.',
     fdm: 'FDM y SLA', silicone: 'Moldeo en silicona', yt: 'Fuera del estudio, diagnostico y reparo coches en mi canal', li: 'Escribir por LinkedIn', made: 'Valladolid · Diseñado y construido por Mendi',
     enlarge: 'Ampliar', image: 'imagen', hintCycle: 'Baja para verlo en movimiento', hintOrbit: 'Baja para rodearlo', explore: 'Explóralo', exploreP: 'Arrastra para girar · pellizca o usa + y − para acercar',
-    comps: 'Composiciones', zin: 'Acercar', zout: 'Alejar', center: 'Centrar', modelOf: 'Modelo 3D de', interactive: 'interactivo', back: 'Todos los proyectos',
+    comps: 'Composiciones', zin: 'Acercar', zout: 'Alejar', center: 'Centrar', ctl: 'Controles del robot', modelOf: 'Modelo 3D de', interactive: 'interactivo', back: 'Todos los proyectos',
     resp: 'Responsable', date: 'Fecha', tools: 'Herramientas', next: 'Siguiente proyecto', close: 'Cerrar', home: 'Inicio', header: 'Cabecera', main: 'Principal' },
   en: { projects: 'Projects', about: 'About', contact: 'Contact', other: 'ES', otherLabel: 'Versión en español', hero1: 'Product', hero2: 'engineer', role: 'Product engineer',
-    pz: 'Six parts in 3D', see: 'View project', workP: 'Six projects, from idea to prototype. Hover to preview them; open one to rotate its model.',
+    pz: 'Seven parts in 3D', see: 'View project', workP: 'Seven projects, from idea to prototype. Hover to preview them; open one to rotate its model.',
     say: 'Engineer in constant training with a hybrid technical profile. I combine parametric design, topology optimisation and in-house fabrication, with a strict focus on GD&T and DFM/DFA. Fourth-year student of Industrial Design and Product Development Engineering at the University of Valladolid.',
     fdm: 'FDM & SLA', silicone: 'Silicone moulding', yt: 'Outside the studio, I diagnose and repair cars on my channel', li: 'Message me on LinkedIn', made: 'Valladolid · Designed and built by Mendi',
     enlarge: 'Enlarge', image: 'image', hintCycle: 'Scroll to see it in motion', hintOrbit: 'Scroll to orbit it', explore: 'Explore it', exploreP: 'Drag to rotate · pinch or use + and − to zoom',
-    comps: 'Compositions', zin: 'Zoom in', zout: 'Zoom out', center: 'Reset', modelOf: '3D model of', interactive: 'interactive', back: 'All projects',
+    comps: 'Compositions', zin: 'Zoom in', zout: 'Zoom out', center: 'Reset', ctl: 'Robot controls', modelOf: '3D model of', interactive: 'interactive', back: 'All projects',
     resp: 'Responsible for', date: 'Date', tools: 'Tools', next: 'Next project', close: 'Close', home: 'Home', header: 'Header', main: 'Main' },
 };
 const t = k => UI[LANG][k];
@@ -366,7 +367,16 @@ const jumpTo = el => {
   if (lenis) { lenis.resize(); lenis.scrollTo(el, { immediate: true, force: true }); }
   else window.scrollTo(0, el.getBoundingClientRect().top + scrollY);
 };
-const goTo = el => { if (lenis) lenis.scrollTo(el, { offset: 0, duration: 1.4 }); else el.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth' }); };
+/* Saltos dentro de la página: los cortos se desplazan; los largos (Inicio desde abajo, un enlace lejano)
+   funden a blanco y saltan, para no ver las escenas recorrerse al revés */
+const goTo = el => {
+  const y = el === document.body ? 0 : el.getBoundingClientRect().top + scrollY;
+  if (Math.abs(y - scrollY) < innerHeight * 1.5 || !hasG || reduce) { if (lenis) lenis.scrollTo(y, { duration: 1 }); else scrollTo({ top: y, behavior: reduce ? 'auto' : 'smooth' }); return; }
+  gsap.to(app, { autoAlpha: 0, duration: .22, ease: 'power1.in', onComplete: () => {
+    if (lenis) lenis.scrollTo(y, { immediate: true, force: true }); else scrollTo(0, y);
+    ScrollTrigger.update(); gsap.to(app, { autoAlpha: 1, duration: .35, delay: .05, ease: 'power1.out' });
+  } });
+};
 
 /* ---------- Portada ---------- */
 const IMG = s => 'img/' + s;
@@ -399,7 +409,7 @@ function home() {
   <div class="pzs" id="pzs">${PZ.map((z, i) => `
     <div class="pzi" data-k="${i}">
       <div class="nmw wrap"><p class="nm wide mask fit" aria-hidden="true"><span>${chars(pname(z.slug))}</span></p></div>
-      <model-viewer id="pzm${i}" src="${z.src}" alt="${t('modelOf')} ${esc(pname(z.slug))}" camera-orbit="${z.o0}" ${z.t ? `camera-target="${z.t}"` : ''} environment-image="neutral" exposure="${z.ex || 1.05}" shadow-intensity="0.9" shadow-softness="1" interaction-prompt="none" disable-zoom loading="eager"></model-viewer>
+      <model-viewer id="pzm${i}" src="${z.src}" alt="${t('modelOf')} ${esc(pname(z.slug))}" camera-orbit="${z.o0}" ${z.slug === 'zaiclop' ? 'max-camera-orbit="auto auto 6m"' : ''} ${z.t ? `camera-target="${z.t}"` : ''} environment-image="neutral" exposure="${z.ex || 1.05}" shadow-intensity="0.9" shadow-softness="1" interaction-prompt="none" disable-zoom loading="eager"></model-viewer>
       <div class="idx wrap" aria-hidden="true"><span>${String(i + 1).padStart(2, '0')} / ${String(PZ.length).padStart(2, '0')}</span><span>${esc(pname(z.slug))}</span></div>
       <div class="pzt wrap">
         <div class="row"><p>${esc(z.line[LANG])}</p><a class="btn" href="${PH(z.slug)}">${t('see')} <span class="ar" aria-hidden="true">→</span></a></div>
@@ -461,11 +471,12 @@ function project(p) {
   const i = P.indexOf(p), nx = P[(i + 1) % P.length];
   const nm = short(p.name), sub = p.name.split(' · ')[1];
   const vis = p.model
-    ? `<div class="pvis m3"><p class="ghost wide fit" aria-hidden="true">${esc(nm)}</p><model-viewer id="mvP" src="${esc(p.model.cycle && !reduce ? p.model.cycle : p.model.src)}" alt="" aria-hidden="true" camera-orbit="${esc(p.model.orbit)}" environment-image="neutral" exposure="0.95" shadow-intensity="0.8" shadow-softness="0.9" interaction-prompt="none" disable-zoom loading="eager"></model-viewer>
+    ? `<div class="pvis m3"><p class="ghost wide fit" aria-hidden="true">${esc(nm)}</p><model-viewer id="mvP" src="${esc(p.model.cycle && !reduce ? p.model.cycle : p.model.src)}" alt="" aria-hidden="true" camera-orbit="${esc(p.model.orbit)}" ${p.slug === 'zaiclop' ? 'max-camera-orbit="auto auto 6m"' : ''} environment-image="neutral" exposure="0.95" shadow-intensity="0.8" shadow-softness="0.9" interaction-prompt="none" disable-zoom loading="eager"></model-viewer>
        <div class="hint"><span>${p.model.cycle ? t('hintCycle') : t('hintOrbit')}</span></div></div>
      <section class="viewer" aria-labelledby="vw-h">
        <div class="wrap vtop"><h2 id="vw-h" class="wide rvh">${t('explore')}</h2><p class="rv">${t('exploreP')}</p></div>
        ${p.model.comps ? `<div class="wrap vcomp" role="group" aria-label="${t('comps')}">${p.model.comps.map(([t, f, r], k) => `<button type="button" data-src="${esc(f)}" data-r="${r}" aria-pressed="${k ? 'false' : 'true'}">${esc(t)}</button>`).join('')}</div>` : ''}
+       ${p.model.ctl ? `<div class="wrap vcomp vctl" role="group" aria-label="${t('ctl')}">${p.model.ctl.map(([k, l]) => `<button type="button" data-act="${esc(k)}" aria-pressed="false">${esc(l)}</button>`).join('')}</div>` : ''}
        <div class="vbox"><model-viewer id="mvV" src="${esc(p.model.src)}" alt="${t('modelOf')} ${esc(nm)}, ${t('interactive')}" camera-controls touch-action="pan-y" disable-pan camera-orbit="${esc(p.model.orbit)}" min-camera-orbit="auto 8deg auto" max-camera-orbit="auto 172deg auto" environment-image="neutral" exposure="0.95" shadow-intensity="0.8" shadow-softness="0.9" interaction-prompt="auto" loading="lazy"></model-viewer>
          <div class="vbtn"><button type="button" data-z="1" aria-label="${t('zin')}">+</button><button type="button" data-z="-1" aria-label="${t('zout')}">−</button><button type="button" data-z="0" class="txt">${t('center')}</button></div></div>
      </section>`
@@ -515,6 +526,9 @@ function homeAnim() {
   gsap.to(ws, { opacity: 1, stagger: .05, ease: 'none', scrollTrigger: { trigger: '#say', start: 'top 78%', end: 'bottom 40%', scrub: true } });
 }
 const PZ = [
+  { slug: 'zaiclop', name: 'Zaiclop', src: 'models/zaiclop_anim.glb.wasm', anim: true, line: { es: 'Cuadrúpedo impreso en 3D: se monta pieza a pieza, abre el ojo y echa a trotar.', en: '3D-printed quadruped: it assembles piece by piece, opens its eye and starts trotting.' },
+    o0: '35deg 62deg 1.6m',
+    f: (mv, u) => { const e = u * u * (3 - 2 * u); mv.currentTime = Math.min(7.89, u * 7.9); mv.cameraOrbit = `${35 * (1 - e)}deg ${62 + 16 * e}deg ${1.6 - 0.97 * Math.min(1, u * 1.25)}m`; } },
   { slug: 'belug-04', name: 'BeluG-04', src: 'models/belug.glb.wasm', o0: '-40deg 78deg 150%', line: { es: 'Dron con hélices helicoidales y carcasa de cuerpo continuo.', en: 'Drone with helical propellers and a continuous-body shell.' },
     f: (mv, u) => { mv.cameraOrbit = `${-40 + 270 * u}deg ${78 - 20 * u}deg ${150 - 70 * u}%`; } },
   { slug: 'bmw-m6-concept', name: 'BMW M6 concept', src: 'models/bmw.glb.wasm', o0: '20deg 80deg 120%', ex: 1.15, line: { es: 'Coupé conceptual: una línea que envuelve el coche de morro a zaga.', en: 'Concept coupé: one line wraps the car from nose to tail.' },
@@ -534,12 +548,14 @@ function pieces() {
   mvs.forEach((mv, i) => mv.addEventListener('load', () => { if (PZ[i].anim) { mv.animationName = mv.availableAnimations[0]; mv.pause(); mv.currentTime = 0; } PZ[i].f(mv, 0); }, { once: true }));
   items.forEach((it, i) => gsap.set(it, { autoAlpha: i ? 0 : 1 }));
   const st = PZ.map(() => ({ u: 0 }));
+  // Zaiclop (primera pieza) tiene el doble de recorrido: el montaje se ve con calma
+  const EX = 1, P0 = i => i ? i + EX : 0, D = i => i ? 1 : 1 + EX;
   // cada pieza: el nombre sube letra a letra, el modelo llega desde el fondo, gira con el scroll
   // y sale hacia la cámara mientras la siguiente aparece detrás
-  const tl = gsap.timeline({ defaults: { ease: 'none' }, scrollTrigger: { trigger: '#pzs', start: 'top top', end: () => '+=' + innerHeight * 1.35 * N, pin: true, scrub: 0.6, anticipatePin: 1 } });
+  const tl = gsap.timeline({ defaults: { ease: 'none' }, scrollTrigger: { trigger: '#pzs', start: 'top top', end: () => '+=' + innerHeight * 1.35 * (N + EX), pin: true, scrub: 0.6, anticipatePin: 1 } });
   items.forEach((it, i) => {
-    const mv = mvs[i], cs = it.querySelectorAll('.nm .ch'), row = it.querySelector('.row'), idx = it.querySelector('.idx'), t0 = i ? i - .06 : 0;
-    tl.to(st[i], { u: 1, duration: 1, onUpdate: () => { if (mv.loaded) PZ[i].f(mv, st[i].u); } }, i);
+    const mv = mvs[i], cs = it.querySelectorAll('.nm .ch'), row = it.querySelector('.row'), idx = it.querySelector('.idx'), t0 = i ? P0(i) - .06 : 0, e = P0(i) + D(i);
+    tl.to(st[i], { u: 1, duration: D(i), onUpdate: () => { if (mv.loaded) PZ[i].f(mv, st[i].u); } }, P0(i));
     if (i) tl.set(it, { autoAlpha: 1 }, t0);
     if (i) {
       tl.fromTo(mv, { scale: .35, yPercent: 14, autoAlpha: 0 }, { scale: 1, yPercent: 0, autoAlpha: 1, duration: .32, ease: 'power3.out' }, t0)
@@ -547,17 +563,17 @@ function pieces() {
         .fromTo([idx, row], { y: 24, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: .16, ease: 'power2.out' }, t0 + .14);
     } else {
       // la primera pieza entra mientras la sección sube desde el titular, para que no haya pantalla vacía
-      gsap.timeline({ defaults: { ease: 'none' }, scrollTrigger: { trigger: '#pzs', start: 'top 85%', end: 'top top', scrub: .6 } })
+      gsap.timeline({ defaults: { ease: 'none' }, scrollTrigger: { trigger: '#pzs', start: 'top 85%', end: 'top top', scrub: true } })
         .fromTo(mv, { scale: .35, yPercent: 14, autoAlpha: 0 }, { scale: 1, yPercent: 0, autoAlpha: 1, duration: 1, ease: 'power3.out' }, 0)
         .fromTo(cs, { yPercent: 115, rotate: 8 }, { yPercent: 0, rotate: 0, stagger: .04, duration: .6, ease: 'power3.out' }, .15)
         .fromTo([idx, row], { y: 24, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: .4, ease: 'power2.out' }, .5);
     }
-    tl.fromTo(it.querySelector('.nmw'), { xPercent: 4 }, { xPercent: -4, duration: 1 }, i);
+    tl.fromTo(it.querySelector('.nmw'), { xPercent: 4 }, { xPercent: -4, duration: D(i) }, P0(i));
     if (i < N - 1) {
-      tl.to(cs, { yPercent: -115, rotate: -8, stagger: .01, duration: .18, ease: 'power2.in' }, i + .8)
-        .to(mv, { scale: 2.4, autoAlpha: 0, duration: .2, ease: 'power2.in' }, i + .8)
-        .to([idx, row], { autoAlpha: 0, duration: .1 }, i + .8)
-        .set(it, { autoAlpha: 0 }, i + 1.0);
+      tl.to(cs, { yPercent: -115, rotate: -8, stagger: .01, duration: .18, ease: 'power2.in' }, e - .2)
+        .to(mv, { scale: 2.4, autoAlpha: 0, duration: .2, ease: 'power2.in' }, e - .2)
+        .to([idx, row], { autoAlpha: 0, duration: .1 }, e - .2)
+        .set(it, { autoAlpha: 0 }, e);
     }
   });
 }
@@ -636,7 +652,7 @@ function projectAnim(p) {
   if (!hasG || reduce) return;
   // el modelo se anima mientras la escena está fijada y al final se retira, dejando paso al visor
   const o = { u: 0 };
-  gsap.timeline({ scrollTrigger: { trigger: '.pvis', start: 'top top', end: () => '+=' + innerHeight * (m.cycle ? 2.8 : 1.8), pin: true, scrub: 0.6, anticipatePin: 1 } })
+  gsap.timeline({ scrollTrigger: { trigger: '.pvis', start: 'top top', end: () => '+=' + innerHeight * (m.len || (m.cycle ? 2.8 : 1.8)), pin: true, scrub: 0.6, anticipatePin: 1 } })
     .to(o, { u: 1, duration: 1, ease: 'none', onUpdate: () => apply(o.u) })
     .to(mv, { autoAlpha: 0, scale: .82, yPercent: -6, duration: .22, ease: 'power2.in' }, '+=.06')
     .to('.pvis .hint, .pvis .ghost', { autoAlpha: 0, duration: .15 }, '<');
@@ -654,8 +670,35 @@ function viewer(m) {
     if (lenis) window.dispatchEvent(new WheelEvent('wheel', { deltaX: e.deltaX, deltaY: e.deltaY, deltaMode: e.deltaMode, clientX: e.clientX, clientY: e.clientY }));
     else scrollBy(0, e.deltaY * (e.deltaMode === 1 ? 40 : e.deltaMode === 2 ? innerHeight : 1));
   }, { capture: true, passive: false });
+  // robot en funcionamiento: reposo por defecto; marcha y baile en bucle; tapa oculta para ver el interior
+  const ab = [...document.querySelectorAll('.vctl button')];
+  if (ab.length) {
+    const lid = { on: false, mats: [] };
+    const setLid = hide => lid.mats.forEach(([mt, c]) => { mt.setAlphaMode(hide ? 'BLEND' : 'OPAQUE'); mt.pbrMetallicRoughness.setBaseColorFactor([c[0], c[1], c[2], hide ? 0 : 1]); });
+    // sombra dura y constante: el desenfoque de la sombra suave, recalculado en cada fotograma, es lo que más carga
+    v.setAttribute('shadow-softness', '0'); v.setAttribute('shadow-intensity', '0.55');
+    const act = (n, run = true) => {
+      if (!(v.availableAnimations || []).includes(n)) return;
+      if (v.animationName !== n) { v.animationName = n; v.currentTime = 0; }
+      if (run) v.play(); else v.pause();
+    };
+    v.addEventListener('load', () => {
+      v.jumpCameraToGoal();
+      const c = v.getCameraTarget(), o = v.getCameraOrbit();                      // encuadre fijo: el del robot de pie
+      v.dataset.tg = `${c.x}m ${c.y}m ${c.z}m`; v.dataset.or = `${o.theta}rad ${o.phi}rad ${o.radius}m`;
+      lid.mats = ['tapa', 'tornillo_tapa'].map(n => v.model.getMaterialByName(n)).filter(Boolean).map(mt => [mt, [...mt.pbrMetallicRoughness.baseColorFactor]]);
+      act('reposo', false); if (lid.on) setLid(true);
+    }, { once: true });
+    ab.forEach(b => b.addEventListener('click', () => {
+      const k = b.dataset.act, on = b.getAttribute('aria-pressed') !== 'true';
+      b.setAttribute('aria-pressed', on ? 'true' : 'false');
+      if (k === 'tapa') { lid.on = on; setLid(on); return; }
+      ab.forEach(x => { if (x !== b && x.dataset.act !== 'tapa') x.setAttribute('aria-pressed', 'false'); });
+      act(k, on);                                   // segundo toque: se congela en la postura actual y se puede girar
+    }));
+  }
   // composiciones de varios módulos: se cargan y se montan una vez
-  const cb = [...document.querySelectorAll('.vcomp button')];
+  const cb = [...document.querySelectorAll('.vcomp:not(.vctl) button')];
   const compOrbit = () => `35deg 58deg ${cb.find(x => x.getAttribute('aria-pressed') === 'true').dataset.r}m`;
   cb.forEach(b => b.addEventListener('click', () => {
     if (b.getAttribute('aria-pressed') === 'true') return;
@@ -676,7 +719,7 @@ function viewer(m) {
     const z = +b.dataset.z;
     if (!z) {
       if (cb.length && cb[0].getAttribute('aria-pressed') !== 'true') { v.cameraOrbit = compOrbit(); v.cameraTarget = '0m 1.05m 0m'; v.fieldOfView = '30deg'; }
-      else { v.cameraOrbit = m.orbit; v.cameraTarget = 'auto auto auto'; v.fieldOfView = 'auto'; }
+      else { v.cameraOrbit = v.dataset.or || m.orbit; v.cameraTarget = v.dataset.tg || 'auto auto auto'; v.fieldOfView = v.dataset.or ? v.getFieldOfView() + 'deg' : 'auto'; }
       return;
     }
     const c = v.getCameraOrbit(); v.cameraOrbit = `${c.theta}rad ${c.phi}rad ${c.radius * (z > 0 ? .78 : 1.28)}m`;
