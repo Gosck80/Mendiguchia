@@ -673,14 +673,17 @@ function viewer(m) {
   if (ab.length) {
     const lid = { on: false, mats: [] };
     const setLid = hide => lid.mats.forEach(([mt, c]) => { mt.setAlphaMode(hide ? 'BLEND' : 'OPAQUE'); mt.pbrMetallicRoughness.setBaseColorFactor([c[0], c[1], c[2], hide ? 0 : 1]); });
-    // sombra fija mientras se anima: recalcularla en cada fotograma es lo que más carga el visor
-    const sh = v.getAttribute('shadow-intensity') || '0.8';
+    // sombra dura y constante: el desenfoque de la sombra suave, recalculado en cada fotograma, es lo que más carga
+    v.setAttribute('shadow-softness', '0'); v.setAttribute('shadow-intensity', '0.55');
     const act = (n, run = true) => {
       if (!(v.availableAnimations || []).includes(n)) return;
       if (v.animationName !== n) { v.animationName = n; v.currentTime = 0; }
-      if (run) { v.setAttribute('shadow-intensity', '0'); v.play(); } else { v.pause(); v.setAttribute('shadow-intensity', sh); }
+      if (run) v.play(); else v.pause();
     };
     v.addEventListener('load', () => {
+      v.jumpCameraToGoal();
+      const c = v.getCameraTarget(), o = v.getCameraOrbit();                      // encuadre fijo: el del robot de pie
+      v.dataset.tg = `${c.x}m ${c.y}m ${c.z}m`; v.dataset.or = `${o.theta}rad ${o.phi}rad ${o.radius}m`;
       lid.mats = ['tapa', 'tornillo_tapa'].map(n => v.model.getMaterialByName(n)).filter(Boolean).map(mt => [mt, [...mt.pbrMetallicRoughness.baseColorFactor]]);
       act('reposo', false); if (lid.on) setLid(true);
     }, { once: true });
@@ -693,7 +696,7 @@ function viewer(m) {
     }));
   }
   // composiciones de varios módulos: se cargan y se montan una vez
-  const cb = [...document.querySelectorAll('.vcomp button')];
+  const cb = [...document.querySelectorAll('.vcomp:not(.vctl) button')];
   const compOrbit = () => `35deg 58deg ${cb.find(x => x.getAttribute('aria-pressed') === 'true').dataset.r}m`;
   cb.forEach(b => b.addEventListener('click', () => {
     if (b.getAttribute('aria-pressed') === 'true') return;
@@ -714,7 +717,7 @@ function viewer(m) {
     const z = +b.dataset.z;
     if (!z) {
       if (cb.length && cb[0].getAttribute('aria-pressed') !== 'true') { v.cameraOrbit = compOrbit(); v.cameraTarget = '0m 1.05m 0m'; v.fieldOfView = '30deg'; }
-      else { v.cameraOrbit = m.orbit; v.cameraTarget = 'auto auto auto'; v.fieldOfView = 'auto'; }
+      else { v.cameraOrbit = v.dataset.or || m.orbit; v.cameraTarget = v.dataset.tg || 'auto auto auto'; v.fieldOfView = v.dataset.or ? v.getFieldOfView() + 'deg' : 'auto'; }
       return;
     }
     const c = v.getCameraOrbit(); v.cameraOrbit = `${c.theta}rad ${c.phi}rad ${c.radius * (z > 0 ? .78 : 1.28)}m`;
