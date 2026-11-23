@@ -294,14 +294,14 @@ let LANG = PATHS ? langOf(location.pathname) : (lsGet('lang') === 'es' ? 'es' : 
 let P = DATAS[LANG].projects;
 const UI = {
   es: { projects: 'Proyectos', about: 'Sobre mí', contact: 'Contacto', other: 'EN', otherLabel: 'English version', hero1: 'Ingeniero', hero2: 'de producto', role: 'Ingeniero de producto',
-    pz: 'Seis piezas en 3D', see: 'Ver proyecto', workP: 'Seis piezas, de la idea al prototipo. Pasa por encima para verlas; entra para girar su modelo.',
+    pz: 'Siete piezas en 3D', see: 'Ver proyecto', workP: 'Siete piezas, de la idea al prototipo. Pasa por encima para verlas; entra para girar su modelo.',
     say: 'Ingeniero en formación constante con perfil técnico híbrido. Combino diseño paramétrico, optimización topológica y fabricación propia, con enfoque estricto en GD&T y DFM/DFA. Curso 4.º de Ingeniería en Diseño Industrial y Desarrollo de Producto en la Universidad de Valladolid.',
     fdm: 'FDM y SLA', silicone: 'Moldeo en silicona', yt: 'Fuera del estudio, diagnostico y reparo coches en mi canal', li: 'Escribir por LinkedIn', made: 'Valladolid · Diseñado y construido por Mendi',
     enlarge: 'Ampliar', image: 'imagen', hintCycle: 'Baja para verlo en movimiento', hintOrbit: 'Baja para rodearlo', explore: 'Explóralo', exploreP: 'Arrastra para girar · pellizca o usa + y − para acercar',
     comps: 'Composiciones', zin: 'Acercar', zout: 'Alejar', center: 'Centrar', modelOf: 'Modelo 3D de', interactive: 'interactivo', back: 'Todos los proyectos',
     resp: 'Responsable', date: 'Fecha', tools: 'Herramientas', next: 'Siguiente proyecto', close: 'Cerrar', home: 'Inicio', header: 'Cabecera', main: 'Principal' },
   en: { projects: 'Projects', about: 'About', contact: 'Contact', other: 'ES', otherLabel: 'Versión en español', hero1: 'Product', hero2: 'engineer', role: 'Product engineer',
-    pz: 'Six parts in 3D', see: 'View project', workP: 'Six projects, from idea to prototype. Hover to preview them; open one to rotate its model.',
+    pz: 'Seven parts in 3D', see: 'View project', workP: 'Seven projects, from idea to prototype. Hover to preview them; open one to rotate its model.',
     say: 'Engineer in constant training with a hybrid technical profile. I combine parametric design, topology optimisation and in-house fabrication, with a strict focus on GD&T and DFM/DFA. Fourth-year student of Industrial Design and Product Development Engineering at the University of Valladolid.',
     fdm: 'FDM & SLA', silicone: 'Silicone moulding', yt: 'Outside the studio, I diagnose and repair cars on my channel', li: 'Message me on LinkedIn', made: 'Valladolid · Designed and built by Mendi',
     enlarge: 'Enlarge', image: 'image', hintCycle: 'Scroll to see it in motion', hintOrbit: 'Scroll to orbit it', explore: 'Explore it', exploreP: 'Drag to rotate · pinch or use + and − to zoom',
@@ -515,6 +515,8 @@ function homeAnim() {
   gsap.to(ws, { opacity: 1, stagger: .05, ease: 'none', scrollTrigger: { trigger: '#say', start: 'top 78%', end: 'bottom 40%', scrub: true } });
 }
 const PZ = [
+  { slug: 'zaiclop', name: 'Zaiclop', src: 'models/zaiclop_anim.glb.wasm', o0: '35deg 64deg 0.9m', anim: true, line: { es: 'Cuadrúpedo impreso en 3D: se monta pieza a pieza, abre el ojo y echa a trotar.', en: '3D-printed quadruped: it assembles piece by piece, opens its eye and starts trotting.' },
+    f: (mv, u) => { mv.currentTime = Math.min(6.59, u * 6.6); mv.cameraOrbit = `${35 + 70 * u}deg ${64 + 8 * u}deg ${0.9 - 0.35 * Math.min(1, u * 1.6)}m`; } },
   { slug: 'belug-04', name: 'BeluG-04', src: 'models/belug.glb.wasm', o0: '-40deg 78deg 150%', line: { es: 'Dron con hélices helicoidales y carcasa de cuerpo continuo.', en: 'Drone with helical propellers and a continuous-body shell.' },
     f: (mv, u) => { mv.cameraOrbit = `${-40 + 270 * u}deg ${78 - 20 * u}deg ${150 - 70 * u}%`; } },
   { slug: 'bmw-m6-concept', name: 'BMW M6 concept', src: 'models/bmw.glb.wasm', o0: '20deg 80deg 120%', ex: 1.15, line: { es: 'Coupé conceptual: una línea que envuelve el coche de morro a zaga.', en: 'Concept coupé: one line wraps the car from nose to tail.' },

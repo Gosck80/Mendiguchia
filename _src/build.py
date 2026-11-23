@@ -90,8 +90,8 @@ def page(lang, path, alt, title, desc, image, ld, p=None):
                      ('aria-label="Header"', 'aria-label="Cabecera"'), ('<nav aria-label="Main">', '<nav aria-label="Principal">')):
             b = b.replace(x, y, 1)
     return head(lang, title, desc, path, alt, image, ld) + b + '\n</body>\n</html>\n'
-DESC = {'es': 'Seis proyectos de producto: bocetos, planos acotados, modelos 3D, prototipos y lo que hubo que cambiar por el camino.',
-        'en': 'Six product projects: sketches, dimensioned drawings, 3D models, prototypes and what had to change along the way.'}
+DESC = {'es': 'Siete proyectos de producto: bocetos, planos acotados, modelos 3D, prototipos y lo que hubo que cambiar por el camino.',
+        'en': 'Seven product projects: sketches, dimensioned drawings, 3D models, prototypes and what had to change along the way.'}
 og = f"{BASE}/og-portada.png?v={ver('/og-portada.png')}"
 urls = []
 (OUT / 'proyectos').mkdir(exist_ok=True); (OUT / 'projects').mkdir(exist_ok=True); (OUT / 'es').mkdir(exist_ok=True)
