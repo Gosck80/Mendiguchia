@@ -528,7 +528,7 @@ function homeAnim() {
 const PZ = [
   { slug: 'zaiclop', name: 'Zaiclop', src: 'models/zaiclop_anim.glb.wasm', anim: true, line: { es: 'Cuadrúpedo impreso en 3D: se monta pieza a pieza, abre el ojo y echa a trotar.', en: '3D-printed quadruped: it assembles piece by piece, opens its eye and starts trotting.' },
     o0: '35deg 62deg 1.6m',
-    f: (mv, u) => { const e = u * u * (3 - 2 * u); mv.currentTime = Math.min(6.99, u * 7); mv.cameraOrbit = `${35 * (1 - e)}deg ${62 + 16 * e}deg ${1.6 - 0.97 * Math.min(1, u * 1.25)}m`; } },
+    f: (mv, u) => { const e = u * u * (3 - 2 * u); mv.currentTime = Math.min(7.89, u * 7.9); mv.cameraOrbit = `${35 * (1 - e)}deg ${62 + 16 * e}deg ${1.6 - 0.97 * Math.min(1, u * 1.25)}m`; } },
   { slug: 'belug-04', name: 'BeluG-04', src: 'models/belug.glb.wasm', o0: '-40deg 78deg 150%', line: { es: 'Dron con hélices helicoidales y carcasa de cuerpo continuo.', en: 'Drone with helical propellers and a continuous-body shell.' },
     f: (mv, u) => { mv.cameraOrbit = `${-40 + 270 * u}deg ${78 - 20 * u}deg ${150 - 70 * u}%`; } },
   { slug: 'bmw-m6-concept', name: 'BMW M6 concept', src: 'models/bmw.glb.wasm', o0: '20deg 80deg 120%', ex: 1.15, line: { es: 'Coupé conceptual: una línea que envuelve el coche de morro a zaga.', en: 'Concept coupé: one line wraps the car from nose to tail.' },
@@ -548,12 +548,14 @@ function pieces() {
   mvs.forEach((mv, i) => mv.addEventListener('load', () => { if (PZ[i].anim) { mv.animationName = mv.availableAnimations[0]; mv.pause(); mv.currentTime = 0; } PZ[i].f(mv, 0); }, { once: true }));
   items.forEach((it, i) => gsap.set(it, { autoAlpha: i ? 0 : 1 }));
   const st = PZ.map(() => ({ u: 0 }));
+  // Zaiclop (primera pieza) tiene un 35 % más de recorrido para ver el montaje
+  const EX = .35, P0 = i => i ? i + EX : 0, D = i => i ? 1 : 1 + EX;
   // cada pieza: el nombre sube letra a letra, el modelo llega desde el fondo, gira con el scroll
   // y sale hacia la cámara mientras la siguiente aparece detrás
-  const tl = gsap.timeline({ defaults: { ease: 'none' }, scrollTrigger: { trigger: '#pzs', start: 'top top', end: () => '+=' + innerHeight * 1.35 * N, pin: true, scrub: 0.6, anticipatePin: 1 } });
+  const tl = gsap.timeline({ defaults: { ease: 'none' }, scrollTrigger: { trigger: '#pzs', start: 'top top', end: () => '+=' + innerHeight * 1.35 * (N + EX), pin: true, scrub: 0.6, anticipatePin: 1 } });
   items.forEach((it, i) => {
-    const mv = mvs[i], cs = it.querySelectorAll('.nm .ch'), row = it.querySelector('.row'), idx = it.querySelector('.idx'), t0 = i ? i - .06 : 0;
-    tl.to(st[i], { u: 1, duration: 1, onUpdate: () => { if (mv.loaded) PZ[i].f(mv, st[i].u); } }, i);
+    const mv = mvs[i], cs = it.querySelectorAll('.nm .ch'), row = it.querySelector('.row'), idx = it.querySelector('.idx'), t0 = i ? P0(i) - .06 : 0, e = P0(i) + D(i);
+    tl.to(st[i], { u: 1, duration: D(i), onUpdate: () => { if (mv.loaded) PZ[i].f(mv, st[i].u); } }, P0(i));
     if (i) tl.set(it, { autoAlpha: 1 }, t0);
     if (i) {
       tl.fromTo(mv, { scale: .35, yPercent: 14, autoAlpha: 0 }, { scale: 1, yPercent: 0, autoAlpha: 1, duration: .32, ease: 'power3.out' }, t0)
@@ -561,17 +563,17 @@ function pieces() {
         .fromTo([idx, row], { y: 24, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: .16, ease: 'power2.out' }, t0 + .14);
     } else {
       // la primera pieza entra mientras la sección sube desde el titular, para que no haya pantalla vacía
-      gsap.timeline({ defaults: { ease: 'none' }, scrollTrigger: { trigger: '#pzs', start: 'top 85%', end: 'top top', scrub: .6 } })
+      gsap.timeline({ defaults: { ease: 'none' }, scrollTrigger: { trigger: '#pzs', start: 'top 85%', end: 'top top', scrub: true } })
         .fromTo(mv, { scale: .35, yPercent: 14, autoAlpha: 0 }, { scale: 1, yPercent: 0, autoAlpha: 1, duration: 1, ease: 'power3.out' }, 0)
         .fromTo(cs, { yPercent: 115, rotate: 8 }, { yPercent: 0, rotate: 0, stagger: .04, duration: .6, ease: 'power3.out' }, .15)
         .fromTo([idx, row], { y: 24, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: .4, ease: 'power2.out' }, .5);
     }
-    tl.fromTo(it.querySelector('.nmw'), { xPercent: 4 }, { xPercent: -4, duration: 1 }, i);
+    tl.fromTo(it.querySelector('.nmw'), { xPercent: 4 }, { xPercent: -4, duration: D(i) }, P0(i));
     if (i < N - 1) {
-      tl.to(cs, { yPercent: -115, rotate: -8, stagger: .01, duration: .18, ease: 'power2.in' }, i + .8)
-        .to(mv, { scale: 2.4, autoAlpha: 0, duration: .2, ease: 'power2.in' }, i + .8)
-        .to([idx, row], { autoAlpha: 0, duration: .1 }, i + .8)
-        .set(it, { autoAlpha: 0 }, i + 1.0);
+      tl.to(cs, { yPercent: -115, rotate: -8, stagger: .01, duration: .18, ease: 'power2.in' }, e - .2)
+        .to(mv, { scale: 2.4, autoAlpha: 0, duration: .2, ease: 'power2.in' }, e - .2)
+        .to([idx, row], { autoAlpha: 0, duration: .1 }, e - .2)
+        .set(it, { autoAlpha: 0 }, e);
     }
   });
 }
