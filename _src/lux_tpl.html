@@ -409,7 +409,7 @@ function home() {
   <div class="pzs" id="pzs">${PZ.map((z, i) => `
     <div class="pzi" data-k="${i}">
       <div class="nmw wrap"><p class="nm wide mask fit" aria-hidden="true"><span>${chars(pname(z.slug))}</span></p></div>
-      <model-viewer id="pzm${i}" src="${z.src}" alt="${t('modelOf')} ${esc(pname(z.slug))}" camera-orbit="${z.o0}" max-camera-orbit="auto auto 6m" ${z.t ? `camera-target="${z.t}"` : ''} environment-image="neutral" exposure="${z.ex || 1.05}" shadow-intensity="0.9" shadow-softness="1" interaction-prompt="none" disable-zoom loading="eager"></model-viewer>
+      <model-viewer id="pzm${i}" src="${z.src}" alt="${t('modelOf')} ${esc(pname(z.slug))}" camera-orbit="${z.o0}" ${z.slug === 'zaiclop' ? 'max-camera-orbit="auto auto 6m"' : ''} ${z.t ? `camera-target="${z.t}"` : ''} environment-image="neutral" exposure="${z.ex || 1.05}" shadow-intensity="0.9" shadow-softness="1" interaction-prompt="none" disable-zoom loading="eager"></model-viewer>
       <div class="idx wrap" aria-hidden="true"><span>${String(i + 1).padStart(2, '0')} / ${String(PZ.length).padStart(2, '0')}</span><span>${esc(pname(z.slug))}</span></div>
       <div class="pzt wrap">
         <div class="row"><p>${esc(z.line[LANG])}</p><a class="btn" href="${PH(z.slug)}">${t('see')} <span class="ar" aria-hidden="true">→</span></a></div>
@@ -471,7 +471,7 @@ function project(p) {
   const i = P.indexOf(p), nx = P[(i + 1) % P.length];
   const nm = short(p.name), sub = p.name.split(' · ')[1];
   const vis = p.model
-    ? `<div class="pvis m3"><p class="ghost wide fit" aria-hidden="true">${esc(nm)}</p><model-viewer id="mvP" src="${esc(p.model.cycle && !reduce ? p.model.cycle : p.model.src)}" alt="" aria-hidden="true" camera-orbit="${esc(p.model.orbit)}" max-camera-orbit="auto auto 6m" environment-image="neutral" exposure="0.95" shadow-intensity="0.8" shadow-softness="0.9" interaction-prompt="none" disable-zoom loading="eager"></model-viewer>
+    ? `<div class="pvis m3"><p class="ghost wide fit" aria-hidden="true">${esc(nm)}</p><model-viewer id="mvP" src="${esc(p.model.cycle && !reduce ? p.model.cycle : p.model.src)}" alt="" aria-hidden="true" camera-orbit="${esc(p.model.orbit)}" ${p.slug === 'zaiclop' ? 'max-camera-orbit="auto auto 6m"' : ''} environment-image="neutral" exposure="0.95" shadow-intensity="0.8" shadow-softness="0.9" interaction-prompt="none" disable-zoom loading="eager"></model-viewer>
        <div class="hint"><span>${p.model.cycle ? t('hintCycle') : t('hintOrbit')}</span></div></div>
      <section class="viewer" aria-labelledby="vw-h">
        <div class="wrap vtop"><h2 id="vw-h" class="wide rvh">${t('explore')}</h2><p class="rv">${t('exploreP')}</p></div>
@@ -673,17 +673,23 @@ function viewer(m) {
   if (ab.length) {
     const lid = { on: false, mats: [] };
     const setLid = hide => lid.mats.forEach(([mt, c]) => { mt.setAlphaMode(hide ? 'BLEND' : 'OPAQUE'); mt.pbrMetallicRoughness.setBaseColorFactor([c[0], c[1], c[2], hide ? 0 : 1]); });
-    const act = n => { if (!(v.availableAnimations || []).includes(n)) return; v.animationName = n; v.play(); };
+    // sombra fija mientras se anima: recalcularla en cada fotograma es lo que más carga el visor
+    const sh = v.getAttribute('shadow-intensity') || '0.8';
+    const act = (n, run = true) => {
+      if (!(v.availableAnimations || []).includes(n)) return;
+      if (v.animationName !== n) { v.animationName = n; v.currentTime = 0; }
+      if (run) { v.setAttribute('shadow-intensity', '0'); v.play(); } else { v.pause(); v.setAttribute('shadow-intensity', sh); }
+    };
     v.addEventListener('load', () => {
       lid.mats = ['tapa', 'tornillo_tapa'].map(n => v.model.getMaterialByName(n)).filter(Boolean).map(mt => [mt, [...mt.pbrMetallicRoughness.baseColorFactor]]);
-      act('reposo'); if (lid.on) setLid(true);
+      act('reposo', false); if (lid.on) setLid(true);
     }, { once: true });
     ab.forEach(b => b.addEventListener('click', () => {
       const k = b.dataset.act, on = b.getAttribute('aria-pressed') !== 'true';
       b.setAttribute('aria-pressed', on ? 'true' : 'false');
       if (k === 'tapa') { lid.on = on; setLid(on); return; }
       ab.forEach(x => { if (x !== b && x.dataset.act !== 'tapa') x.setAttribute('aria-pressed', 'false'); });
-      act(on ? k : 'reposo');
+      act(k, on);                                   // segundo toque: se congela en la postura actual y se puede girar
     }));
   }
   // composiciones de varios módulos: se cargan y se montan una vez
