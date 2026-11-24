@@ -176,7 +176,6 @@ html.rm .pzs{height:auto}html.rm .pzi{position:relative;height:90svh}
 .about .in{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);gap:56px;align-items:end}
 .about h2{font-size:clamp(56px,8.6vw,150px);margin-bottom:56px}
 .about .say{font-size:clamp(19px,1.65vw,24px);line-height:1.4;font-weight:550;letter-spacing:-.015em;max-width:24em}
-.about .say .w{opacity:.14;transition:opacity .15s linear}
 .about .side{display:flex;flex-direction:column;gap:28px;padding-top:12px}
 .tools{display:flex;flex-wrap:wrap;gap:8px}
 .tools span{background:var(--paper);padding:8px 14px;font-size:16px;border-radius:999px}
@@ -549,9 +548,6 @@ function homeAnim() {
   pieces();
 
 
-  // Sobre mí: el texto se enciende palabra a palabra
-  const ws = splitWords(document.getElementById('say'));
-  gsap.to(ws, { opacity: 1, stagger: .05, ease: 'none', scrollTrigger: { trigger: '#say', start: 'top 78%', end: 'bottom 40%', scrub: true } });
 }
 const PZ = [
   { slug: 'zaiclop', name: 'Zaiclop', src: '/models/zaiclop_anim.glb?v=2fe50825', anim: true, line: { es: 'Cuadrúpedo impreso en 3D: se monta pieza a pieza, abre el ojo y echa a trotar.', en: '3D-printed quadruped: it assembles piece by piece, opens its eye and starts trotting.' },
